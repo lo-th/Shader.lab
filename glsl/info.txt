@@ -1,0 +1,29 @@
+convert from shadertoy
+
+
+1°/
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+to
+void main() {
+
+2°/
+fragColor > gl_FragColor
+fragCoord > gl_FragCoord
+
+3°/
+uniform sampler2D iChannel0;
+uniform samplerCube envMap;
+uniform vec3 resolution;
+uniform vec4 mouse;
+uniform float time;
+
+varying vec2 vUv;
+varying vec3 vEye;
+
+4°/
+iGlobalTime > time
+iResolution > resolution
+iMouse > mouse
+
+5°/
+vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
