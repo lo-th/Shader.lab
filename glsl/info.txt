@@ -27,3 +27,8 @@ iMouse > mouse
 
 5°/
 vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+
+
+// error with 
+
+dFdx, dFdy, fwidth

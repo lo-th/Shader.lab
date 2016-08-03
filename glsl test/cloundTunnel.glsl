@@ -96,7 +96,9 @@ float density2(vec2 p, float z, float t)
     }
     return v * exp(z * z * -2.0);
 }
-float densA = 1.0, densB = 2.0;
+float densA = 1.0;
+float densB = 2.0;
+
 float fbm(vec3 p) 
 {
     vec3 q = p;
@@ -225,8 +227,10 @@ float arcc(vec2 p, float sd)
     }
     return v;
 }
-void main() 
-{
+
+
+void main() {
+
     //vec2 uv = vUv.xy / resolution.xy;
     //uv = 2.0 * uv - 1.0;
     //uv.x *= resolution.x / resolution.y;
@@ -298,4 +302,5 @@ void main()
     col = pow(col, vec3(1.0, 0.8, 0.5) * 1.5) * 1.5;
     col = pow(col, vec3(1.0 / 2.2));
     gl_FragColor = vec4(col, 1.0);
+
 }

@@ -1,5 +1,9 @@
-precision highp float;
-precision highp int;
+
+// https://www.shadertoy.com/view/MsX3RH
+
+//precision highp float;
+//precision highp int;
+
 uniform sampler2D iChannel2;
 uniform sampler2D iChannel3;
 uniform sampler2D iChannel4;

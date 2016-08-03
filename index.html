@@ -35,18 +35,13 @@
 //var Br, Cr, Jr, Hr, Sr;
 
 var demos = [ 
-    'basic', 'cave', 'lunar', 'ground', 'canyon', 'dustplanet', 'diamond', 'cubic', 'xypton', 'neptune',
+    'basic', 'cave', 'lunar', 'ground', 'canyon', 'dustplanet', 'diamond', 'cubic', 'xypton', 'neptune', 'catacombs',
     'noise', 'alien', 'clound', 'voxel', 'test', 'sea', 'follow', 'volcanic', 'sculpture', 'lava', 'building', 'metashape'
 ];
 
-//var demo;
 var demoName = 'follow';
 
 //////////////////////////////
-
-var direct = false;
-var isWithCode = false;
-
 
 view.init();
 user.init();
@@ -73,8 +68,6 @@ function launch (name) {
     location.hash = name;
 
     view.reset( full );
-
-    //demo = new window['demo'];
 
 };
 

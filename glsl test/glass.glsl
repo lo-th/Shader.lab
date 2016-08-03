@@ -102,8 +102,8 @@ void main() {
     vec3 color = vec3(1.0);
     vec3 n = nf(pos);
     
-    vec3 dfdxn = dFdx(n);
-    vec3 dfdyn = dFdy(n);
+    vec3 dfdxn = n;///dFdx(n);
+    vec3 dfdyn = n;//dFdy(n);
     
     float lines = length((abs(dfdxn)+abs(dfdyn))*3.0);
     lines = lines*3.75;

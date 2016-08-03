@@ -1,19 +1,11 @@
-#define PI 3.1415926
 
-precision highp float;
-precision highp int;
 uniform vec3 resolution;
 uniform vec4 mouse;
 varying vec2 vUv;
 
+#define PI 3.1415926
 #define border 0.01
 #define radius 0.03
-//#define PI 3.1415926
-//#define PI 3.1415926
-
-
-
-
 
 struct Rect {
     float width;
@@ -24,8 +16,9 @@ struct Rect {
     float rotation;
     vec2 csys;
 };
-Rect CreateRect(float width, float height, float x, float y, vec3 color) 
-{
+
+Rect CreateRect(float width, float height, float x, float y, vec3 color) {
+
     Rect rect;
     rect.width = width;
     rect.height = height;
@@ -33,9 +26,11 @@ Rect CreateRect(float width, float height, float x, float y, vec3 color)
     rect.y = y;
     rect.color = color;
     return rect;
+
 }
-void DrawRect(inout Rect rect, vec2 p, inout vec3 pix) 
-{
+
+void DrawRect(inout Rect rect, vec2 p, inout vec3 pix) {
+
     float dx = p.x - rect.x;
     float dy = p.y - rect.y;
     dx = cos(rect.rotation) * (p.x - rect.x) + sin(rect.rotation) * (p.y - rect.y);
@@ -55,9 +50,10 @@ void DrawRect(inout Rect rect, vec2 p, inout vec3 pix)
         pix = mix(pix, rect.color, del);
     }
      rect.csys = vec2(dx, dy);
+
 }
-void AddRectTo(Rect rect, Rect target, inout vec3 pix) 
-{
+
+void AddRectTo(Rect rect, Rect target, inout vec3 pix) {
     vec2 p = target.csys;
     float fL = rect.x - rect.width / 2.;
     float fR = rect.x + rect.width / 2.;
@@ -75,8 +71,8 @@ void AddRectTo(Rect rect, Rect target, inout vec3 pix)
     } 
  }
 
-float GetMouseFollowRotationAngle(Rect r1, vec2 m) 
-{
+float GetMouseFollowRotationAngle(Rect r1, vec2 m) {
+
     float cx = r1.x;
     float cy = r1.y;
     float tx = m.x;
@@ -86,12 +82,10 @@ float GetMouseFollowRotationAngle(Rect r1, vec2 m)
     float distance = sqrt(pow(nx, 2.) + pow(ny, 2.));
     float new_angle = atan(ny, nx);
     return new_angle;
+
 }
 
-void main() 
-{
-
-
+void main() {
 
     vec2 r = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
     //vec2 r = 2. * vec2(vUv.xy - .5 * resolution.xy) / resolution.y;

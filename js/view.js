@@ -60,22 +60,6 @@ var view = ( function () {
 
             requestAnimationFrame( view.render );
 
-            /*if( cubeCamera ){ 
-                //meshs.sphereEnv.visible = true;
-                meshs.dtmp.visible = true;
-                //meshs.dtmp2.visible = true;
-                meshs.dfront.visible = false;
-                meshs.dback.visible = false;
-                meshs.sphere.visible = false;
-                cubeCamera.updateCubeMap( renderer, scene );
-                meshs.sphere.visible = params.sphere;
-                meshs.dfront.visible = true;
-                meshs.dback.visible = true;
-                meshs.dtmp.visible = false;
-                meshs.dtmp2.visible = false;
-                meshs.sphereEnv.visible = false;
-            }*/
-
             var i = extraUpdate.length;
             while(i--) extraUpdate[i]();
 
@@ -146,8 +130,8 @@ var view = ( function () {
             renderer.setSize( vsize.x, vsize.y );
             renderer.setClearColor( 0x000000, 0 );
 
-            renderer.gammaInput = true;
-            renderer.gammaOutput = true;
+            //renderer.gammaInput = true;
+            //renderer.gammaOutput = true;
 
             //
 
@@ -308,11 +292,11 @@ var view = ( function () {
 
         loadAssets : function ( EnvName ) {
 
-            txt_name = [ 'noise', 'stone', 'bump', 'tex19', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09' ]
+            txt_name = [ 'noise', 'stone', 'bump', 'tex19', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00' ]
 
             envName = envName || 'grey1';
 
-            pool.load( ['glsl/basic_vs.glsl', 'textures/noise.png', 'textures/stone.jpg', 'textures/bump.png', 'textures/tex06.png', 'textures/tex18.png', 'textures/tex07.png', 'textures/tex03.png', 'textures/tex09.png','textures/cube/'+envName+'.cube'], view.initModel );
+            pool.load( ['glsl/basic_vs.glsl', 'textures/noise.png', 'textures/stone.jpg', 'textures/bump.png', 'textures/tex06.png', 'textures/tex18.png', 'textures/tex07.png', 'textures/tex03.png', 'textures/tex09.png', 'textures/tex00.png','textures/cube/'+envName+'.cube'], view.initModel );
 
         },
 
@@ -350,6 +334,10 @@ var view = ( function () {
                 iChannel7: {
                     type: 't',
                     value: txt.tex09
+                },
+                iChannel8: {
+                    type: 't',
+                    value: txt.tex00
                 },
                 envMap: {
                     type: 't',
