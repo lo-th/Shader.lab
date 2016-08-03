@@ -1,153 +1,198 @@
 
-///#define ANIMATE_CLOUDS 0
-//precision highp float;
-//precision highp int;
+//"Seascape" by Alexander Alekseev aka TDM - 2014
+//License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+//Contact: tdmaav@gmail.com
 
-uniform sampler2D iChannel0;
+// https://www.shadertoy.com/view/Ms2SD1
+
+uniform sampler2D iChannel2;
 uniform vec3 resolution;
 uniform vec4 mouse;
 uniform float time;
-
 varying vec2 vUv;
 
-const float R0 = 6360e3;
-const float Ra = 6380e3;
-const int steps = 128;
-const int stepss = 8;
-const float g = .76;
-const float g2 = g * g;
-const float Hr = 8e3;
-const float Hm = 1.2e3;
-const float I = 10.;
+const int NUM_STEPS = 8;
+const float PI      = 3.1415;
+const float EPSILON = 1e-3;
+float EPSILON_NRM   = 0.1 / resolution.x;
 
-float t = time;
-vec3 C = vec3(0., -R0, 0.);
-vec3 bM = vec3(21e-6);
-vec3 bR = vec3(5.8e-6, 13.5e-6, 33.1e-6);
-vec3 Ds = normalize(vec3(0., .09, -1.));
+// sea
+const int ITER_GEOMETRY = 3;
+const int ITER_FRAGMENT = 5;
+const float SEA_HEIGHT = 0.6;
+const float SEA_CHOPPY = 4.0;
+const float SEA_SPEED = 0.8;
+const float SEA_FREQ = 0.16;
+const vec3 SEA_BASE = vec3(0.1,0.19,0.22);
+const vec3 SEA_WATER_COLOR = vec3(0.8,0.9,0.6);
 
-float noise(in vec2 v) 
-{
-    return texture2D(iChannel0, (v + .5) / 256., -100.).r;
+float SEA_TIME = time * SEA_SPEED;
+mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+
+// math
+mat3 fromEuler(vec3 ang) {
+    vec2 a1 = vec2(sin(ang.x),cos(ang.x));
+    vec2 a2 = vec2(sin(ang.y),cos(ang.y));
+    vec2 a3 = vec2(sin(ang.z),cos(ang.z));
+    mat3 m;
+    m[0] = vec3(a1.y*a3.y+a1.x*a2.x*a3.x,a1.y*a2.x*a3.x+a3.y*a1.x,-a2.y*a3.x);
+    m[1] = vec3(-a2.y*a1.x,a1.y*a2.y,a2.x);
+    m[2] = vec3(a3.y*a1.x*a2.x+a1.y*a3.x,a1.x*a3.x-a1.y*a3.y*a2.x,a2.y*a3.y);
+    return m;
 }
-float noise(in vec3 v) 
-{
-    vec3 p = floor(v);
-    vec3 f = fract(v);
-    vec2 uv = (p.xy + vec2(37., 17.) * p.z) + f.xy;
-    vec2 rg = texture2D(iChannel0, (uv + .5) / 256., -100.).yx;
-    return mix(rg.x, rg.y, f.z);
+float hash( vec2 p ) {
+    float h = dot(p,vec2(127.1,311.7)); 
+    return fract(sin(h)*43758.5453123);
+}
+float noise( in vec2 p ) {
+    vec2 i = floor( p );
+    vec2 f = fract( p );    
+    vec2 u = f*f*(3.0-2.0*f);
+    return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), 
+                     hash( i + vec2(1.0,0.0) ), u.x),
+                mix( hash( i + vec2(0.0,1.0) ), 
+                     hash( i + vec2(1.0,1.0) ), u.x), u.y);
 }
 
-
-float fnoise(in vec3 v) {
-  //  #if ANIMATE_CLOUDS 
-  //      return .55 * noise(v) + .225 * noise(v*2. + t *.4) + .125 * noise(v*3.99) + .0625 * noise(v*8.9);
-  //  #else
-      return .55 * noise(v) + .225 * noise(v*2.) + .125 * noise(v*3.99) + .0625 * noise(v*8.9);
-   // #endif
+// lighting
+float diffuse(vec3 n,vec3 l,float p) {
+    return pow( abs(dot(n,l) * 0.4 + 0.6),p);
+}
+float specular(vec3 n,vec3 l,vec3 e,float s) {    
+    float nrm = (s + 8.0) / (3.1415 * 8.0);
+    return pow(abs(max(dot(reflect(e,n),l),0.0)),s) * nrm;
 }
 
-
-float cloud(vec3 p) 
-{
-    float cld = fnoise(p * 2e-4);
-    cld = smoothstep(.4 + .04, .6 + .04, cld);
-    cld *= cld * 40.;
-    return cld;
+// sky
+vec3 getSkyColor(vec3 e) {
+    e.y = max(e.y,0.0);
+    vec3 ret;
+    ret.x = pow(1.0-e.y,2.0);
+    ret.y = 1.0-e.y;
+    ret.z = 0.6+(1.0-e.y)*0.4;
+    return ret;
 }
-void densities(in vec3 pos, out float rayleigh, out float mie) 
-{
-    float h = length(pos - C) - R0;
-    rayleigh = exp(-h / Hr);
-    float cld = 0.;
-    if (5e3 < h && h < 10e3) 
-    {
-        cld = cloud(pos + vec3(23175.7, 0., -t * 3e3));
-        cld *= sin(3.1415 * (h - 5e3) / 5e3);
+
+// sea
+float sea_octave(vec2 uv, float choppy) {
+    uv += noise(uv);        
+    vec2 wv = 1.0-abs(sin(uv));
+    vec2 swv = abs(cos(uv));    
+    wv = mix(wv,swv,wv);
+    return pow(abs(1.0-pow(abs(wv.x * wv.y),0.65)),choppy);
+}
+
+float map(vec3 p) {
+    float freq = SEA_FREQ;
+    float amp = SEA_HEIGHT;
+    float choppy = SEA_CHOPPY;
+    vec2 uv = p.xz; uv.x *= 0.75;
+    
+    float d, h = 0.0;    
+    for(int i = 0; i < ITER_GEOMETRY; i++) {        
+        d = sea_octave((uv+SEA_TIME)*freq,choppy);
+        d += sea_octave((uv-SEA_TIME)*freq,choppy);
+        h += d * amp;        
+        uv *= octave_m; freq *= 1.9; amp *= 0.22;
+        choppy = mix(choppy,1.0,0.2);
     }
-     mie = exp(-h / Hm) + cld;
+    return p.y - h;
 }
-float escape(in vec3 p, in vec3 d, in float R) 
-{
-    vec3 v = p - C;
-    float b = dot(v, d);
-    float c = dot(v, v) - R * R;
-    float det2 = b * b - c;
-    if (det2 < 0.) return -1.;
-     float det = sqrt(det2);
-    float t1 = -b - det, t2 = -b + det;
-    return (t1 >= 0.) ? t1 : t2;
-}
-vec3 scatter(vec3 o, vec3 d) 
-{
-    float L = escape(o, d, Ra);
-    float mu = dot(d, Ds);
-    float opmu2 = 1. + mu * mu;
-    float phaseR = .0596831 * opmu2;
-    float phaseM = .1193662 * (1. - g2) * opmu2 / ((2. + g2) * pow(1. + g2 - 2. * g * mu, 1.5));
-    float depthR = 0., depthM = 0.;
-    vec3 R = vec3(0.), M = vec3(0.);
-    float dl = L / float(steps);
-    for (int i = 0; i < steps; ++i) 
-    {
-        float l = float(i) * dl;
-        vec3 p = o + d * l;
-        float dR, dM;
-        densities(p, dR, dM);
-        dR *= dl;
-        dM *= dl;
-        depthR += dR;
-        depthM += dM;
-        float Ls = escape(p, Ds, Ra);
-        if (Ls > 0.) 
-        {
-            float dls = Ls / float(stepss);
-            float depthRs = 0., depthMs = 0.;
-            for (int j = 0; j < stepss; ++j) 
-            {
-                float ls = float(j) * dls;
-                vec3 ps = p + Ds * ls;
-                float dRs, dMs;
-                densities(ps, dRs, dMs);
-                depthRs += dRs * dls;
-                depthMs += dMs * dls;
-            }
-            vec3 A = exp(-(bR * (depthRs + depthR) + bM * (depthMs + depthM)));
-            R += A * dR;
-            M += A * dM;
-        }
- else 
-        {
-            return vec3(0.);
-        }
+
+float map_detailed(vec3 p) {
+    float freq = SEA_FREQ;
+    float amp = SEA_HEIGHT;
+    float choppy = SEA_CHOPPY;
+    vec2 uv = p.xz; uv.x *= 0.75;
+    
+    float d, h = 0.0;    
+    for(int i = 0; i < ITER_FRAGMENT; i++) {        
+        d = sea_octave((uv+SEA_TIME)*freq,choppy);
+        d += sea_octave((uv-SEA_TIME)*freq,choppy);
+        h += d * amp;        
+        uv *= octave_m; freq *= 1.9; amp *= 0.22;
+        choppy = mix(choppy,1.0,0.2);
     }
-    return I * (R * bR * phaseR + M * bM * phaseM);
+    return p.y - h;
 }
-void main() 
-{
-    if (mouse.z > 0.){
-       
-     float ph = 3.3 * (1. - mouse.y / resolution.y);
+
+vec3 getSeaColor(vec3 p, vec3 n, vec3 l, vec3 eye, vec3 dist) {  
+    float fresnel = 1.0 - max(dot(n,-eye),0.0);
+    fresnel = pow(abs(fresnel),3.0) * 0.65;
         
-      Ds = normalize(vec3(mouse.x / resolution.x - .5, sin(ph), cos(ph)));
-    }
+    vec3 reflected = getSkyColor(reflect(eye,n));    
+    vec3 refracted = SEA_BASE + diffuse(n,l,80.0) * SEA_WATER_COLOR * 0.12; 
+    
+    vec3 color = mix(refracted,reflected,fresnel);
+    
+    float atten = max(1.0 - dot(dist,dist) * 0.001, 0.0);
+    color += SEA_WATER_COLOR * (p.y - SEA_HEIGHT) * 0.18 * atten;
+    
+    color += vec3(specular(n,l,eye,60.0));
+    
+    return color;
+}
 
-    //vec2 uv = (1.0 - vUv * 2.0) * vec2(resolution.x / resolution.y, -1.0);
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+// tracing
+vec3 getNormal(vec3 p, float eps) {
+    vec3 n;
+    n.y = map_detailed(p);    
+    n.x = map_detailed(vec3(p.x+eps,p.y,p.z)) - n.y;
+    n.z = map_detailed(vec3(p.x,p.y,p.z+eps)) - n.y;
+    n.y = eps;
+    return normalize(n);
+}
 
-    vec3 O = vec3(uv * .1, 0.) + vec3(0., 25e2, 0.);
-    vec3 D = normalize(vec3(uv, -2.));
-    float att = 1.;
-    if (D.y < -.02) 
-    {
-        float L = -O.y / D.y;
-        O = O + D * L;
-        D.y = -D.y;
-        D = normalize(D + vec3(0., .003 * sin(t + 6.2831 * noise(O.xz * .8 + vec2(0., -t * 3e3))), 0.));
-        att = .6;
+float heightMapTracing(vec3 ori, vec3 dir, out vec3 p) {  
+    float tm = 0.0;
+    float tx = 1000.0;    
+    float hx = map(ori + dir * tx);
+    if(hx > 0.0) return tx;   
+    float hm = map(ori + dir * tm);    
+    float tmid = 0.0;
+    for(int i = 0; i < NUM_STEPS; i++) {
+        tmid = mix(tm,tx, hm/(hm-hx));                   
+        p = ori + dir * tmid;                   
+        float hmid = map(p);
+        if(hmid < 0.0) {
+            tx = tmid;
+            hx = hmid;
+        } else {
+            tm = tmid;
+            hm = hmid;
+        }
     }
-     vec3 color = att * scatter(O, D);
-    float env = pow(1. - smoothstep(.5, resolution.x / resolution.y, length(uv * .8)), .3);
-    gl_FragColor = vec4(env * pow(color, vec3(.4)), 1.);
+    return tmid;
+}
+
+// main
+void main() {
+
+    vec2 uv = gl_FragCoord.xy / resolution.xy;
+    uv = uv * 2.0 - 1.0;
+    uv.x *= resolution.x / resolution.y;    
+    float tt = time * 0.3 + mouse.x*0.01;
+        
+    // ray
+    vec3 ang = vec3(sin(tt*3.0)*0.1,sin(tt)*0.2+0.3,tt);    
+    vec3 ori = vec3(0.0,3.5,tt*5.0);
+    vec3 dir = normalize(vec3(uv.xy,-2.0)); dir.z += length(uv) * 0.15;
+    dir = normalize(dir) * fromEuler(ang);
+    
+    // tracing
+    vec3 p;
+    heightMapTracing(ori,dir,p);
+    vec3 dist = p - ori;
+    vec3 n = getNormal(p, dot(dist,dist) * EPSILON_NRM);
+    vec3 light = normalize(vec3(0.0,1.0,0.8)); 
+             
+    // color
+    vec3 color = mix(
+        getSkyColor(dir),
+        getSeaColor(p,n,light,dir,dist),
+        pow(abs(smoothstep(0.0,-0.05,dir.y)),0.3));
+        
+    // post
+    gl_FragColor = vec4(pow(abs(color),vec3(0.75)), 1.0);
+
 }
