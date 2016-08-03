@@ -1,21 +1,22 @@
 //https://www.shadertoy.com/view/XtX3Rr
 
+
+uniform sampler2D iChannel7;
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel5;
+uniform sampler2D iChannel6;
+uniform vec3 resolution;
+uniform vec4 mouse;
+uniform float time;
+varying vec2 vUv;
+
+
 #define PI 3.141596
 #define FOG_COLOUR vec3(0.07, 0.05, 0.05)
 #define CONTRAST 1.1
 #define SATURATION 1.4
 #define BRIGHTNESS 1.2
 
-precision highp float;
-precision highp int;
-uniform sampler2D iChannel2;
-uniform sampler2D iChannel0;
-uniform sampler2D iChannel1;
-uniform sampler2D iChannel3;
-uniform vec2 resolution;
-uniform vec2 mouse;
-uniform float time;
-varying vec2 vUv;
 vec3 sunLight = normalize(vec3(0.35, 0.2, 0.3));
 vec3 moon = vec3(45000., 30000.0, -30000.);
 const vec3 sunColour = vec3(.4, .6, 1.);
@@ -36,7 +37,7 @@ float Noise(in vec3 x)
     vec3 f = fract(x);
     f = f * f * (3.0 - 2.0 * f);
     vec2 uv = (p.xy + vec2(37.0, 17.0) * p.z) + f.xy;
-    vec2 rg = texture2D(iChannel2, (uv + 0.5) / 256.0, -100.0).yx;
+    vec2 rg = texture2D(iChannel0, (uv + 0.5) / 256.0, -100.0).yx;
     return mix(rg.x, rg.y, f.z);
 }
 const mat3 m = mat3(0.00, 0.80, 0.60, -0.80, 0.46, -0.48, -0.60, -0.38, 0.64) * 2.43;
@@ -65,8 +66,8 @@ float SphereIntersect(in vec3 ro, in vec3 rd, in vec4 sph)
 }
 float Terrain(in vec2 q, float bias) 
 {
-    float tx1 = smoothstep(0., .4, texture2D(iChannel0, 0.000015 * q, bias).y);
-    tx1 = mix(tx1, texture2D(iChannel1, 0.00003 * q, bias).x, tx1);
+    float tx1 = smoothstep(0., .4, texture2D(iChannel7, 0.000015 * q, bias).y);
+    tx1 = mix(tx1, texture2D(iChannel5, 0.00003 * q, bias).x, tx1);
     return tx1 * 355.0;
 }
 float Map(in vec3 p) 
@@ -88,10 +89,10 @@ vec3 GetClouds(vec3 p, vec3 dir)
 {
     float n = (1900.0 - p.y) / dir.y;
     vec2 p2 = p.xz + dir.xz * n;
-    vec3 clo = texture2D(iChannel3, p2 * .00001 + .2, -100.0).zyz * .04;
+    vec3 clo = texture2D(iChannel6, p2 * .00001 + .2, -100.0).zyz * .04;
     n = (1000.0 - p.y) / dir.y;
     p2 = p.xz + dir.xz * n;
-    clo += texture2D(iChannel0, p2 * .00001 - .4, -100.0).zyz * .04;
+    clo += texture2D(iChannel7, p2 * .00001 - .4, -100.0).zyz * .04;
     clo = clo * pow(max(dir.y, 0.0), .8) * 3.0;
     return clo;
 }
@@ -165,7 +166,7 @@ vec3 TexCube(sampler2D sam, in vec3 p, in vec3 n)
 }
 vec3 Albedo(vec3 pos, vec3 nor) 
 {
-    vec3 col = TexCube(iChannel1, pos * .01, nor).xzy + TexCube(iChannel3, pos * .02, nor);
+    vec3 col = TexCube(iChannel5, pos * .01, nor).xzy + TexCube(iChannel6, pos * .02, nor);
     return col * .5;
 }
 float cross2(vec2 A, vec2 B) 
@@ -185,12 +186,12 @@ vec3 CameraPath(float t)
     pos.xz += vec2(1400.0 * sin(-a * 1.8), 400.0 * cos(-a * 4.43));
     return pos;
 }
-void main() 
-{
-    fcoord = vUv;
+void main() {
+
+    fcoord = gl_FragCoord.xy;
     float m = (mouse.x / resolution.x) * 10.0;
     float gTime = ((time + 135.0) * .25 + m);
-    vec2 xy = vUv.xy / resolution.xy;
+    vec2 xy = gl_FragCoord.xy / resolution.xy;
     vec2 uv = (-1.0 + 2.0 * xy) * vec2(resolution.x / resolution.y, 1.0);
     float hTime = mod(gTime + 1.95, 2.0);
     vec3 cameraPos = CameraPath(gTime + 0.0);
@@ -237,12 +238,12 @@ void main()
         {
             vec3 moo = cameraPos + t * dir;
             vec3 nor = normalize(moo - moon);
-            moo = TexCube(iChannel3, moo * .00001, nor) * max(dot(sunLight, nor), 0.0);
+            moo = TexCube(iChannel6, moo * .00001, nor) * max(dot(sunLight, nor), 0.0);
             sky = mix(sky, moo, .2);
         }
  else 
         {
-            float stars = pow(texture2D(iChannel2, vec2(atan(dir.x, dir.z), dir.y * 2.0), -100.0).x, 48.0) * .35;
+            float stars = pow(texture2D(iChannel0, vec2(atan(dir.x, dir.z), dir.y * 2.0), -100.0).x, 48.0) * .35;
             stars *= pow(max(dir.y, 0.0), .8) * 2.0;
             sky += stars;
         }
