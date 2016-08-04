@@ -13,6 +13,8 @@ var view = ( function () {
         threshold: 0.9,
         radius: 1.0,
 
+        pixelRatio : 1,
+
     }
 
 
@@ -23,7 +25,7 @@ var view = ( function () {
     var canvas, renderer, scene, camera, controls, light, clock;
     var vsize, mouse, time, key = new Float32Array( 20 ), channelResolution, channels;
 
-    var vs = { w:1, h:1, l:0, x:0 };
+    var vs = { w:1, h:1, l:0, x:0 , y:0};
 
     var isPostEffect = false, renderScene, effectFXAA, bloomPass, copyShader, composer = null;
 
@@ -82,7 +84,7 @@ var view = ( function () {
 
         resize: function () {
 
-            vsize.x = window.innerWidth - vs.x;
+            vsize.x = window.innerWidth - vs.x - vs.y;
             vsize.y = window.innerHeight;
             vsize.z = vsize.x / vsize.y;
             camera.aspect = vsize.z;
@@ -140,7 +142,8 @@ var view = ( function () {
             mouse = new THREE.Vector4();
 
             renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:false, alpha:true });
-            renderer.setPixelRatio( window.devicePixelRatio );
+            //renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setPixelRatio( params.pixelRatio );
             renderer.setSize( vsize.x, vsize.y );
             renderer.setClearColor( 0x000000, 0 );
 
@@ -174,6 +177,13 @@ var view = ( function () {
             
         },
 
+        setQuality: function ( v ) {
+
+            params.pixelRatio = v;
+            renderer.setPixelRatio( params.pixelRatio );
+
+        },
+
         //
 
         move: function ( e ) {
@@ -191,8 +201,9 @@ var view = ( function () {
 
         //
 
-        setLeft: function ( x ) { 
+        setLeft: function ( x, y ) { 
             vs.x = x; 
+            vs.y = y;
         },
 
         needFocus: function () {

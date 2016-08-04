@@ -12,6 +12,8 @@ var editor = ( function () {
 
     'use strict';
 
+    var rl = 260;
+
     var content, codeContent, code, separator, menuCode, debug, title; 
     var callback = function(){};
     var isSelfDrag = false;
@@ -20,6 +22,7 @@ var editor = ( function () {
     var widgets = [];
     var interval = null;
     var left = 0;
+    var right = 0;
     var oldleft = 0;
     var fileName = '';
     var nextDemo = null;
@@ -27,10 +30,12 @@ var editor = ( function () {
     var scrollOn = false;
     //var menuPins;
     var bigmenu;
+    var github;
     var bigButton = [];
     var bigContent;
     var isMenu = false;
     var isWithCode = true;
+    var separator2;
 
     var octo, octoArm;
 
@@ -42,8 +47,6 @@ var editor = ( function () {
     ].join("\n");
 
     editor = function () {};
-
-    
 
     editor.init = function ( Callback, withCode ) {
 
@@ -62,7 +65,7 @@ var editor = ( function () {
 
         // github logo
 
-        var github = document.createElement( 'div' );
+        github = document.createElement( 'div' );
         github.style.cssText = "position:absolute; right:0; top:0; width:1px; height:1px; pointer-events:none;";
         github.innerHTML = icon_Github; 
         document.body.appendChild( github );
@@ -103,6 +106,13 @@ var editor = ( function () {
         separator.className = 'separator';
         document.body.appendChild( separator );
 
+        separator2 = document.createElement('div');
+        separator2.className = 'separator';
+        document.body.appendChild( separator2 );
+
+        separator2.style.left = 'auto';
+        separator2.style.right = right + 'px';
+
         menuCode = document.createElement('div');
         menuCode.className = 'menuCode';
         content.appendChild( menuCode );
@@ -117,6 +127,7 @@ var editor = ( function () {
         code.on('dragstart', function () { isSelfDrag = true; } );
 
         if(isWithCode){
+            right = rl;
             left = ~~ (window.innerWidth*0.4);
             content.style.display = 'block';
             separator.style.display = 'block';
@@ -124,7 +135,7 @@ var editor = ( function () {
             this.resize();
         }
 
-        bigmenu.style.width =  window.innerWidth - left +'px';
+        bigmenu.style.width =  window.innerWidth - left - right +'px';
 
     };
 
@@ -158,11 +169,14 @@ var editor = ( function () {
         separator.style.display = 'none';
         oldleft = left;
         left = 0;
+        right = 0;
 
         this.removeSeparatorEvent();
 
         editor.Bdefault(bigButton[1]);
         editor.resize();
+
+        gui.hide(true);
 
     };
 
@@ -173,10 +187,15 @@ var editor = ( function () {
         separator.style.display = 'block';
         if( oldleft ) left = oldleft;
         else left = ~~ (window.innerWidth*0.4);
+        right = rl;
+
+        gui.hide(false);
 
         this.addSeparatorEvent();
 
         editor.resize();
+
+
 
     };
 
@@ -191,14 +210,17 @@ var editor = ( function () {
         if( e ) left = e.clientX + 10;
 
         if(view){
-            view.setLeft( left );
+            view.setLeft( left, right );
             view.resize();
         }
+
+        github.style.right = right + 'px';
         bigmenu.style.left = left +'px';
         title.style.left = left +'px';
         debug.style.left = left +'px';
-        separator.style.left = (left-10) + 'px';
-        content.style.width = (left-10) + 'px';
+        separator.style.left = left - 10 + 'px';
+        separator2.style.right = right - 10 + 'px';
+        content.style.width = left - 10 + 'px';
         code.refresh();
 
     };

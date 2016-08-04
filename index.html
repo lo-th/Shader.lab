@@ -11,6 +11,7 @@
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="stylesheet" href="css/lab.css">
 
+<script src="js/uil.min.js"></script>
 <script src="js/three.min.js"></script>
 <script src="js/OrbitControls.js"></script>
 <script src="js/GPUComputationRenderer.js"></script>
@@ -22,7 +23,7 @@
 <script src="js/Editor.js"></script>
 <script src="js/pool.js"></script>
 <script src="js/user.js"></script>
-
+<script src="js/gui.js"></script>
 
 </head>
 
@@ -42,6 +43,7 @@ var demoName = 'follow';
 
 view.init();
 user.init();
+gui.init();
 view.loadAssets();
 editor.init( launch, true );
 
