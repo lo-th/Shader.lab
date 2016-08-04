@@ -1,18 +1,20 @@
 // author: https://www.shadertoy.com/view/Xs33Df
 
-#define FAR 65.
 
-precision highp float;
-precision highp int;
+
 uniform sampler2D iChannel1;
 uniform sampler2D iChannel2;
-uniform vec3 resolution;
-uniform float time;
+uniform vec3 iResolution;
+uniform float iGlobalTime;
 varying vec2 vUv;
+
+#define FAR 65.
+
 const float freqA = 0.15 / 3.75;
 const float freqB = 0.25 / 2.75;
 const float ampA = 20.0;
 const float ampB = 4.0;
+
 mat2 rot2(float th) 
 {
     vec2 a = sin(vec2(1.5707963, 0) + th);
@@ -163,16 +165,16 @@ float curve(in vec3 p)
 void main() 
 {
 
-    //vec2 uv = gl_FragCoord.xy / resolution.xy;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
     //uv = 1.0 - uv * 2.0;
-    //uv.x *= resolution.x / resolution.y;   
+    //uv.x *= iResolution.x / iResolution.y;   
     //uv.y *= -1.;
 
-    //vec2 uv = (1.0 - vUv * 2.0) * vec2(resolution.x / resolution.y, -1.0);
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    //vec2 uv = (1.0 - vUv * 2.0) * vec2(iResolution.x / iResolution.y, -1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
-    vec2 u = uv;//(vUv - resolution.xy * 0.5) / resolution.y;
-    vec3 lookAt = vec3(0.0, 0.0, time * 8.);
+    vec2 u = uv;//(vUv - iResolution.xy * 0.5) / iResolution.y;
+    vec3 lookAt = vec3(0.0, 0.0, iGlobalTime * 8.);
     vec3 ro = lookAt + vec3(0.0, 0.0, -0.1);
     lookAt.xy += path(lookAt.z);
     ro.xy += path(ro.z);
@@ -211,7 +213,7 @@ void main()
         col = (col * (dif + .1) + fre2 * spe) * shd * ao + amb * col;
     }
      col = mix(col, sky, sqrt(smoothstep(FAR - 15., FAR, t)));
-    u = vUv / resolution.xy;
+    u = vUv / iResolution.xy;
     col *= pow( abs( 16.0 * u.x * u.y * (1.0 - u.x) * (1.0 - u.y)), .0625);
     gl_FragColor = vec4(clamp(col, 0., 1.), 1.0);
 }

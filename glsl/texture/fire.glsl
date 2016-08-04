@@ -5,9 +5,9 @@
 
 uniform sampler2D iChannel0;
 uniform samplerCube envMap;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 
 varying vec2 vUv;
 
@@ -41,26 +41,26 @@ void main() {
     const vec3 c6 = vec3(0.9);
 
     vec2 speed = vec2(0.1, 0.9);
-    float shift = 1.327+sin(time*2.0)/2.4;
+    float shift = 1.327+sin(iGlobalTime*2.0)/2.4;
     float alpha = 1.0;
     
-    float dist = 3.5-sin(time*0.4)/1.89;
+    float dist = 3.5-sin(iGlobalTime*0.4)/1.89;
     
-    vec2 uv = gl_FragCoord.xy / resolution.xy;
-    vec2 p = gl_FragCoord.xy * dist / resolution.xx;
-    p += sin(p.yx*4.0+vec2(.2,-.3)*time)*0.04;
-    p += sin(p.yx*8.0+vec2(.6,+.1)*time)*0.01;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    vec2 p = gl_FragCoord.xy * dist / iResolution.xx;
+    p += sin(p.yx*4.0+vec2(.2,-.3)*iGlobalTime)*0.04;
+    p += sin(p.yx*8.0+vec2(.6,+.1)*iGlobalTime)*0.01;
     
-    p.x -= time/1.1;
-    float q = fbm(p - time * 0.3+1.0*sin(time+0.5)/2.0);
-    float qb = fbm(p - time * 0.4+0.1*cos(time)/2.0);
-    float q2 = fbm(p - time * 0.44 - 5.0*cos(time)/2.0) - 6.0;
-    float q3 = fbm(p - time * 0.9 - 10.0*cos(time)/15.0)-4.0;
-    float q4 = fbm(p - time * 1.4 - 20.0*sin(time)/14.0)+2.0;
+    p.x -= iGlobalTime/1.1;
+    float q = fbm(p - iGlobalTime * 0.3+1.0*sin(iGlobalTime+0.5)/2.0);
+    float qb = fbm(p - iGlobalTime * 0.4+0.1*cos(iGlobalTime)/2.0);
+    float q2 = fbm(p - iGlobalTime * 0.44 - 5.0*cos(iGlobalTime)/2.0) - 6.0;
+    float q3 = fbm(p - iGlobalTime * 0.9 - 10.0*cos(iGlobalTime)/15.0)-4.0;
+    float q4 = fbm(p - iGlobalTime * 1.4 - 20.0*sin(iGlobalTime)/14.0)+2.0;
     q = (q + qb - .4 * q2 -2.0*q3  + .6*q4)/3.8;
-    vec2 r = vec2(fbm(p + q /2.0 + time * speed.x - p.x - p.y), fbm(p + q - time * speed.y));
+    vec2 r = vec2(fbm(p + q /2.0 + iGlobalTime * speed.x - p.x - p.y), fbm(p + q - iGlobalTime * speed.y));
     vec3 c = mix(c1, c2, fbm(p + r)) + mix(c3, c4, r.x) - mix(c5, c6, r.y);
-    vec3 color = vec3(1.0/(pow(c+1.61,vec3(4.0))) * cos(shift * gl_FragCoord.y / resolution.y));
+    vec3 color = vec3(1.0/(pow(c+1.61,vec3(4.0))) * cos(shift * gl_FragCoord.y / iResolution.y));
     
     color=vec3(1.0,.2,.05)/(pow((r.y+r.y)* max(.0,p.y)+0.1, 4.0));;
     color += (texture2D(iChannel0,uv*0.6+vec2(.5,.1)).xyz*0.01*pow((r.y+r.y)*.65,5.0)+0.055)*mix( vec3(.9,.4,.3),vec3(.7,.5,.2), uv.y);

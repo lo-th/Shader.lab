@@ -6,9 +6,9 @@
 
 uniform sampler2D iChannel0;
 uniform samplerCube envMap;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 
 varying vec2 vUv;
 varying vec3 vEye;
@@ -66,7 +66,7 @@ float vine(vec3 p, in float c, in float h)
     p.y += sin(p.z*0.2625)*2.5;
     p.x += cos(p.z*0.1575)*3.;
     vec2 q = vec2(mod(p.x, c)-c/2., p.y);
-    return length(q) - h -sin(p.z*2.+sin(p.x*7.)*0.5+time*0.5)*0.13;
+    return length(q) - h -sin(p.z*2.+sin(p.x*7.)*0.5+iGlobalTime*0.5)*0.13;
 }
 
 float map(vec3 p)
@@ -116,7 +116,7 @@ float triNoise3d(in vec3 p, in float spd)
     for (float i=0.; i<=3.; i++ )
     {
         vec3 dg = tri3(bp*2.);
-        p += (dg+time*spd);
+        p += (dg+iGlobalTime*spd);
 
         bp *= 1.8;
         z *= 1.5;
@@ -131,7 +131,7 @@ float triNoise3d(in vec3 p, in float spd)
 
 float fogmap(in vec3 p, in float d)
 {
-    p.x += time*1.5;
+    p.x += iGlobalTime*1.5;
     p.z += sin(p.x*.5);
     return triNoise3d(p*2.2/(d+20.),0.2)*(1.-smoothstep(0.,.7,p.y));
 }
@@ -202,17 +202,17 @@ float curv(in vec3 p, in float w)
 
 void main() {
   
-    vec2 p = gl_FragCoord.xy/resolution.xy-0.5;
-    vec2 q = gl_FragCoord.xy/resolution.xy;
-    p.x*=resolution.x/resolution.y;
-    vec2 mo = mouse.xy / resolution.xy-.5;
+    vec2 p = gl_FragCoord.xy/iResolution.xy-0.5;
+    vec2 q = gl_FragCoord.xy/iResolution.xy;
+    p.x*=iResolution.x/iResolution.y;
+    vec2 mo = iMouse.xy / iResolution.xy-.5;
     mo = (mo==vec2(-.5))?mo=vec2(-0.1,0.07):mo;
-    mo.x *= resolution.x/resolution.y;
+    mo.x *= iResolution.x/iResolution.y;
     
-    vec3 ro = vec3(smoothstep(0.,1.,tri(time*.45)*2.)*0.1, smoothstep(0.,1.,tri(time*0.9)*2.)*0.07, -time*0.6);
+    vec3 ro = vec3(smoothstep(0.,1.,tri(iGlobalTime*.45)*2.)*0.1, smoothstep(0.,1.,tri(iGlobalTime*0.9)*2.)*0.07, -iGlobalTime*0.6);
     ro.y -= height(ro.zx)+0.05;
-    mo.x += smoothstep(0.6,1.,sin(time*.6)*0.5+0.5)-1.5;
-    vec3 eyedir = normalize(vec3(cos(mo.x),mo.y*2.-0.2+sin(time*0.45*1.57)*0.1,sin(mo.x)));
+    mo.x += smoothstep(0.6,1.,sin(iGlobalTime*.6)*0.5+0.5)-1.5;
+    vec3 eyedir = normalize(vec3(cos(mo.x),mo.y*2.-0.2+sin(iGlobalTime*0.45*1.57)*0.1,sin(mo.x)));
     vec3 rightdir = normalize(vec3(cos(mo.x+1.5708),0.,sin(mo.x+1.5708)));
     vec3 updir = normalize(cross(rightdir,eyedir));
     vec3 rd=normalize((p.x*rightdir+p.y*updir)*1.+eyedir);

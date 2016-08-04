@@ -11,9 +11,9 @@
 // When the sphere is only partially visible and see clipping, it gets more complicated:
 // http://www.frostbite.com/wp-content/uploads/2014/11/course_notes_moving_frostbite_to_pbr.pdf
 uniform sampler2D iChannel0;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 varying vec2 vUv;
 
 // Sphere intersection
@@ -66,19 +66,19 @@ float iPlane( in vec3 ro, in vec3 rd )
 
 void main(){
 
-    //vec2 p = (2.0*fragCoord.xy-resolution.xy) / resolution.y;
-    //vec2 p = (1.0 - vUv * 2.0) * vec2(resolution.z, -1.0);
-    vec2 p = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
-    float s = (2.0*mouse.x-resolution.x) / resolution.y;
+    //vec2 p = (2.0*fragCoord.xy-iResolution.xy) / iResolution.y;
+    //vec2 p = (1.0 - vUv * 2.0) * vec2(iResolution.z, -1.0);
+    vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    float s = (2.0*iMouse.x-iResolution.x) / iResolution.y;
 
 
-    if( mouse.z<0.001 ) s=0.0;
+    if( iMouse.z<0.001 ) s=0.0;
     
     vec3 ro = vec3(0.0, 0.0, 4.0 );
     vec3 rd = normalize( vec3(p,-2.0) );
     
     // sphere animation
-    vec4 sph = vec4( cos( time + vec3(2.0,1.0,1.0) + 0.0 )*vec3(1.5,1.2,1.0), 1.0 );
+    vec4 sph = vec4( cos( iGlobalTime + vec3(2.0,1.0,1.0) + 0.0 )*vec3(1.5,1.2,1.0), 1.0 );
 
     vec4 rrr = texture2D( iChannel0, (vUv.xy)/vec2(256.0), -99.0  ).xzyw;
 
@@ -136,7 +136,7 @@ void main(){
 
     col *= exp( -0.05*tmin );
 
-    float e = 2.0/resolution.y;
+    float e = 2.0/iResolution.y;
     col *= smoothstep( 0.0, 2.0*e, abs(p.x-s) );
     
     gl_FragColor = vec4( col, 1.0 );

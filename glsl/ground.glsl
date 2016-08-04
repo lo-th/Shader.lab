@@ -4,9 +4,9 @@
 
 precision highp float;
 varying vec2 vUv;
-uniform float time;
-uniform vec4 mouse;
-uniform vec3 resolution;
+uniform float iGlobalTime;
+uniform vec4 iMouse;
+uniform vec3 iResolution;
 vec3 sunLight = normalize(vec3(0.35, 0.1, 0.7));
 vec3 cameraPos;
 vec3 sunColour = vec3(1.0, .75, .4);
@@ -140,19 +140,19 @@ vec3 PostEffects(vec3 rgb, vec2 xy)
 }
 void main(void) 
 {
-    float gTime = (time * 5.0 + 2352.0) * .006;
-    float hTime = time;
-    vec2 xy = vUv.xy / resolution.xy;
+    float gTime = (iGlobalTime * 5.0 + 2352.0) * .006;
+    float hTime = iGlobalTime;
+    vec2 xy = vUv.xy / iResolution.xy;
 
-    //vec2 uv = gl_FragCoord.xy / resolution.xy;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
     //uv = 1.0 - uv * 2.0;
-   // uv.x *= resolution.x / resolution.y;   
+   // uv.x *= iResolution.x / iResolution.y;   
     //uv.y *= -1.;
 
-    //vec2 uv = (1.0 - vUv * 2.0) * vec2(resolution.x / resolution.y, -1.0);
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    //vec2 uv = (1.0 - vUv * 2.0) * vec2(iResolution.x / iResolution.y, -1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
-    //vec2 uv = (-1.0 + 2.0 * xy) * vec2(resolution.x / resolution.y, 1.0);
+    //vec2 uv = (-1.0 + 2.0 * xy) * vec2(iResolution.x / iResolution.y, 1.0);
     vec3 camTar;
     cameraPos = CameraPath(gTime + 0.0);
     float height = max(0.0, 9.0 - hTime) * 16.0;

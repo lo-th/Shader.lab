@@ -2,10 +2,10 @@
 
 
 uniform sampler2D iChannel0;
-uniform sampler2D iChannelResolution;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec2 iChannelResolution[4];
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 varying vec2 vUv;
 
 mat2 mm2(in float a) 
@@ -15,8 +15,8 @@ mat2 mm2(in float a)
 }
 float noise(float t) 
 {
-    //return texture2D(iChannel0, vec2(t, .0) / iChannelResolution[0].xy).x;
-    return texture2D(iChannel0, vec2(t, .0) / vec2(256.0)).x;
+    return texture2D(iChannel0, vec2(t, .0) / iChannelResolution[0].xy).x;
+    //return texture2D(iChannel0, vec2(t, .0) / vec2(256.0)).x;
 }
 float moy = 0.;
 float noise(in vec3 x) 
@@ -131,22 +131,22 @@ mat3 rot_z(float a)
 }
 void main() 
 {
-    //vec2 q = vUv.xy / resolution.xy;
+    //vec2 q = vUv.xy / iResolution.xy;
 
-    //vec2 uv = (1.0 - vUv * 2.0) * vec2(resolution.x / resolution.y, -1.0);
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    //vec2 uv = (1.0 - vUv * 2.0) * vec2(iResolution.x / iResolution.y, -1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
     vec2 q = vUv;
     vec2 p = uv;
 
 
     //vec2 p = q;//q - 0.5;
-    //float asp = resolution.x / resolution.y;
+    //float asp = iResolution.x / iResolution.y;
     //p.x *= asp;
-    vec2 mo = mouse.xy / resolution.xy;
+    vec2 mo = iMouse.xy / iResolution.xy;
     moy = mo.y;
-    float st = sin(time * 0.3 - 1.3) * 0.2;
-    vec3 ro = vec3(0., -2. + sin(time * .3 - 1.) * 2., time * 30.);
+    float st = sin(iGlobalTime * 0.3 - 1.3) * 0.2;
+    vec3 ro = vec3(0., -2. + sin(iGlobalTime * .3 - 1.) * 2., iGlobalTime * 30.);
     ro.x = path(ro.z);
     vec3 ta = ro + vec3(0, 0, 1);
     vec3 fw = normalize(ta - ro);
@@ -154,9 +154,9 @@ void main()
     vec3 vv = normalize(cross(fw, uu));
     const float zoom = 1.;
     vec3 rd = normalize(p.x * uu + p.y * vv + -zoom * fw);
-    float rox = sin(time * 0.2) * 0.8 + 2.9;
-    rox += smoothstep(0.6, 1.2, sin(time * 0.25)) * 3.5;
-    float roy = sin(time * 0.5) * 0.2;
+    float rox = sin(iGlobalTime * 0.2) * 0.8 + 2.9;
+    rox += smoothstep(0.6, 1.2, sin(iGlobalTime * 0.25)) * 3.5;
+    float roy = sin(iGlobalTime * 0.5) * 0.2;
     mat3 rotation = rot_x(-roy) * rot_y(-rox + st * 1.5) * rot_z(st);
     mat3 inv_rotation = rot_z(-st) * rot_y(rox - st * 1.5) * rot_x(roy);
     rd *= rotation;

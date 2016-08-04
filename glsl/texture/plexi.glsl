@@ -4,7 +4,7 @@ precision highp float;
 precision highp int;
 uniform sampler2D envMap;
 uniform vec3 resolution;
-uniform float time;
+uniform float iGlobalTime;
 varying vec2 vUv;
 int id = 0;
 vec3 tex3D(sampler2D tex, in vec3 p, in vec3 n) 
@@ -29,7 +29,7 @@ vec2 hash22(vec2 p)
 {
     float n = sin(dot(p, vec2(41, 289)));
     p = fract(vec2(262144, 32768) * n);
-    return sin(p * 6.2831853 + time) * 0.5 + 0.5;
+    return sin(p * 6.2831853 + iGlobalTime) * 0.5 + 0.5;
 }
 float Voronoi(in vec2 p) 
 {
@@ -79,7 +79,7 @@ vec3 nr(vec3 p, inout float edge)
 vec3 eMap(vec3 rd, vec3 sn) 
 {
     vec3 sRd = rd;
-    rd.xy -= time * .25;
+    rd.xy -= iGlobalTime * .25;
     rd *= 3.;
     float c = n3D(rd) * .57 + n3D(rd * 2.) * .28 + n3D(rd * 4.) * .15;
     c = smoothstep(0.5, 1., c);
@@ -98,7 +98,7 @@ void main()
     vec3 o = vec3(0);
     vec3 l = o + vec3(0, 0, -1);
 
-    vec2 a = sin(vec2(1.570796, 0) + time / 8.);
+    vec2 a = sin(vec2(1.570796, 0) + iGlobalTime / 8.);
     r.xy = mat2(a, -a.y, a.x) * r.xy;
     float d, t = 0.;
     for (int i = 0; i < 32; i++) 

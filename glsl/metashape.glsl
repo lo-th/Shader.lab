@@ -1,9 +1,9 @@
 // https://www.shadertoy.com/view/Xls3R7
 
 uniform samplerCube envMap;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 
 varying vec2 vUv;
 varying vec3 vEye;
@@ -33,7 +33,7 @@ float blob7(float d1, float d2, float d3, float d4, float d5, float d6, float d7
 
 float scene(vec3 pos)
 {
-    float t = time;
+    float t = iGlobalTime;
     
     float p = torus(pos + vec3(0.0,3.0,0.0));
     float b = sphere(0.5*(pos + vec3(cos(t*0.5),sin(t*0.3),0.0)));
@@ -119,9 +119,9 @@ mat3 calcLookAtMatrix( in vec3 ro, in vec3 ta, in float roll ){
 
 void main() {
 
-    vec2 xy = (gl_FragCoord.xy - resolution.xy/2.0) / min(resolution.xy.x, resolution.xy.y);
+    vec2 xy = (gl_FragCoord.xy - iResolution.xy/2.0) / min(iResolution.xy.x, iResolution.xy.y);
     
-    float t = time;
+    float t = iGlobalTime;
     vec3 campos = vec3(10.0*sin(t*0.3),2.5*sin(t*0.5),-10.0*cos(t*0.3));
     vec3 camtar = vec3(0.0,0.0,0.0);
     

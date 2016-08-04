@@ -1,11 +1,13 @@
 
 
-#define PI 3.14159
 
-uniform vec3 resolution;
-uniform float time;
+
+uniform vec3 iResolution;
+uniform float iGlobalTime;
 varying vec3 vEye;
 varying vec2 vUv;
+
+#define PI 3.14159
 
 mat3 xrot(float t) {
 
@@ -34,9 +36,9 @@ float map(vec3 pos) {
     vec3 grid = floor(pos);
     vec3 gmod = mod(grid, 2.0);
     vec3 rmod = mod(grid, 4.0) - 2.0;
-    float tm = fract(time * speed);
+    float tm = fract(iGlobalTime * speed);
     rmod *= (cos(tm * PI) - 1.0);
-    float g = floor(mod(time * speed, 3.0));
+    float g = floor(mod(iGlobalTime * speed, 3.0));
     if (g == 0.0) 
     {
         if (gmod.y * gmod.x == 1.0) 
@@ -125,13 +127,13 @@ float aoc(vec3 origin, vec3 ray) {
 
 void main() {
 
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
     vec3 eye = normalize(vec3(uv, 1.0 - dot(uv, uv) * 0.33));
     vec3 origin = vec3(0.0);
-    eye = eye * yrot(time) * xrot(time);
+    eye = eye * yrot(iGlobalTime) * xrot(iGlobalTime);
     float speed = 0.5;
-    float j = time * speed;
+    float j = iGlobalTime * speed;
     float f = fract(j);
     float g = 1.0 - f;
     f = f * f * g + (1.0 - g * g) * f;

@@ -20,7 +20,9 @@ var view = ( function () {
     var degtorad = 0.0174532925199432957;
     var radtodeg = 57.295779513082320876;
 
-    var canvas, renderer, scene, camera, vsize, controls, light, clock, mouse;
+    var canvas, renderer, scene, camera, controls, light, clock;
+    var vsize, mouse, time, key = new Float32Array( 20 ), channelResolution, channels;
+
     var vs = { w:1, h:1, l:0, x:0 };
 
     var isPostEffect = false, renderScene, effectFXAA, bloomPass, copyShader, composer = null;
@@ -63,9 +65,13 @@ var view = ( function () {
             var i = extraUpdate.length;
             while(i--) extraUpdate[i]();
 
+            time.x += clock.getDelta();
+            key = user.getKey();
+
             if(uniforms){ 
-                uniforms.time.value += clock.getDelta();
-                uniforms.key.value = user.getKey();
+                //uniforms.time.value = time.x;
+                uniforms.iGlobalTime.value = time.x;
+               // uniforms.key.value = key;
                 //uniforms.mouse.value = mouse;
             }
             
@@ -92,12 +98,6 @@ var view = ( function () {
 
             }
 
-            if(uniforms){
-                uniforms.resolution.value = vsize;
-                
-                //uniforms.resolution.value.y = vsize.y;
-            }
-
             editor.resizeMenu( vsize.x );
 
             if( isPostEffect ){
@@ -107,7 +107,20 @@ var view = ( function () {
 
         },
 
+        reset: function ( ) {
+
+            //console.clear();
+            time.x = 0;
+        },
+
         init: function () {
+
+            channelResolution = [
+                new THREE.Vector2(),
+                new THREE.Vector2(),
+                new THREE.Vector2(),
+                new THREE.Vector2()
+            ];
 
             canvas = document.createElement("canvas");
             canvas.className = 'canvas3d';
@@ -115,6 +128,7 @@ var view = ( function () {
             canvas.ondrop = function(e) { e.preventDefault(); };
             document.body.appendChild( canvas );
 
+            time = new THREE.Vector2();
             clock = new THREE.Clock();
 
             //container = document.createElement( 'div' );
@@ -189,8 +203,7 @@ var view = ( function () {
             canvas.removeEventListener('mouseover', editor.unFocus, false );
         },
 
-        reset: function () {
-        },
+        
 
         initLights: function ( shadow ) {
 
@@ -302,6 +315,10 @@ var view = ( function () {
 
         setMat : function( fragment ){
 
+            channelResolution[0].x = txt.noise.image.width;
+            channelResolution[0].y = txt.noise.image.height;
+
+
             uniforms = {
                 iChannel0: {
                     type: 't',
@@ -343,21 +360,27 @@ var view = ( function () {
                     type: 't',
                     value: textureCube
                 },
-                time: {
-                    type: 'f',
-                    value: 0.1
-                },
-                resolution: {
-                    type: 'v3',
-                    value: vsize
-                },
-                mouse: {
-                    type: 'v4',
-                    value: mouse
-                },
+
+                //
+
+                //time: { type: 'f', value: time.x },
+                //resolution: { type: 'v3', value: vsize },
+                //mouse: { type: 'v4', value: mouse },
+
+                //
+
+                iChannelResolution: { type: 'v2v', value: channelResolution },
+
+                iGlobalTime: { type: 'f', value: time.x },
+                iResolution: { type: 'v3', value: vsize },
+                iMouse: { type: 'v4', value: mouse },
+
+                //
+
+
                 key: {
                     type:'fv',
-                    value:user.getKey()
+                    value:key
                 }
             };
 

@@ -220,10 +220,10 @@ html, body {
     pointer-events: auto;
    /*  overflow: scroll;*/
     height: 100%;
-    font-family: "Lucida Console", Monaco, monospace;
+    font-family: "Consolas", Monaco, monospace;
     font-smooth: never;
     -webkit-font-smoothing : none;
-    font-size: 11px;
+    font-size: 10px;
     /*line-height: 123%;
     letter-spacing:-1px;
     padding-right: 20px;*/
@@ -231,8 +231,8 @@ html, body {
     border:none;
     font-style: normal;
     font-variant: normal;
-    font-weight: 400;
-    /*line-height: 23px;
+    /*font-weight: 400;
+    line-height: 23px;
     margin-left:10px;*/
     
     

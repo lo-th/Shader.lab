@@ -1,8 +1,8 @@
 precision highp float;
 precision highp int;
 uniform sampler2D iChannel0;
-uniform vec3 resolution;
-uniform float time;
+uniform vec3 iResolution;
+uniform float iGlobalTime;
 varying vec2 vUv;
 
 
@@ -38,12 +38,12 @@ const mat3 m = mat3(0.00, 0.80, 0.60, -0.80, 0.36, -0.48, -0.60, -0.48, 0.64);
 
 void main() {
 
-    //vec2 uv = (1.0 - vUv * 2.0) * vec2(resolution.x / resolution.y, -1.0);
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    //vec2 uv = (1.0 - vUv * 2.0) * vec2(iResolution.x / iResolution.y, -1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
     
     vec2 p = uv;
 
-    float an = 0.5 * time;
+    float an = 0.5 * iGlobalTime;
     vec3 ro = vec3(2.5 * cos(an), 1.0, 2.5 * sin(an));
     vec3 ta = vec3(0.0, 1.0, 0.0);
     vec3 ww = normalize(ta - ro);

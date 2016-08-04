@@ -5,9 +5,9 @@ uniform sampler2D iChannel7;
 uniform sampler2D iChannel0;
 uniform sampler2D iChannel5;
 uniform sampler2D iChannel6;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 varying vec2 vUv;
 
 
@@ -100,7 +100,7 @@ float ScoopRadius(float t)
 {
     if (t < 150.0) t = abs(t - 150.) * 3.;
      t = t * 0.006;
-    return clamp(t * t, 256.0 / resolution.y, 20000.0 / resolution.y);
+    return clamp(t * t, 256.0 / iResolution.y, 20000.0 / iResolution.y);
 }
 vec3 DoLighting(in vec3 mat, in vec3 normal, in vec3 eyeDir, in float d, in vec3 sky) 
 {
@@ -189,10 +189,10 @@ vec3 CameraPath(float t)
 void main() {
 
     fcoord = gl_FragCoord.xy;
-    float m = (mouse.x / resolution.x) * 10.0;
-    float gTime = ((time + 135.0) * .25 + m);
-    vec2 xy = gl_FragCoord.xy / resolution.xy;
-    vec2 uv = (-1.0 + 2.0 * xy) * vec2(resolution.x / resolution.y, 1.0);
+    float m = (iMouse.x / iResolution.x) * 10.0;
+    float gTime = ((iGlobalTime + 135.0) * .25 + m);
+    vec2 xy = gl_FragCoord.xy / iResolution.xy;
+    vec2 uv = (-1.0 + 2.0 * xy) * vec2(iResolution.x / iResolution.y, 1.0);
     float hTime = mod(gTime + 1.95, 2.0);
     vec3 cameraPos = CameraPath(gTime + 0.0);
     vec3 camTarget = CameraPath(gTime + .25);
@@ -250,6 +250,6 @@ void main() {
         sky += GetClouds(cameraPos, dir);
         col = mix(sky, col, alpha);
     }
-     col = PostEffects(col, xy) * smoothstep(.0, 2.0, time);
+     col = PostEffects(col, xy) * smoothstep(.0, 2.0, iGlobalTime);
     gl_FragColor = vec4(col, 1.0);
 }

@@ -6,9 +6,9 @@ uniform sampler2D iChannel0;
 uniform sampler2D iChannel1;
 uniform sampler2D iChannel2;
 uniform samplerCube envMap;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 varying vec2 vUv;
 
 #define HIGH_QUALITY_NOISE 0
@@ -117,7 +117,7 @@ vec3 lig = normalize( vec3(-0.3,0.4,0.7) );
     
 vec4 mapClouds( in vec3 pos )
 {
-    vec3 q = pos*0.5 + vec3(0.0,-time,0.0);
+    vec3 q = pos*0.5 + vec3(0.0,-iGlobalTime,0.0);
     
     float d;
     d  = 0.5000*noise( q ); q = q*2.02;
@@ -181,9 +181,9 @@ float softshadow( in vec3 ro, in vec3 rd, float mint, float k )
     return clamp(res,0.0,1.0);
 }
 
-vec3 path( float time )
+vec3 path( float iGlobalTime )
 {
-    return vec3( 16.0*cos(0.2+0.5*.1*time*1.5), 1.5, 16.0*sin(0.1+0.5*0.11*time*1.5) );
+    return vec3( 16.0*cos(0.2+0.5*.1*iGlobalTime*1.5), 1.5, 16.0*sin(0.1+0.5*0.11*iGlobalTime*1.5) );
     
 }
 
@@ -199,18 +199,18 @@ mat3 setCamera( in vec3 ro, in vec3 ta, float cr )
 void main(){
 
     vec2 q = vUv;
-    vec2 p = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
     
     
     // camera   
-    float off = step( 0.001, mouse.z )*6.0*mouse.x/resolution.x;
-    float time = 2.7+time + off;
-//time =35.0;
-    vec3 ro = path( time+0.0 );
-    vec3 ta = path( time+1.6 );
-    //ta.y *= 0.3 + 0.25*cos(0.11*time);
-    ta.y *= 0.35 + 0.25*sin(0.09*time);
-    float roll = 0.3*sin(1.0+0.07*time);
+    float off = step( 0.001, iMouse.z )*6.0*iMouse.x/iResolution.x;
+    float iGlobalTime = 2.7+iGlobalTime + off;
+//iGlobalTime =35.0;
+    vec3 ro = path( iGlobalTime+0.0 );
+    vec3 ta = path( iGlobalTime+1.6 );
+    //ta.y *= 0.3 + 0.25*cos(0.11*iGlobalTime);
+    ta.y *= 0.35 + 0.25*sin(0.09*iGlobalTime);
+    float roll = 0.3*sin(1.0+0.07*iGlobalTime);
     // camera2world transform
     mat3 cam = setCamera( ro, ta, roll );
 

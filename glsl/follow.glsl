@@ -1,6 +1,6 @@
 
-uniform vec3 resolution;
-uniform vec4 mouse;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
 varying vec2 vUv;
 
 #define PI 3.1415926
@@ -87,9 +87,9 @@ float GetMouseFollowRotationAngle(Rect r1, vec2 m) {
 
 void main() {
 
-    vec2 r = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
-    //vec2 r = 2. * vec2(vUv.xy - .5 * resolution.xy) / resolution.y;
-    vec2 m = 2. * vec2(mouse.xy - .5 * resolution.xy) / resolution.y;
+    vec2 r = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    //vec2 r = 2. * vec2(vUv.xy - .5 * iResolution.xy) / iResolution.y;
+    vec2 m = 2. * vec2(iMouse.xy - .5 * iResolution.xy) / iResolution.y;
     Rect r1 = CreateRect(0.5, 0.5, 0., .0, vec3(0. ,1., 1.));
     r1.rotation = GetMouseFollowRotationAngle(r1, m);
     vec3 bg = vec3(0.);
@@ -101,8 +101,8 @@ void main() {
 
     vec4 cc = vec4(1.0);
     cc.z = 0.0;
-    //vec2 center = vec2(1./mouse.x, 1./mouse.y);
-    vec2 center = 2.0 * vec2(mouse.xy - (resolution.xy*0.5)) / resolution.y;
+    //vec2 center = vec2(1./iMouse.x, 1./iMouse.y);
+    vec2 center = 2.0 * vec2(iMouse.xy - (iResolution.xy*0.5)) / iResolution.y;
 
     vec2 uvx = r - center;
 

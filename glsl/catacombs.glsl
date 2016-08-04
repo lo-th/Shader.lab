@@ -6,9 +6,9 @@
 uniform sampler2D iChannel6;
 uniform sampler2D iChannel8;
 
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 
 varying vec2 vUv;
 
@@ -220,9 +220,9 @@ vec3 renderAll( in vec3 ro, in vec3 rd ){
     for( int i=0; i<7; i++ )
     {
         float la = 1.0;
-        lpos[i].x = 0.5 + 2.2*cos(0.22+0.1*time + 17.0*float(i) );
+        lpos[i].x = 0.5 + 2.2*cos(0.22+0.1*iGlobalTime + 17.0*float(i) );
         lpos[i].y = 0.25;
-        lpos[i].z = 1.5 + 2.2*cos(2.24+0.1*time + 13.0*float(i) );
+        lpos[i].z = 1.5 + 2.2*cos(2.24+0.1*iGlobalTime + 13.0*float(i) );
 
         // make the lights avoid the columns
         vec2 ilpos = floor( lpos[i].xz );
@@ -233,7 +233,7 @@ vec3 renderAll( in vec3 ro, in vec3 rd ){
         
         lpos[i] *= SC;
         
-        float li = sqrt(0.5 + 0.5*sin(2.0*time+ 23.1*float(i)));
+        float li = sqrt(0.5 + 0.5*sin(2.0*iGlobalTime+ 23.1*float(i)));
 
         float h = float(i)/8.0;
         vec3 c = mix( vec3(1.0,0.8,0.6), vec3(1.0,0.3,0.05), 0.5+0.5*sin(40.0*h) );
@@ -310,20 +310,20 @@ vec3 renderAll( in vec3 ro, in vec3 rd ){
 
 void main(){
 
-    vec2 q = gl_FragCoord.xy/resolution.xy;
+    vec2 q = gl_FragCoord.xy/iResolution.xy;
     vec2 p = -1.0+2.0*q;
-    p.x *= resolution.x/resolution.y;
-    vec2 mo = mouse.xy/resolution.xy;
+    p.x *= iResolution.x/iResolution.y;
+    vec2 mo = iMouse.xy/iResolution.xy;
          
-    //float time = time;
+    //float iGlobalTime = iGlobalTime;
 
     // camera   
     vec3 ce = vec3( 0.5, 0.25, 1.5 );
-    vec3 ro = ce + vec3( 1.3*cos(0.11*time + 6.0*mo.x), 0.65*(1.0-mo.y)- 0.2, 1.3*sin(0.11*time + 6.0*mo.x) );
-    vec3 ta = ce + vec3( 0.95*cos(1.2+.08*time), 0.4*0.25+0.75*ro.y- 0.2, 0.95*sin(2.0+0.07*time) );
+    vec3 ro = ce + vec3( 1.3*cos(0.11*iGlobalTime + 6.0*mo.x), 0.65*(1.0-mo.y)- 0.2, 1.3*sin(0.11*iGlobalTime + 6.0*mo.x) );
+    vec3 ta = ce + vec3( 0.95*cos(1.2+.08*iGlobalTime), 0.4*0.25+0.75*ro.y- 0.2, 0.95*sin(2.0+0.07*iGlobalTime) );
     ro *= SC;
     ta *= SC;
-    float roll = -0.15*sin(0.1*time);
+    float roll = -0.15*sin(0.1*iGlobalTime);
     
     // camera tx
     vec3 cw = normalize( ta-ro );

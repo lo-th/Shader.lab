@@ -5,8 +5,8 @@
 precision highp float;
 precision highp int;
 uniform sampler2D iChannel2;
-uniform vec3 resolution;
-uniform float time;
+uniform vec3 iResolution;
+uniform float iGlobalTime;
 varying vec2 vUv;
 float getGrey(vec3 p) 
 {
@@ -126,7 +126,7 @@ float logBisectTrace(in vec3 ro, in vec3 rd)
 }
 float trig3(in vec3 p) 
 {
-    p = cos(p * 2. + (cos(p.yzx) + 1. + time * 4.) * 1.57);
+    p = cos(p * 2. + (cos(p.yzx) + 1. + iGlobalTime * 4.) * 1.57);
     return dot(p, vec3(0.1666)) + 0.5;
 }
 float trigNoise3D(in vec3 p) 
@@ -134,11 +134,11 @@ float trigNoise3D(in vec3 p)
     const mat3 m3RotTheta = mat3(0.25, -0.866, 0.433, 0.9665, 0.25, -0.2455127, -0.058, 0.433, 0.899519) * 1.5;
     float res = 0.;
     float t = trig3(p * PI);
-    p += (t - time * 0.25);
+    p += (t - iGlobalTime * 0.25);
     p = m3RotTheta * p;
     res += t;
     t = trig3(p * PI);
-    p += (t - time * 0.25) * 0.7071;
+    p += (t - iGlobalTime * 0.25) * 0.7071;
     p = m3RotTheta * p;
     res += t * 0.7071;
     t = trig3(p * PI);
@@ -160,11 +160,11 @@ float getMist(in vec3 ro, in vec3 rd, in vec3 lp, in float t)
 }
 void main() {
 
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
-    vec3 ro = vec3(0., 0., time * 2.);
+    vec3 ro = vec3(0., 0., iGlobalTime * 2.);
     vec3 rd = normalize(vec3(uv, 0.5));
-    mat2 m2 = rot(time * 0.25);
+    mat2 m2 = rot(iGlobalTime * 0.25);
     rd.xz *= m2;
     rd.xy *= m2;
     rd.yz *= m2;

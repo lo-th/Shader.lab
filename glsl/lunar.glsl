@@ -4,8 +4,8 @@
 precision highp float;
 precision highp int;
 uniform sampler2D iChannel2;
-uniform vec3 resolution;
-uniform float time;
+uniform vec3 iResolution;
+uniform float iGlobalTime;
 varying vec2 vUv;
 const mat2 rM = mat2(.7071, .7071, -.7071, .7071);
 mat2 rot2(float a) 
@@ -146,9 +146,9 @@ float shadows(in vec3 ro, in vec3 rd, in float start, in float end, in float k)
 }
 void main() {
 
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
-    vec3 lookAt = vec3(0, 0, time * 8. + 0.1);
+    vec3 lookAt = vec3(0, 0, iGlobalTime * 8. + 0.1);
     vec3 camPos = lookAt + vec3(0.0, 0.0, -0.1);
     vec3 lightPos = camPos + vec3(0, 7, 35.);
     lookAt.xy += path(lookAt.z);

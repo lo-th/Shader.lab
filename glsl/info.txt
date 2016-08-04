@@ -7,23 +7,22 @@ to
 void main() {
 
 2°/
-fragColor > gl_FragColor
 fragCoord > gl_FragCoord
+fragColor > gl_FragColor
 
 3°/
 uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
+uniform sampler2D iChannel2;
+uniform sampler2D iChannel3;
+uniform vec2 iChannelResolution[4];
 uniform samplerCube envMap;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform float iGlobalTime;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
 
-varying vec2 vUv;
 varying vec3 vEye;
-
-4°/
-iGlobalTime > time
-iResolution > resolution
-iMouse > mouse
+varying vec2 vUv;
 
 5°/
 vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);

@@ -7,9 +7,10 @@
 uniform sampler2D iChannel2;
 uniform sampler2D iChannel3;
 uniform sampler2D iChannel4;
-uniform vec3 resolution;
-uniform float time;
+uniform vec3 iResolution;
+uniform float iGlobalTime;
 varying vec2 vUv;
+
 const vec2 cama = vec2(-2.6943, 3.0483);
 const vec2 camb = vec2(0.2516, 0.1749);
 const vec2 camc = vec2(-3.7902, 2.4478);
@@ -22,9 +23,9 @@ vec2 Position(float z, vec2 a, vec2 b, vec2 c, vec2 d)
 {
     return sin(z * a) * b + cos(z * c) * d;
 }
-vec3 Position3D(float time, vec2 a, vec2 b, vec2 c, vec2 d) 
+vec3 Position3D(float iGlobalTime, vec2 a, vec2 b, vec2 c, vec2 d) 
 {
-    return vec3(Position(time, a, b, c, d), time);
+    return vec3(Position(iGlobalTime, a, b, c, d), iGlobalTime);
 }
 float Distance(vec3 p, vec2 a, vec2 b, vec2 c, vec2 d, vec2 e, float r) 
 {
@@ -60,25 +61,25 @@ vec3 nmap(vec2 t, sampler2D tx, float str)
 }
 void main() 
 {
-    float time = time / 3.0 + 291.0;
-    vec2 p1 = Position(time + 0.05, cama, camb, camc, camd);
-    vec3 Pos = Position3D(time, cama, camb, camc, camd);
+    float iGlobalTime = iGlobalTime / 3.0 + 291.0;
+    vec2 p1 = Position(iGlobalTime + 0.05, cama, camb, camc, camd);
+    vec3 Pos = Position3D(iGlobalTime, cama, camb, camc, camd);
     vec3 oPos = Pos;
     vec3 CamDir = normalize(vec3(p1.x - Pos.x, -p1.y + Pos.y, 0.1));
     vec3 CamRight = normalize(cross(CamDir, vec3(0, 1, 0)));
     vec3 CamUp = normalize(cross(CamRight, CamDir));
     mat3 cam = mat3(CamRight, CamUp, CamDir);
-    //vec2 uv = 2.0 * vUv.xy / resolution.xy - 1.0;
+    //vec2 uv = 2.0 * vUv.xy / iResolution.xy - 1.0;
 
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
 
-    //vec2 uv = gl_FragCoord.xy / resolution.xy;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
     //uv = 1.0 - uv * 2.0;
-    //uv.x *= resolution.x / resolution.y;   
+    //uv.x *= iResolution.x / iResolution.y;   
     //uv.y *= -1.;
 
-    float aspect = resolution.z;
+    float aspect = iResolution.z;
     vec3 Dir = normalize(vec3(uv * vec2(aspect, 1.0), 1.0)) * cam;
     float fade = 0.0;
     const float numit = 75.0;
@@ -103,7 +104,7 @@ void main()
     }
     vec3 n = normalize(vec3(Dist2D(Pos + vec3(0.01, 0, 0)) - Dist2D(Pos + vec3(-0.01, 0, 0)), Dist2D(Pos + vec3(0, 0.01, 0)) - Dist2D(Pos + vec3(0, -0.01, 0)), Dist2D(Pos + vec3(0, 0, 0.01)) - Dist2D(Pos + vec3(0, 0, -0.01))));
     vec3 tpn = normalize(max(vec3(0.0), (abs(n.xyz) - vec3(0.2)) * 7.0)) * 0.5;
-    vec3 lp = Position3D(time + 0.5, cama, camb, camc, camd);
+    vec3 lp = Position3D(iGlobalTime + 0.5, cama, camb, camc, camd);
     vec3 ld = lp - Pos;
     float lv = 1.0;
     const float ShadowIT = 15.0;

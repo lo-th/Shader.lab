@@ -1,8 +1,8 @@
 precision highp float;
 precision highp int;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 varying vec2 vUv;
 const float dispValue = .7;
 const float dispOffset = .5;
@@ -56,10 +56,10 @@ float noiseLayer(vec3 p)
 }
 float map(vec3 p) 
 {
-    p = rotateX(p, mouse.y / 100. + time / 7.);
-    p = rotateY(p, mouse.x / 100. + time / 7.);
-    float timeOffset = time / 70.;
-    return noiseLayer(p + timeOffset) - dispOffset;
+    p = rotateX(p, iMouse.y / 100. + iGlobalTime / 7.);
+    p = rotateY(p, iMouse.x / 100. + iGlobalTime / 7.);
+    float iGlobalTimeOffset = iGlobalTime / 70.;
+    return noiseLayer(p + iGlobalTimeOffset) - dispOffset;
 }
 vec3 calcNormal(in vec3 pos, float t) 
 {
@@ -88,8 +88,8 @@ float shadowRay(vec3 startP, vec3 lightDir)
 }
 vec3 skyColor(vec2 uv, float minD) 
 {
-    float stars = ((1. - noiseLayer(vec3(uv * 100. + time / 40., 0.))) * 10. - 8.);
-    float stars2 = ((1. - noiseLayer(vec3(uv * 30. + time / 120., 3.))) * 10. - 8.8);
+    float stars = ((1. - noiseLayer(vec3(uv * 100. + iGlobalTime / 40., 0.))) * 10. - 8.);
+    float stars2 = ((1. - noiseLayer(vec3(uv * 30. + iGlobalTime / 120., 3.))) * 10. - 8.8);
     vec3 sky = max(0., stars) * vec3(0.2, 0.5, .6);
     sky += max(0., stars2 * 10.) * vec3(1., .8, .5);
     float halo = (1. - length(uv * 0.7)) * 2.;
@@ -101,12 +101,12 @@ vec3 skyColor(vec2 uv, float minD)
 }
 void main() 
 {
-    //vec2 uv = vUv.xy * 2.0 / resolution.xy - 1.0;
-    //uv.x *= resolution.x / resolution.y;
+    //vec2 uv = vUv.xy * 2.0 / iResolution.xy - 1.0;
+    //uv.x *= iResolution.x / iResolution.y;
 
-    vec2 uv = gl_FragCoord.xy / resolution.xy;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
     uv = 1.0 - uv * 2.0;
-    uv.x *= resolution.x / resolution.y;   
+    uv.x *= iResolution.x / iResolution.y;   
     uv.y *= -1.;
 
 

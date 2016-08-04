@@ -1,3 +1,10 @@
+
+
+varying vec2 vUv;
+uniform float iGlobalTime;
+uniform vec4 iMouse;
+uniform vec3 iResolution;
+
 #define ITR 90
 #define FAR 60.
 #define MOD3 vec3(.16532,.17369,.15787)
@@ -7,11 +14,6 @@
 #define CLOUD_COLOR vec3(0.2, 0.10, 0.08)
 #define moveSpeed 2.5
 
-precision highp float;
-varying vec2 vUv;
-uniform float time;
-uniform vec4 mouse;
-uniform vec3 resolution;
 float height(in vec2 p) 
 {
     float h = sin(p.x * .1 + p.y * .2) + sin(p.y * .1 - p.x * .2) * .5;
@@ -83,8 +85,8 @@ float map(vec3 p)
 }
 float fogmap(in vec3 p, in float d) 
 {
-    p.xz -= time * 7.;
-    p.y -= time * .5;
+    p.xz -= iGlobalTime * 7.;
+    p.y -= iGlobalTime * .5;
     return (max(triNoise3d(p * .008 + .1) - .1, 0.0) * triNoise3d(p * .1)) * .7;
 }
 float march(in vec3 ro, in vec3 rd, out float f, in vec2 scUV) 
@@ -143,7 +145,7 @@ vec3 Clouds(vec3 sky, vec3 rd)
 {
     float v = (200.0) / rd.y;
     rd.y = v;
-    rd.xz = rd.xz * v - time * 24.0;
+    rd.xz = rd.xz * v - iGlobalTime * 24.0;
     rd.xz *= .0004;
     float f = triNoise3d(rd.xzz * .5) + triNoise3d(rd.zzx * 3.) * .5;
     return mix(sky, CLOUD_COLOR, max(f - .3, 0.0));
@@ -155,23 +157,23 @@ vec3 Sky(vec3 rd, vec3 ligt)
 }
 void main() 
 {
-    //vec2 uv = gl_FragCoord.xy / resolution.xy;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
     //uv = 1.0 - uv * 2.0;
-    //uv.x *= resolution.x / resolution.y;   
+    //uv.x *= iResolution.x / iResolution.y;   
     //uv.y *= -1.;
 
-    //vec2 uv = (1.0 - vUv * 2.0) * vec2(resolution.x / resolution.y, -1.0);
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    //vec2 uv = (1.0 - vUv * 2.0) * vec2(iResolution.x / iResolution.y, -1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
-    vec2 p = uv;//vUv.xy / resolution.xy - 0.5;
-    vec2 q = vUv.xy / resolution.xy;
-    //p.x *= resolution.x / resolution.y;
-    vec2 mo = mouse.xy - 0.5;
+    vec2 p = uv;//vUv.xy / iResolution.xy - 0.5;
+    vec2 q = vUv.xy / iResolution.xy;
+    //p.x *= iResolution.x / iResolution.y;
+    vec2 mo = iMouse.xy - 0.5;
     mo.x *= 6.28;
-    vec3 ro = vec3(0. + smoothstep(0., 1., tri(time * .6) * 2.) * 0.1, smoothstep(0., 1., tri(time * 3.) * 3.) * 0.08, -time * moveSpeed - 140.0);
+    vec3 ro = vec3(0. + smoothstep(0., 1., tri(iGlobalTime * .6) * 2.) * 0.1, smoothstep(0., 1., tri(iGlobalTime * 3.) * 3.) * 0.08, -iGlobalTime * moveSpeed - 140.0);
     ro.y -= camHeight(ro.zx) - .4;
-    mo.x += smoothstep(0.7, 1., sin(time * .35)) * .5 - 1.5 - smoothstep(-.7, -1., sin(time * .35)) * .5;
-    vec3 eyedir = normalize(vec3(cos(mo.x), mo.y * 2. + sin(time * .5) * 0.1, sin(mo.x)));
+    mo.x += smoothstep(0.7, 1., sin(iGlobalTime * .35)) * .5 - 1.5 - smoothstep(-.7, -1., sin(iGlobalTime * .35)) * .5;
+    vec3 eyedir = normalize(vec3(cos(mo.x), mo.y * 2. + sin(iGlobalTime * .5) * 0.1, sin(mo.x)));
     vec3 rightdir = normalize(vec3(cos(mo.x + 1.5708), 0., sin(mo.x + 1.5708)));
     vec3 updir = normalize(cross(rightdir, eyedir));
     vec3 rd = normalize((p.x * rightdir + p.y * updir) * 1. + eyedir);
@@ -197,7 +199,7 @@ void main()
  else col = Clouds(col, rd);
     col = mix(col, vec3(0.6, .62, .7), fg);
     col = min(pow(col * 1.1, vec3(1.6)), 1.0);
-    float f = smoothstep(0.0, 3.0, time) * .5;
+    float f = smoothstep(0.0, 3.0, iGlobalTime) * .5;
     col *= f + f * pow(70. * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), .2);
     gl_FragColor = vec4(col, 1.0);
 }

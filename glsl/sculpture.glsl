@@ -8,9 +8,9 @@
 //------------------------------------------------------------------------------------
 precision highp float;
 varying vec2 vUv;
-uniform float time;
-uniform vec4 mouse;
-uniform vec3 resolution;
+uniform float iGlobalTime;
+uniform vec4 iMouse;
+uniform vec3 iResolution;
 float hash1(float n) 
 {
     return fract(sin(n) * 43758.5453123);
@@ -28,7 +28,7 @@ vec3 forwardSF(float i, float n)
     float sinTheta = sqrt(1.0 - zi * zi);
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, zi);
 }
-float sca = 0.5 + 0.15 * sin(time - 10.0);
+float sca = 0.5 + 0.15 * sin(iGlobalTime - 10.0);
 vec4 grow = vec4(1.0);
 vec3 mapP(vec3 p) 
 {
@@ -93,21 +93,21 @@ vec4 texCube(sampler2D sam, in vec3 p, in vec3 n, in float k)
 void main(void) 
 {
 
-    vec2 p = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
+    vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
     vec2 q = vUv.xy;
 
-    //vec2 p = (-resolution.xy + 2.0 * vUv.xy) / resolution.y;
-    //vec2 q = vUv.xy / resolution.xy;
-    grow = smoothstep(0.0, 1.0, (time - vec4(0.0, 1.0, 2.0, 3.0)) / 3.0);
-    //float an = 1.1 + 0.05 * (time - 10.0) - 7.0 * mouse.x;
-    float an = 1.1 + 0.05 * (time - 10.0) - 7.0 * 0.0;
+    //vec2 p = (-iResolution.xy + 2.0 * vUv.xy) / iResolution.y;
+    //vec2 q = vUv.xy / iResolution.xy;
+    grow = smoothstep(0.0, 1.0, (iGlobalTime - vec4(0.0, 1.0, 2.0, 3.0)) / 3.0);
+    //float an = 1.1 + 0.05 * (iGlobalTime - 10.0) - 7.0 * iMouse.x;
+    float an = 1.1 + 0.05 * (iGlobalTime - 10.0) - 7.0 * 0.0;
     float d = 4.5;
     vec3 ro = vec3(d * sin(an), 1.0, d * cos(an));
     vec3 ta = vec3(0.0, 0.2, 0.0);
     vec3 ww = normalize(ta - ro);
     vec3 uu = normalize(cross(ww, vec3(0.0, 1.0, 0.0)));
     vec3 vv = normalize(cross(uu, ww));
-    //vec3 rd = normalize(p.x * uu + p.y * vv + (1.0 + mouse.y) * ww);
+    //vec3 rd = normalize(p.x * uu + p.y * vv + (1.0 + iMouse.y) * ww);
     vec3 rd = normalize(p.x * uu + p.y * vv + (1.0 + 0.0) * ww);
     vec3 col = vec3(0.07) * clamp(1.0 - length(q - 0.5), 0.0, 1.0);
     float t = intersect(ro, rd);

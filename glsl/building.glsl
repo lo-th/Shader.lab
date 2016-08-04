@@ -3,9 +3,9 @@
 
 uniform sampler2D iChannel0;
 uniform samplerCube envMap;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 
 varying vec2 vUv;
 varying vec3 vEye;
@@ -46,7 +46,7 @@ vec3 env(vec3 r){
 
 float terrain(vec3 pos){ 
 
-    pos = rotate(pos,time*0.01);
+    pos = rotate(pos,iGlobalTime*0.01);
     float  n1 = noise2d(pos.xz*0.1+pos.z*0.1);
     float  p1 =  pos.y - 500.0;
     float  s1 =  450.0 + pos.y + sin(pos.x*0.01)*30.0 - abs(pos.z*0.2) - n1*10.0;
@@ -63,7 +63,7 @@ float terrain(vec3 pos){
     float p7 = 1.0 - box(pp+vec3(70.0,0.0,-130.0),vec3(2.0,120.0,2.0));
 
     float c1 = sphere(pos,300.0)+n1*10.0 -sin(pos.y*0.01)*10.0;
-    float c2 = sphere(pos+vec3(0.0,300.0+sin(time*0.3)*50.0,00.0),120.0)+n1*5.0*sin(time*2.0+pos.z*0.01);
+    float c2 = sphere(pos+vec3(0.0,300.0+sin(iGlobalTime*0.3)*50.0,00.0),120.0)+n1*5.0*sin(iGlobalTime*2.0+pos.z*0.01);
     
     float s = min(max(min(min(max(max(max(max(max(max(p2,p3),p4),p1),p5),p6),p7),-c1),-c2-50.0),c2),s1);
 
@@ -92,13 +92,13 @@ void raymarch(vec3 p,vec3 r){
 
 void main() {
 
-    //time        = iGlobalTime*2.0;
-    float pulse = pow(max(sin(time*0.5),0.0)*0.98,50.0);
+    //iGlobalTime        = iGlobalTime*2.0;
+    float pulse = pow(max(sin(iGlobalTime*0.5),0.0)*0.98,50.0);
     
-    vec2 uv     = gl_FragCoord.xy/(resolution.xx*0.5)-vec2(1.0,resolution.y/resolution.x);
+    vec2 uv     = gl_FragCoord.xy/(iResolution.xx*0.5)-vec2(1.0,iResolution.y/iResolution.x);
     vec3 ray1   = normalize(vec3(uv.x,uv.y,0.5));   
-    vec3 campos = path(time)+vec3(mouse.x,-50.0+mouse.y,500.0+sin(time*0.02)*400.0);
-    vec3 lightpos = path(time+0.5);
+    vec3 campos = path(iGlobalTime)+vec3(iMouse.x,-50.0+iMouse.y,500.0+sin(iGlobalTime*0.02)*400.0);
+    vec3 lightpos = path(iGlobalTime+0.5);
     
     
     // Surface
@@ -126,7 +126,7 @@ void main() {
     float ocl = min(smoothstep(0.0,80.0,test1-terrain(pos1-nor*20.0)),pow(smoothstep(0.0,1000.0,test1-terrain(pos1-nor*200.0)),1.0))*bkg;  
     float sha = smoothstep(-50.0,0.0,abs(tran2)-dist)*pow(smoothstep(2000.0+pulse*1000.0,0.0,dist),20.0)*bkg;    
    
-    float fog = noise2d(ray1.xy*3.0+campos.xz*0.001+vec2(0.0,-time*0.2));
+    float fog = noise2d(ray1.xy*3.0+campos.xz*0.001+vec2(0.0,-iGlobalTime*0.2));
     float mtr = noise2d(pos1.xz*0.5+pos1.y)*1.0;
     
     float dif = smoothstep(0.0,1.0,ang)*sha; 

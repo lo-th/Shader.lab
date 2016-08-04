@@ -7,8 +7,8 @@
 precision highp float;
 precision highp int;
 uniform sampler2D iChannel4;
-uniform vec3 resolution;
-uniform float time;
+uniform vec3 iResolution;
+uniform float iGlobalTime;
 varying vec2 vUv;
 mat2 rot2(float a) 
 {
@@ -123,9 +123,9 @@ float calcVoxAO(vec3 vp, vec3 sp, vec3 rd, vec3 mask)
 }
 void main() 
 {
-    //vec2 uv = (1.0 - vUv * 2.0) * vec2(resolution.x / resolution.y, -1.0);
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
-    vec3 lookAt = vec3(0., 0.5, time * 8. + 0.1);
+    //vec2 uv = (1.0 - vUv * 2.0) * vec2(iResolution.x / iResolution.y, -1.0);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    vec3 lookAt = vec3(0., 0.5, iGlobalTime * 8. + 0.1);
     vec3 camPos = lookAt + vec3(0.0, 0.0, -0.1);
     vec3 lightPos = camPos + vec3(0, 2.5, 8);
     lookAt.xy += path(lookAt.z);
