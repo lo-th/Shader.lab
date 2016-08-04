@@ -28,6 +28,10 @@ html, body {
     /*text-shadow: 0.5px 0.5px 2px #000000;*/
 }
 
+body{
+    background-image:url(../textures/cartographer.png);
+}
+
 @keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}
 #octo-arm{pointer-events:none;}
 #octo-body{pointer-events:none;}
@@ -223,7 +227,7 @@ html, body {
     font-family: "Consolas", Monaco, monospace;
     font-smooth: never;
     -webkit-font-smoothing : none;
-    font-size: 10px;
+    font-size: 11px;
     /*line-height: 123%;
     letter-spacing:-1px;
     padding-right: 20px;*/
