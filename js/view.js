@@ -161,7 +161,7 @@ var view = ( function () {
             camera.position.set(0,0,10);
             scene.add(camera)
 
-            controls = new THREE.OrbitControls( camera, renderer.domElement );
+            controls = new THREE.OrbitControls( camera, canvas );
             controls.target.set(0,0,0);
             controls.enableKeys = false;
             controls.update();

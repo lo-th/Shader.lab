@@ -137,6 +137,22 @@ var editor = ( function () {
 
         bigmenu.style.width =  window.innerWidth - left - right +'px';
 
+        //content.addEventListener( 'mousewheel', editor.wheel, false );
+
+    };
+
+    editor.wheel = function( e ){
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        var delta = 0;
+        if(e.wheelDeltaY) delta = -e.wheelDeltaY*0.04;
+        else if(e.wheelDelta) delta = -e.wheelDelta*0.2;
+        else if(e.detail) delta =e.detail*4.0;
+
+        console.log(delta)
+
     };
 
     editor.addSeparatorEvent = function(){
