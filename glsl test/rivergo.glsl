@@ -5,51 +5,42 @@
 
 // Placeholder audio https://www.youtube.com/watch?v=gmar4gh5nIw suggested by @qthund on twitter
 
+// https://www.shadertoy.com/view/Xl2XRW
 
-uniform sampler2D iChannel3;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
+//#extension GL_OES_standard_derivatives : enable
+
+uniform sampler2D iChannel0;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+uniform float iGlobalTime;
 
 varying vec2 vUv;
 varying vec3 vEye;
 
-#define ENABLE_ULTRA_QUALITY 0.
-#define ENABLE_WATER 1.
-#define ENABLE_FOAM 1.
-#define ENABLE_WATER_RECEIVE_SHADOW 1.
-#define ENABLE_CONE_STEPPING 1.
+#define ENABLE_ULTRA_QUALITY 0
+#define ENABLE_SUPERSAMPLE_MODE 0
+#define ENABLE_WATER 1
+#define ENABLE_FOAM 1
+#define ENABLE_WATER_RECEIVE_SHADOW 1
+#define ENABLE_CONE_STEPPING 1
+#define ENABLE_NIMITZ_TRIANGLE_NOISE 0
 
-
-// Textureless version
-#define ENABLE_NIMITZ_TRIANGLE_NOISE 0.
-
-#define ENABLE_LANDSCAPE_RECEIVE_SHADOW 0.
-
-#define ENABLE_SCREENSHOT_MODE 0.
-#define ENABLE_SUPERSAMPLE_MODE 0.
-
-const float k_screenshotTime = 13.0;
-
-//#if defined(ENABLE_SCREENSHOT_MODE) || defined(ENABLE_ULTRA_QUALITY)
-
-//#endif
-
-//#ifndef ENABLE_SCREENSHOT_MODE
-//#ifdef ENABLE_ULTRA_QUALITY
-
-const int k_raymarchSteps = 96;
-const int k_fmbSteps = 6;
-const int k_superSampleCount = 6;
-#else
 const int k_raymarchSteps = 64;
 const int k_fmbSteps = 3;
-#endif
-#else
-const int k_raymarchSteps = 96;
-const int k_fmbSteps = 5;
-const int k_superSampleCount = 10;
-#endif
+const int k_superSampleCount = 0;
+
+//const int k_raymarchSteps = 96;
+//const int k_fmbSteps = 6;
+//const int k_superSampleCount = 6;
+//#else
+//const int k_raymarchSteps = 64;
+//const int k_fmbSteps = 3;
+//#endif
+//#else
+//const int k_raymarchSteps = 96;
+//const int k_fmbSteps = 5;
+//const int k_superSampleCount = 10;
+//#endif
 
 const int k_fmbWaterSteps = 4;
 
@@ -340,7 +331,7 @@ vec4 SampleFlowingNormal( const vec2 vUV, const vec2 vFlowRate, const float fFoa
 vec2 GetWindowCoord( const in vec2 vUV )
 {
     vec2 vWindow = vUV * 2.0 - 1.0;
-    vWindow.x *= resolution.x / resolution.y;
+    vWindow.x *= iResolution.x / iResolution.y;
 
     return vWindow; 
 }
@@ -552,17 +543,17 @@ void GetSurfaceInfo( Intersection intersection, out Surface surface )
     surface.m_albedo = mix(vec3(.7,.8,.95), vec3(.1, .1,.05), fNoise );    
 #else
     #if 0
-    surface.m_albedo = texture2D( iChannel3, intersection.m_pos.xz ).rgb;
+    surface.m_albedo = texture2D( iChannel0, intersection.m_pos.xz ).rgb;
     surface.m_albedo = surface.m_albedo * surface.m_albedo;
     #else
     vec3 vWeights = surface.m_normal * surface.m_normal;
     vec3 col = vec3(0.0);
     vec3 sample;
-    sample = texture2D( iChannel3, intersection.m_pos.xz ).rgb;
+    sample = texture2D( iChannel0, intersection.m_pos.xz ).rgb;
     col += sample * sample * vWeights.y;
-    sample = texture2D( iChannel3, intersection.m_pos.xy ).rgb;
+    sample = texture2D( iChannel0, intersection.m_pos.xy ).rgb;
     col += sample * sample * vWeights.z;
-    sample = texture2D( iChannel3, intersection.m_pos.yz ).rgb;
+    sample = texture2D( iChannel0, intersection.m_pos.yz ).rgb;
     col += sample * sample * vWeights.x;
     col /= vWeights.x + vWeights.y + vWeights.z;
     surface.m_albedo = col;
@@ -845,34 +836,30 @@ vec3 GetSceneColour( const in vec3 vRayOrigin,  const in vec3 vRayDir )
 }
 
 // Code from https://www.shadertoy.com/view/ltlSWf 
-void BlockRender(in vec2 Coord)
-{
-    const float blockRate = 15.0;
-    const float blockSize = 64.0;
-    float frame = floor(time * blockRate);
-    vec2 blockRes = floor(resolution.xy / blockSize) + vec2(1.0);
-    float blockX = fract(frame / blockRes.x) * blockRes.x;
-    float blockY = fract(floor(frame / blockRes.x) / blockRes.y) * blockRes.y;
+//void BlockRender(in vec2 gl_FragCoord)
+//{
+//    const float blockRate = 15.0;
+//    const float blockSize = 64.0;
+ //   float frame = floor(iGlobalTime * blockRate);
+ //   vec2 blockRes = floor(iResolution.xy / blockSize) + vec2(1.0);
+ //   float blockX = fract(frame / blockRes.x) * blockRes.x;
+ //   float blockY = fract(floor(frame / blockRes.x) / blockRes.y) * blockRes.y;
     // Don't draw anything outside the current block.
-    if ((Coord.x - blockX * blockSize >= blockSize) ||
-        (Coord.x - (blockX - 1.0) * blockSize < blockSize) ||
-        (Coord.y - blockY * blockSize >= blockSize) ||
-        (Coord.y - (blockY - 1.0) * blockSize < blockSize))
-    {
-        discard;
-    }
-}
+ //   if ((gl_FragCoord.x - blockX * blockSize >= blockSize) ||
+   //     (gl_FragCoord.x - (blockX - 1.0) * blockSize < blockSize) ||
+ //       (gl_FragCoord.y - blockY * blockSize >= blockSize) ||
+ //       (gl_FragCoord.y - (blockY - 1.0) * blockSize < blockSize))
+ //   {
+ //       discard;
+ //   }
+//}
 
-void main() {
+void main(){
 
-    g_fTime = time;
+    g_fTime = iGlobalTime;
 
-#ifdef ENABLE_SCREENSHOT_MODE
-    BlockRender( gl_FragCoord.xy );
-    float fBaseTime = k_screenshotTime;
-#else
-    float fBaseTime = time;
-#endif
+    float fBaseTime = iGlobalTime;
+
     g_fTime = fBaseTime;
     
     float fCameraTime = g_fTime;
@@ -880,7 +867,7 @@ void main() {
     // Static camera locations
     //fCameraTime = 146.0; // some rocks
     
-    vec2 vUV = gl_FragCoord.xy / resolution.xy;
+    vec2 vUV = gl_FragCoord.xy / iResolution.xy;
 
     vec3 vCameraTarget = vec3(0.0, -0.5, 0.0);
 
@@ -891,10 +878,10 @@ void main() {
     float fHeading = fCameraTime * 0.1;
     float fDist = 1.5 - cos(fCameraTime * 0.1 + 2.0) * 0.8;
     
-    if( mouse.z > 0.0 )
+    if( iMouse.z > 0.0 )
     {
-        fHeading = mouse.x * 10.0 / resolution.x;
-        fDist = 5.0 - mouse.y * 5.0 / resolution.y;
+        fHeading = iMouse.x * 10.0 / iResolution.x;
+        fDist = 5.0 - iMouse.y * 5.0 / iResolution.y;
     }
     
     vCameraPos.y += 1.0 + fDist * fDist * 0.01;
@@ -910,9 +897,9 @@ void main() {
     vec3 vRayOrigin = vCameraPos;
     vec3 vRayDir = GetCameraRayDir( GetWindowCoord(vUV), vCameraPos, vCameraTarget );
     
-#ifndef ENABLE_SUPERSAMPLE_MODE
-    vec3 vResult = GetSceneColour(vRayOrigin, vRayDir);
-#else
+//#ifndef ENABLE_SUPERSAMPLE_MODE
+//    vec3 vResult = GetSceneColour(vRayOrigin, vRayDir);
+//#else
     vec3 vResult = vec3(0.0);
     float fTot = 0.0;
     for(int i=0; i<k_superSampleCount; i++)
@@ -929,7 +916,7 @@ void main() {
         fTot += 1.0;
     }
     vResult /= fTot;
-#endif    
+//#endif    
     
     vResult = ApplyVignetting( vUV, vResult );  
     

@@ -1,4 +1,4 @@
-
+//#extension GL_OES_standard_derivatives : enable
 
 //uniform float key[20];
 

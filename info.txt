@@ -24,10 +24,12 @@ uniform vec4 iMouse;
 varying vec3 vEye;
 varying vec2 vUv;
 
-5°/
+5°/ object space
 vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
 
 
 // error with 
 
 dFdx, dFdy, fwidth
+
+#extension GL_OES_standard_derivatives : enable
