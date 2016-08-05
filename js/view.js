@@ -56,7 +56,7 @@ var view = ( function () {
     var material = null;
     var uniforms = null;
     var tx, tx2;
-    var vertex;
+    var vertex, fragment;
 
     view = {
 
@@ -320,11 +320,141 @@ var view = ( function () {
 
             envName = envName || 'grey1';
 
-            pool.load( ['glsl/basic_vs.glsl', 'textures/noise.png', 'textures/stone.jpg', 'textures/bump.png', 'textures/tex06.png', 'textures/tex18.png', 'textures/tex07.png', 'textures/tex03.png', 'textures/tex09.png', 'textures/tex00.png','textures/cube/'+envName+'.cube'], view.initModel );
+            pool.load( ['glsl/basic_vs.glsl', 'glsl/basic_fs.glsl', 'textures/noise.png', 'textures/stone.jpg', 'textures/bump.png', 'textures/tex06.png', 'textures/tex18.png', 'textures/tex07.png', 'textures/tex03.png', 'textures/tex09.png', 'textures/tex00.png','textures/cube/'+envName+'.cube'], view.initModel );
 
         },
 
-        setMat : function( fragment ){
+        setMat : function( Fragment ){
+
+           
+
+            /*channelResolution[0].x = txt.noise.image.width;
+            channelResolution[0].y = txt.noise.image.height;
+
+
+            uniforms = {
+                iChannel0: {
+                    type: 't',
+                    value: txt.noise
+                },
+                iChannel1: {
+                    type: 't',
+                    value: txt.bump
+                },
+                iChannel2: {
+                    type: 't',
+                    value: txt.stone
+                },
+                iChannel3: {
+                    type: 't',
+                    value: txt.tex06
+                },
+                iChannel4: {
+                    type: 't',
+                    value: txt.tex18
+                },
+                iChannel5: {
+                    type: 't',
+                    value: txt.tex07
+                },
+                iChannel6: {
+                    type: 't',
+                    value: txt.tex03
+                },
+                iChannel7: {
+                    type: 't',
+                    value: txt.tex09
+                },
+                iChannel8: {
+                    type: 't',
+                    value: txt.tex00
+                },
+                envMap: {
+                    type: 't',
+                    value: textureCube
+                },
+
+                //
+
+                //time: { type: 'f', value: time.x },
+                //resolution: { type: 'v3', value: vsize },
+                //mouse: { type: 'v4', value: mouse },
+
+                //
+
+                iChannelResolution: { type: 'v2v', value: channelResolution },
+
+                iGlobalTime: { type: 'f', value: time.x },
+                iResolution: { type: 'v3', value: vsize },
+                iMouse: { type: 'v4', value: mouse },
+
+                //
+
+
+                key: {
+                    type:'fv',
+                    value:key
+                }
+            };*/
+
+            //uniforms.resolution.value.x = vsize.x;
+            //uniforms.resolution.value.y = vsize.y;
+            //uniforms.envMap.value = textureCube;
+            //uniforms.iChannel0.value = tx;
+            //uniforms.iChannel1.value = tx2;
+
+            material.dispose();
+
+            fragment = Fragment;
+
+            material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: vertex,
+                fragmentShader: fragment,
+                transparent:true,
+            }); 
+
+            mesh.material = material;
+
+        },
+
+        initTextures : function () {
+
+            var p = pool.getResult();
+
+            
+
+        },
+
+        initModel : function () {
+
+            view.initTextures();
+
+            var p = pool.getResult();
+
+            // init textures
+
+            var i = txt_name.length, tx;
+            while(i--){
+                tx = new THREE.Texture( p[txt_name[i]] );
+                tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
+                tx.flipY = false;
+                tx.needsUpdate = true;
+
+                txt[txt_name[i]] = tx;
+            }
+
+            // init envmap
+
+            textureCube = p[envName];
+            //scene.background = textureCube;
+
+            // init basic shader
+
+            vertex = p['basic_vs'];
+            fragment = p['basic_fs'];
+
+            
 
             channelResolution[0].x = txt.noise.image.width;
             channelResolution[0].y = txt.noise.image.height;
@@ -395,14 +525,6 @@ var view = ( function () {
                 }
             };
 
-            //uniforms.resolution.value.x = vsize.x;
-            //uniforms.resolution.value.y = vsize.y;
-            //uniforms.envMap.value = textureCube;
-            //uniforms.iChannel0.value = tx;
-            //uniforms.iChannel1.value = tx2;
-
-            if(material) material.dispose();
-
             material = new THREE.ShaderMaterial({
                 uniforms: uniforms,
                 vertexShader: vertex,
@@ -410,75 +532,14 @@ var view = ( function () {
                 transparent:true,
             }); 
 
-            mesh.material = material;
-
-        },
-
-        initTextures : function () {
-
-            var p = pool.getResult();
-
-            var i = txt_name.length, tx;
-            while(i--){
-                tx = new THREE.Texture( p[txt_name[i]] );
-                tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
-                tx.flipY = false;
-                tx.needsUpdate = true;
-
-                txt[txt_name[i]] = tx;
-            }
-
-        },
-
-        initModel : function () {
-
-            view.initTextures();
-
-            var p = pool.getResult();
-
-            textureCube = p[envName];
-            //scene.background = textureCube;
-
-            
-
-           // tx = new THREE.Texture(p['tex16']);
-           // tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
-            //tx.minFilter = THREE.LinearFilter;
-            //tx.anisotropy = 16;
-            //tx.generateMipmaps = false;
-           // tx.flipY = false;
-           // tx.needsUpdate = true;
-
-           // tx2 = new THREE.Texture(p['stone']);
-           // tx2.wrapS = tx2.wrapT = THREE.RepeatWrapping;
-           // tx2.needsUpdate = true;
-
-            //mesh = new THREE.Mesh( new THREE.SphereBufferGeometry( 6, 30, 28 ) );
             var geom = new THREE.PlaneBufferGeometry( 1, 1, 1, 1 );
-            mesh = new THREE.Mesh( geom );
-
-            
-
-            
-            var mh = 2 * Math.tan( (camera.fov * degtorad) * 0.5 ) * 1;//camera.position.z;
-            //var d = 2 * Math.tan( fov * 0.5 );
-            //var height = 2 * Math.tan( vFOV / 2 ) * dist;
-
-            
-
+            mesh = new THREE.Mesh( geom, material );
+ 
+            var mh = 2 * Math.tan( (camera.fov * degtorad) * 0.5 ) * 1;
             mesh.scale.set(mh*vsize.z, mh, 1);
-            //mesh.position.z = 10;
-
-            //mesh.matrix = camera.matrixWorld;
-            //mesh.matrixAutoUpdate = false;
-            //mesh = new THREE.Sprite();
-            //scene.add(mesh);
-
-            camera.add(mesh);
             mesh.position.set(0,0,-1);
-            //scene.add(mesh);
 
-            vertex = p['basic_vs'];
+            camera.add( mesh );
 
             ready()
 
