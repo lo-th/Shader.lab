@@ -12,7 +12,7 @@ var editor = ( function () {
 
     'use strict';
 
-    var rl = 260;
+    var rl = 250;
 
     var content, codeContent, code, separator, menuCode, debug, title; 
     var callback = function(){};
