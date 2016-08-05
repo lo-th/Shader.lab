@@ -17,6 +17,12 @@ var gui = ( function () {
             ui.add('button',  {width:60, sa:5, sb:50, name:0.5}).onChange( function(){view.setQuality(0.5)} );
             ui.add('button',  {width:60, sa:5, sb:50, name:1}).onChange( function(){view.setQuality(1)} );
 
+            ui.add('title',  { name:'Scene' });
+
+            ui.add('button',  {width:60, sa:5, sb:50, name:'full'}).onChange( function(){view.setScene(0)} );
+            ui.add('button',  {width:60, sa:5, sb:50, name:'sphere'}).onChange( function(){view.setScene(1)} );
+            ui.add('button',  {width:60, sa:5, sb:50, name:'torus'}).onChange( function(){view.setScene(2)} );
+
         },
         hide : function(b){
 

@@ -17,6 +17,8 @@ var view = ( function () {
 
     }
 
+    var currentScene = -1;
+
 
 
     var degtorad = 0.0174532925199432957;
@@ -52,7 +54,7 @@ var view = ( function () {
     var WIDTH = 512;
 
 
-    var mesh;
+    var mesh, mesh2;
     var material = null;
     var uniforms = null;
     var tx, tx2;
@@ -93,7 +95,7 @@ var view = ( function () {
 
             canvas.style.left = vs.x +'px';
 
-            if( mesh ){ 
+            if( currentScene === 0 ){ 
                 // 1 is distance from camera
                 var h = 2 * Math.tan( (camera.fov * degtorad) * 0.5 ) * 1;
                 mesh.scale.set(h*vsize.z, h, 1);
@@ -326,83 +328,6 @@ var view = ( function () {
 
         setMat : function( Fragment ){
 
-           
-
-            /*channelResolution[0].x = txt.noise.image.width;
-            channelResolution[0].y = txt.noise.image.height;
-
-
-            uniforms = {
-                iChannel0: {
-                    type: 't',
-                    value: txt.noise
-                },
-                iChannel1: {
-                    type: 't',
-                    value: txt.bump
-                },
-                iChannel2: {
-                    type: 't',
-                    value: txt.stone
-                },
-                iChannel3: {
-                    type: 't',
-                    value: txt.tex06
-                },
-                iChannel4: {
-                    type: 't',
-                    value: txt.tex18
-                },
-                iChannel5: {
-                    type: 't',
-                    value: txt.tex07
-                },
-                iChannel6: {
-                    type: 't',
-                    value: txt.tex03
-                },
-                iChannel7: {
-                    type: 't',
-                    value: txt.tex09
-                },
-                iChannel8: {
-                    type: 't',
-                    value: txt.tex00
-                },
-                envMap: {
-                    type: 't',
-                    value: textureCube
-                },
-
-                //
-
-                //time: { type: 'f', value: time.x },
-                //resolution: { type: 'v3', value: vsize },
-                //mouse: { type: 'v4', value: mouse },
-
-                //
-
-                iChannelResolution: { type: 'v2v', value: channelResolution },
-
-                iGlobalTime: { type: 'f', value: time.x },
-                iResolution: { type: 'v3', value: vsize },
-                iMouse: { type: 'v4', value: mouse },
-
-                //
-
-
-                key: {
-                    type:'fv',
-                    value:key
-                }
-            };*/
-
-            //uniforms.resolution.value.x = vsize.x;
-            //uniforms.resolution.value.y = vsize.y;
-            //uniforms.envMap.value = textureCube;
-            //uniforms.iChannel0.value = tx;
-            //uniforms.iChannel1.value = tx2;
-
             material.dispose();
 
             fragment = Fragment;
@@ -418,17 +343,7 @@ var view = ( function () {
 
         },
 
-        initTextures : function () {
-
-            var p = pool.getResult();
-
-            
-
-        },
-
         initModel : function () {
-
-            view.initTextures();
 
             var p = pool.getResult();
 
@@ -497,7 +412,6 @@ var view = ( function () {
                     type: 't',
                     value: txt.tex00
                 },
-
                 iChannel9: {
                     type: 't',
                     value: txt.tex08
@@ -522,8 +436,6 @@ var view = ( function () {
                 iMouse: { type: 'v4', value: mouse },
 
                 //
-
-
                 key: {
                     type:'fv',
                     value:key
@@ -537,6 +449,12 @@ var view = ( function () {
                 transparent:true,
             }); 
 
+            /*var g2 = new THREE.SphereBufferGeometry(3, 30, 26, 30*degtorad, 120*degtorad, 45*degtorad, 90*degtorad );
+            mesh2 = new THREE.Mesh( g2, material);
+            scene.add( mesh2 );
+
+
+
             var geom = new THREE.PlaneBufferGeometry( 1, 1, 1, 1 );
             mesh = new THREE.Mesh( geom, material );
  
@@ -544,9 +462,61 @@ var view = ( function () {
             mesh.scale.set(mh*vsize.z, mh, 1);
             mesh.position.set(0,0,-1);
 
-            camera.add( mesh );
+            camera.add( mesh );*/
 
-            ready()
+            view.setScene(0);
+            
+
+            ready();
+
+        },
+
+        setScene : function( n ){
+
+            var g;
+
+            if(mesh !== null){
+                if(currentScene === 0 ) camera.remove( mesh );
+                else scene.remove( mesh );
+            }
+
+
+
+            
+
+            if( n === 0 ){
+
+                g = new THREE.PlaneBufferGeometry( 1, 1, 1, 1 );
+                mesh = new THREE.Mesh( g, material );
+     
+                var mh = 2 * Math.tan( (camera.fov * degtorad) * 0.5 ) * 1;
+                mesh.scale.set(mh*vsize.z, mh, 1);
+                mesh.position.set(0,0,-1);
+
+                camera.add( mesh );
+
+            }
+
+            if( n === 1 ){
+
+                g = new THREE.SphereBufferGeometry(3, 30, 26, 30*degtorad, 120*degtorad, 45*degtorad, 90*degtorad );
+                mesh = new THREE.Mesh( g, material );
+                scene.add( mesh );
+
+            }
+
+            if( n === 2 ){
+
+                g = new THREE.TorusBufferGeometry( 3, 1, 50, 20 );
+                mesh = new THREE.Mesh( g, material );
+                scene.add( mesh );
+
+            }
+
+
+
+
+            currentScene = n
 
         },
 
