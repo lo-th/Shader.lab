@@ -119,7 +119,9 @@ mat3 calcLookAtMatrix( in vec3 ro, in vec3 ta, in float roll ){
 
 void main() {
 
-    vec2 xy = (gl_FragCoord.xy - iResolution.xy/2.0) / min(iResolution.xy.x, iResolution.xy.y);
+    //vec2 xy = (gl_FragCoord.xy - iResolution.xy/2.0) / min(iResolution.xy.x, iResolution.xy.y);
+
+    vec2 xy = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
     
     float t = iGlobalTime;
     vec3 campos = vec3(10.0*sin(t*0.3),2.5*sin(t*0.5),-10.0*cos(t*0.3));

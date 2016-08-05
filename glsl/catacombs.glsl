@@ -310,9 +310,12 @@ vec3 renderAll( in vec3 ro, in vec3 rd ){
 
 void main(){
 
-    vec2 q = gl_FragCoord.xy/iResolution.xy;
-    vec2 p = -1.0+2.0*q;
-    p.x *= iResolution.x/iResolution.y;
+    vec2 q = vUv;
+    vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+
+    //vec2 q = gl_FragCoord.xy/iResolution.xy;
+    //vec2 p = -1.0+2.0*q;
+    //p.x *= iResolution.x/iResolution.y;
     vec2 mo = iMouse.xy/iResolution.xy;
          
     //float iGlobalTime = iGlobalTime;

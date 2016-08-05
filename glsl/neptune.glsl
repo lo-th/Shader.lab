@@ -191,8 +191,11 @@ void main() {
     fcoord = gl_FragCoord.xy;
     float m = (iMouse.x / iResolution.x) * 10.0;
     float gTime = ((iGlobalTime + 135.0) * .25 + m);
-    vec2 xy = gl_FragCoord.xy / iResolution.xy;
-    vec2 uv = (-1.0 + 2.0 * xy) * vec2(iResolution.x / iResolution.y, 1.0);
+    //vec2 xy = gl_FragCoord.xy / iResolution.xy;
+    //vec2 uv = (-1.0 + 2.0 * xy) * vec2(iResolution.x / iResolution.y, 1.0);
+    vec2 xy = vUv;
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+
     float hTime = mod(gTime + 1.95, 2.0);
     vec3 cameraPos = CameraPath(gTime + 0.0);
     vec3 camTarget = CameraPath(gTime + .25);

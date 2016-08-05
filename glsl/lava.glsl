@@ -104,10 +104,12 @@ void main()
     //vec2 uv = vUv.xy * 2.0 / iResolution.xy - 1.0;
     //uv.x *= iResolution.x / iResolution.y;
 
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    uv = 1.0 - uv * 2.0;
-    uv.x *= iResolution.x / iResolution.y;   
-    uv.y *= -1.;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+   // uv = 1.0 - uv * 2.0;
+   // uv.x *= iResolution.x / iResolution.y;   
+    //uv.y *= -1.;
+
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
 
     vec3 color = vec3(skyColor(uv, 0.));

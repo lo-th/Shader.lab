@@ -142,7 +142,8 @@ float raycast(in vec3 origin, in vec3 direction, in vec4 normal, in float color,
 void main() {
 
     // Define the ray corresponding to this fragment
-    vec2 frag = (2.0 * gl_FragCoord.xy - iResolution.xy) / iResolution.y;
+    vec2 frag = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    //vec2 frag = (2.0 * gl_FragCoord.xy - iResolution.xy) / iResolution.y;
     vec3 direction = normalize (vec3 (frag, 2.0));
 
     //vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);

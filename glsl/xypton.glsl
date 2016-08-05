@@ -201,10 +201,13 @@ float curv(in vec3 p, in float w)
 }
 
 void main() {
+
+    vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    vec2 q = vUv;
   
-    vec2 p = gl_FragCoord.xy/iResolution.xy-0.5;
-    vec2 q = gl_FragCoord.xy/iResolution.xy;
-    p.x*=iResolution.x/iResolution.y;
+    ///vec2 p = gl_FragCoord.xy/iResolution.xy-0.5;
+    //vec2 q = gl_FragCoord.xy/iResolution.xy;
+    //p.x*=iResolution.x/iResolution.y;
     vec2 mo = iMouse.xy / iResolution.xy-.5;
     mo = (mo==vec2(-.5))?mo=vec2(-0.1,0.07):mo;
     mo.x *= iResolution.x/iResolution.y;

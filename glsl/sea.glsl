@@ -168,9 +168,13 @@ float heightMapTracing(vec3 ori, vec3 dir, out vec3 p) {
 // main
 void main() {
 
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    uv = uv * 2.0 - 1.0;
-    uv.x *= iResolution.x / iResolution.y;    
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    //uv = uv * 2.0 - 1.0;
+    //uv.x *= iResolution.x / iResolution.y;  
+
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);  
+
+
     float tt = iGlobalTime * 0.3 + iMouse.x*0.01;
         
     // ray

@@ -95,7 +95,9 @@ void main() {
     //iGlobalTime        = iGlobalTime*2.0;
     float pulse = pow(max(sin(iGlobalTime*0.5),0.0)*0.98,50.0);
     
-    vec2 uv     = gl_FragCoord.xy/(iResolution.xx*0.5)-vec2(1.0,iResolution.y/iResolution.x);
+    //vec2 uv     = gl_FragCoord.xy/(iResolution.xx*0.5)-vec2(1.0,iResolution.y/iResolution.x);
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+
     vec3 ray1   = normalize(vec3(uv.x,uv.y,0.5));   
     vec3 campos = path(iGlobalTime)+vec3(iMouse.x,-50.0+iMouse.y,500.0+sin(iGlobalTime*0.02)*400.0);
     vec3 lightpos = path(iGlobalTime+0.5);

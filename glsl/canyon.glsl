@@ -1,7 +1,5 @@
 // author: https://www.shadertoy.com/view/Xs33Df
 
-
-
 uniform sampler2D iChannel1;
 uniform sampler2D iChannel2;
 uniform vec3 iResolution;
@@ -162,18 +160,12 @@ float curve(in vec3 p)
     float t3 = map(p + e.xyx), t4 = map(p + e.yyy);
     return clamp((t1 + t2 + t3 + t4 - 4. * map(p)) * amp + ampInit, 0., 1.);
 }
-void main() 
-{
 
-    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    //uv = 1.0 - uv * 2.0;
-    //uv.x *= iResolution.x / iResolution.y;   
-    //uv.y *= -1.;
+void main() {
 
-    //vec2 uv = (1.0 - vUv * 2.0) * vec2(iResolution.x / iResolution.y, -1.0);
     vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
-    vec2 u = uv;//(vUv - iResolution.xy * 0.5) / iResolution.y;
+    vec2 u = uv;
     vec3 lookAt = vec3(0.0, 0.0, iGlobalTime * 8.);
     vec3 ro = lookAt + vec3(0.0, 0.0, -0.1);
     lookAt.xy += path(lookAt.z);
