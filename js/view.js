@@ -316,11 +316,11 @@ var view = ( function () {
 
         loadAssets : function ( EnvName ) {
 
-            txt_name = [ 'noise', 'stone', 'bump', 'tex19', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00' ]
+            txt_name = [ 'noise', 'stone', 'bump', 'tex19', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08' ]
 
             envName = envName || 'grey1';
 
-            pool.load( ['glsl/basic_vs.glsl', 'glsl/basic_fs.glsl', 'textures/noise.png', 'textures/stone.jpg', 'textures/bump.png', 'textures/tex06.png', 'textures/tex18.png', 'textures/tex07.png', 'textures/tex03.png', 'textures/tex09.png', 'textures/tex00.png','textures/cube/'+envName+'.cube'], view.initModel );
+            pool.load( ['glsl/basic_vs.glsl', 'glsl/basic_fs.glsl', 'textures/noise.png', 'textures/stone.jpg', 'textures/bump.png', 'textures/tex06.png', 'textures/tex18.png', 'textures/tex07.png', 'textures/tex03.png', 'textures/tex09.png', 'textures/tex00.png', 'textures/tex08.png','textures/cube/'+envName+'.cube'], view.initModel );
 
         },
 
@@ -496,6 +496,11 @@ var view = ( function () {
                 iChannel8: {
                     type: 't',
                     value: txt.tex00
+                },
+
+                iChannel9: {
+                    type: 't',
+                    value: txt.tex08
                 },
                 envMap: {
                     type: 't',
