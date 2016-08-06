@@ -518,10 +518,16 @@ var editor = ( function () {
         document.getElementsByTagName('BODY').item(0).appendChild(oScript);
         */
 
-        menuCode.innerHTML = '&bull; ' + fileName;
+       // menuCode.innerHTML = '&bull; ' + fileName;
         //title.innerHTML = fileName.charAt(0).toUpperCase() + fileName.substring(1).toLowerCase();//fileName;
 
         callback( fileName );
+
+    };
+
+    editor.setTitle = function ( value ) {
+        if( value === undefined ) menuCode.innerHTML = '&bull; ' + fileName;
+        else menuCode.innerHTML = '<font color="red">' + value + '</font>';
 
     };
 

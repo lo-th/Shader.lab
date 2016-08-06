@@ -1,3 +1,8 @@
+
+// ------------------ channel define
+// 0_# noise #_0
+// ------------------
+
 // Built from the basics of'Clouds' Created by inigo quilez - iq/2013
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
@@ -6,14 +11,6 @@
 // V.1.2 Added Shadertoy's fast 3D noise for better, smaller step size.
 
 // https://www.shadertoy.com/view/XsfGzH
-
-uniform sampler2D iChannel0;
-
-uniform vec4 iMouse;
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
 
 mat3 m = mat3( 0.00,  0.90,  0.60,
               -0.90,  0.36, -0.48,

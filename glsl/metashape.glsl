@@ -1,12 +1,9 @@
+
+// ------------------ channel define
+// 0_# grey1 #_0
+// ------------------
+
 // https://www.shadertoy.com/view/Xls3R7
-
-uniform samplerCube envMap;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
-varying vec3 vEye;
 
 float sphere(vec3 pos)
 {
@@ -104,7 +101,7 @@ vec3 illuminate( in vec3 pos , in vec3 camdir )
 
 vec3 background( vec3 rd ){
 
-    return textureCube(envMap, rd).rgb * textureCube(envMap, -rd).rgb;
+    return textureCube(iChannel0, rd).rgb * textureCube(iChannel0, -rd).rgb;
 
 }
 

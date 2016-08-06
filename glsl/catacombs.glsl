@@ -1,16 +1,13 @@
+
+// ------------------ channel define
+// 0_# tex03 #_0
+// 1_# tex00 #_1
+// ------------------
+
 // Created by inigo quilez - iq/2013
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
 // https://www.shadertoy.com/view/lsf3zr
-
-uniform sampler2D iChannel6;
-uniform sampler2D iChannel8;
-
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
 
 #define SC 15.0
 
@@ -21,9 +18,9 @@ float sum( vec2 a ) { return a.x + a.y; }
 float fbm( vec3 p, vec3 n ){
 
     p *= 0.15;
-    float x = texture2D( iChannel6, p.yz ).x;
-    float y = texture2D( iChannel6, p.zx ).x;
-    float z = texture2D( iChannel6, p.xy ).x;
+    float x = texture2D( iChannel0, p.yz ).x;
+    float y = texture2D( iChannel0, p.zx ).x;
+    float z = texture2D( iChannel0, p.xy ).x;
     return x*abs(n.x) + y*abs(n.y) + z*abs(n.z);
 
 }
@@ -112,7 +109,7 @@ vec3 calcColor( in vec3 pos, in vec3 nor, in float sid ){
         //float de = 20.0*length(fwidth(pos.xz));
         float peld = smoothstep( 0.15-de, 0.15+de, min( peldxz.x, peldxz.y ) );
         cc = 0.05 + 0.95*vec3(peld);
-        cc = pow( texture2D( iChannel8, 6.0*pos.xz ).xyz, vec3(2.20) );
+        cc = pow( texture2D( iChannel1, 6.0*pos.xz ).xyz, vec3(2.20) );
 
     } else if( sid>0.5 && sid<1.5 ){
 

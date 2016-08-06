@@ -1,15 +1,11 @@
 
+
 //"Seascape" by Alexander Alekseev aka TDM - 2014
 //License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 //Contact: tdmaav@gmail.com
 
 // https://www.shadertoy.com/view/Ms2SD1
 
-uniform sampler2D iChannel2;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-varying vec2 vUv;
 
 const int NUM_STEPS = 8;
 const float PI      = 3.1415;

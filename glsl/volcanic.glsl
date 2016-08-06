@@ -1,15 +1,14 @@
+
+// ------------------ channel define
+// 0_# noise #_0
+// 1_# tex06 #_1
+// 2_# tex09 #_2
+// ------------------
+
+
 // Created by inigo quilez - iq/2013
 // https://www.shadertoy.com/view/XsX3RB
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-
-uniform sampler2D iChannel0;
-uniform sampler2D iChannel1;
-uniform sampler2D iChannel2;
-uniform samplerCube envMap;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-varying vec2 vUv;
 
 #define HIGH_QUALITY_NOISE 0
 

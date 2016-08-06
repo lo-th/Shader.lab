@@ -1,8 +1,3 @@
-precision highp float;
-varying vec2 vUv;
-uniform float iGlobalTime;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
 
 vec3 roty(vec3 p, float a) {
     return p * mat3(cos(a), 0, -sin(a), 0, 1, 0, sin(a), 0, cos(a));

@@ -1,12 +1,11 @@
 
-// https://www.shadertoy.com/view/MsX3RH
+// ------------------ channel define
+// 0_# tex06 #_0
+// 1_# tex01 #_1
+// 2_# tex09 #_2
+// ------------------
 
-uniform sampler2D iChannel2;
-uniform sampler2D iChannel3;
-uniform sampler2D iChannel4;
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-varying vec2 vUv;
+// https://www.shadertoy.com/view/MsX3RH
 
 const vec2 cama = vec2(-2.6943, 3.0483);
 const vec2 camb = vec2(0.2516, 0.1749);
@@ -112,18 +111,18 @@ void main()
     }
      vec3 tuv = Pos * vec3(3.0, 3.0, 1.5);
     float nms = 0.19;
-    vec3 nmx = nmap(tuv.yz, iChannel2, nms) + nmap(-tuv.yz, iChannel2, nms);
-    vec3 nmy = nmap(tuv.xz, iChannel3, nms) + nmap(-tuv.xz, iChannel3, nms);
-    vec3 nmz = nmap(tuv.xy, iChannel4, nms) + nmap(-tuv.xy, iChannel4, nms);
+    vec3 nmx = nmap(tuv.yz, iChannel0, nms) + nmap(-tuv.yz, iChannel0, nms);
+    vec3 nmy = nmap(tuv.xz, iChannel1, nms) + nmap(-tuv.xz, iChannel1, nms);
+    vec3 nmz = nmap(tuv.xy, iChannel3, nms) + nmap(-tuv.xy, iChannel3, nms);
     vec3 nn = normalize(nmx * tpn.x + nmy * tpn.y + nmz * tpn.z);
     float dd;
     dd = max(0.0, dot(nn, normalize(ld * mat3(vec3(1, 0, 0), vec3(0, 0, 1), n))));
     vec4 diff = vec4(dd * 1.2 * lv) + vec4(0.2);
     float w = pow(dot(normalize(Pos - oPos), normalize(lp - oPos)), 5000.0);
     if (length(Pos - oPos) < length(lp - oPos)) w = 0.0;
-     vec4 tx = texture2D(iChannel2, tuv.yz) + texture2D(iChannel2, -tuv.yz);
-    vec4 ty = texture2D(iChannel3, tuv.xz) + texture2D(iChannel3, -tuv.xz);
-    vec4 tz = texture2D(iChannel4, tuv.xy) + texture2D(iChannel4, -tuv.xy);
+     vec4 tx = texture2D(iChannel0, tuv.yz) + texture2D(iChannel0, -tuv.yz);
+    vec4 ty = texture2D(iChannel1, tuv.xz) + texture2D(iChannel1, -tuv.xz);
+    vec4 tz = texture2D(iChannel3, tuv.xy) + texture2D(iChannel3, -tuv.xy);
     vec4 col = tx * tpn.x + ty * tpn.y + tz * tpn.z;
     gl_FragColor = col * diff * min(1.0, fade * 10.0) + w;
 }

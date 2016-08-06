@@ -1,9 +1,7 @@
-precision highp float;
-precision highp int;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-varying vec2 vUv;
+
+
+
+
 const float dispValue = .7;
 const float dispOffset = .5;
 const float sphereBaseRadius = .6;

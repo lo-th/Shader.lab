@@ -1,12 +1,8 @@
+
 #define CONTRAST 1.4
 #define SATURATION 1.4
 #define BRIGHTNESS 1.2
 
-precision highp float;
-varying vec2 vUv;
-uniform float iGlobalTime;
-uniform vec4 iMouse;
-uniform vec3 iResolution;
 vec3 sunLight = normalize(vec3(0.35, 0.1, 0.7));
 vec3 cameraPos;
 vec3 sunColour = vec3(1.0, .75, .4);

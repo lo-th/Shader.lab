@@ -1,13 +1,9 @@
 
+// ------------------ channel define
+// 0_# grey1 #_0
+// ------------------
+
 // author : https://www.shadertoy.com/view/ltfXDM
-
-uniform samplerCube envMap;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
-varying vec3 vEye;
 
 #define RAY_LENGTH_MAX 20.0
 #define RAY_BOUNCE_MAX 10
@@ -133,7 +129,7 @@ float raycast(in vec3 origin, in vec3 direction, in vec4 normal, in float color,
     }
 
     // Get the background color
-    float backColor = dot(textureCube(envMap, direction).rgb, channel);
+    float backColor = dot(textureCube(iChannel0, direction).rgb, channel);
     // Return the intensity of this color channel
     return color + backColor * intensity;
 
@@ -176,7 +172,7 @@ void main() {
 
     // Check whether we hit something
     if (dist >= 0.0){
-        gl_FragColor.rgb = textureCube(envMap, direction).rgb;
+        gl_FragColor.rgb = textureCube(iChannel0, direction).rgb;
     } else {
         // Get the normal
         normal.xyz = getNormal(origin);

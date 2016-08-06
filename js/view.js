@@ -19,7 +19,7 @@ var view = ( function () {
 
     var currentScene = -1;
 
-
+    var gl = null;
 
     var degtorad = 0.0174532925199432957;
     var radtodeg = 57.295779513082320876;
@@ -39,6 +39,7 @@ var view = ( function () {
 
     var txt = {};
     var txt_name = [];
+    var cube_name = [];
 
     var geo = {};
     var textures = {};
@@ -149,6 +150,14 @@ var view = ( function () {
             renderer.setSize( vsize.x, vsize.y );
             renderer.setClearColor( 0x000000, 0 );
 
+
+            gl = renderer.getContext();
+
+            //canvas.addEventListener("webglcontextlost", function(event) {
+                //event.preventDefault();
+            //    editor.setTitle('Error');
+            //}, false);
+
             //renderer.gammaInput = true;
             //renderer.gammaOutput = true;
 
@@ -170,6 +179,9 @@ var view = ( function () {
 
 
             window.addEventListener( 'resize', view.resize, false ); 
+            window.addEventListener( 'error', function(e, url, line){  editor.setTitle('Error'); }, false );
+
+            //window.onerror = function(e, url, line){  editor.setTitle('Error'); };
 
             renderer.domElement.addEventListener( 'mousemove', view.move, false );
             renderer.domElement.addEventListener( 'mousedown', view.down, false );
@@ -318,11 +330,13 @@ var view = ( function () {
 
         loadAssets : function ( EnvName ) {
 
-            txt_name = [ 'noise', 'stone', 'bump', 'tex19', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08' ]
+            txt_name = [ 'noise', 'stone', 'bump', 'tex19', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02' ]
 
             envName = envName || 'grey1';
 
-            pool.load( ['glsl/basic_vs.glsl', 'glsl/basic_fs.glsl', 'textures/noise.png', 'textures/stone.jpg', 'textures/bump.png', 'textures/tex06.png', 'textures/tex18.png', 'textures/tex07.png', 'textures/tex03.png', 'textures/tex09.png', 'textures/tex00.png', 'textures/tex08.png','textures/cube/'+envName+'.cube'], view.initModel );
+            cube_name.push( envName );
+
+            pool.load( ['glsl/basic_vs.glsl', 'glsl/basic_fs.glsl', 'textures/noise.png', 'textures/tex01.png', 'textures/tex02.png', 'textures/tex05.png', 'textures/stone.jpg', 'textures/bump.png', 'textures/tex06.png', 'textures/tex18.png', 'textures/tex07.png', 'textures/tex03.png', 'textures/tex09.png', 'textures/tex00.png', 'textures/tex08.png','textures/cube/'+envName+'.cube'], view.initModel );
 
         },
 
@@ -330,7 +344,50 @@ var view = ( function () {
 
             material.dispose();
 
-            fragment = Fragment;
+            var derive = Fragment.search("#extension GL_OES_standard_derivatives");
+            var c0 = Fragment.search("0_#");
+            var c1 = Fragment.search("1_#");
+            var c2 = Fragment.search("2_#");
+            var c3 = Fragment.search("3_#");
+            var ch0 = c0 !== -1 ? Fragment.substring( c0+4, Fragment.lastIndexOf('#_0') - 1 ) : null;
+            var ch1 = c1 !== -1 ? Fragment.substring( c1+4, Fragment.lastIndexOf('#_1') - 1 ) : null;
+            var ch2 = c2 !== -1 ? Fragment.substring( c2+4, Fragment.lastIndexOf('#_2') - 1 ) : null;
+            var ch3 = c3 !== -1 ? Fragment.substring( c3+4, Fragment.lastIndexOf('#_3') - 1 ) : null;
+
+            var t0 = cube_name.indexOf( ch0 ) !== -1 ? 'samplerCube' : 'sampler2D';
+            var t1 = cube_name.indexOf( ch1 ) !== -1 ? 'samplerCube' : 'sampler2D';
+            var t2 = cube_name.indexOf( ch2 ) !== -1 ? 'samplerCube' : 'sampler2D';
+            var t3 = cube_name.indexOf( ch3 ) !== -1 ? 'samplerCube' : 'sampler2D';
+
+
+            var Uni = [
+
+                'uniform '+t0+' iChannel0;',
+                'uniform '+t1+' iChannel1;',
+                'uniform '+t2+' iChannel2;',
+                'uniform '+t3+' iChannel3;',
+                'uniform vec4 iMouse;',
+                'uniform vec3 iResolution;',
+                'uniform float iGlobalTime;',
+                'uniform vec2 iChannelResolution[4];',
+
+                'varying vec2 vUv;',
+                'varying vec3 vEye;',
+
+            ].join('\n');
+
+            uniforms.iChannel0.value = txt[ch0];
+            uniforms.iChannel1.value = txt[ch1];
+            uniforms.iChannel2.value = txt[ch2];
+            uniforms.iChannel3.value = txt[ch3];
+
+            if( ch0 !== null ){ channelResolution[0].x = txt[ch0].image.width; channelResolution[0].y = txt[ch0].image.height; }
+
+            //uniforms.iChannelResolution.value = channelResolution;
+
+            fragment = Uni + Fragment;
+
+            //
 
             material = new THREE.ShaderMaterial({
                 uniforms: uniforms,
@@ -339,7 +396,17 @@ var view = ( function () {
                 transparent:true,
             }); 
 
+            
+
+            material.extensions.derivatives = derive !== -1 ? true : false;
+
+
+                //var status = gl.getProgramParameter( material.program, gl.LINK_STATUS );
+
+               // if ( status ) {
+
             mesh.material = material;
+            editor.setTitle();
 
         },
 
@@ -360,7 +427,7 @@ var view = ( function () {
             }
 
             // init envmap
-
+            txt[envName] = p[envName];
             textureCube = p[envName];
             //scene.background = textureCube;
 
@@ -376,23 +443,26 @@ var view = ( function () {
 
 
             uniforms = {
+
                 iChannel0: {
                     type: 't',
-                    value: txt.noise
+                    value: null//txt.noise
                 },
                 iChannel1: {
                     type: 't',
-                    value: txt.bump
+                    value: null//txt.bump
                 },
                 iChannel2: {
                     type: 't',
-                    value: txt.stone
+                    value: null//txt.stone
                 },
                 iChannel3: {
                     type: 't',
-                    value: txt.tex06
+                    value: null//txt.tex06
                 },
-                iChannel4: {
+
+
+                /*iChannel4: {
                     type: 't',
                     value: txt.tex18
                 },
@@ -419,7 +489,7 @@ var view = ( function () {
                 envMap: {
                     type: 't',
                     value: textureCube
-                },
+                },*/
 
                 //
 

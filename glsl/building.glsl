@@ -1,14 +1,10 @@
+
+// ------------------ channel define
+// 0_# noise #_0
+// 1_# grey1 #_1
+// ------------------
+
 // https://www.shadertoy.com/view/4ss3z4
-
-
-uniform sampler2D iChannel0;
-uniform samplerCube envMap;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
-varying vec3 vEye;
 
 // ******* Tools  ******* 
 

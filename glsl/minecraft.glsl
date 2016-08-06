@@ -1,3 +1,9 @@
+
+// ------------------ channel define
+// 0_# noise #_0
+// 1_# tex01 #_1
+// ------------------
+
 // Minecraft. Created by Reinder Nijhoff 2013
 // @reindernijhoff
 //
@@ -9,15 +15,6 @@
 // 
 // All credits goes to inigo quilez!
 //
-uniform sampler2D iChannel0;
-uniform sampler2D iChannel1;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
-varying vec3 vEye;
-
 
 #define SEALEVEL -25.
 #define MAXSTEPS 180 

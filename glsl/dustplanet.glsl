@@ -1,10 +1,5 @@
 
 
-varying vec2 vUv;
-uniform float iGlobalTime;
-uniform vec4 iMouse;
-uniform vec3 iResolution;
-
 #define ITR 90
 #define FAR 60.
 #define MOD3 vec3(.16532,.17369,.15787)

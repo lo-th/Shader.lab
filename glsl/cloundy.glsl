@@ -1,4 +1,10 @@
 
+// ------------------ channel define
+// 0_# noise #_0
+// ------------------
+
+//https://www.shadertoy.com/view/Xsc3R4
+
 //    Cheap Cloud Flythrough 
 //    ----------------------
     
@@ -39,14 +45,7 @@
 // Hash function. This particular one probably doesn't disperse things quite 
 // as nicely as some of the others around, but it's compact, and seems to work.
 
-//https://www.shadertoy.com/view/Xsc3R4
 
-uniform sampler2D iChannel0;
-uniform vec2 iChannelResolution[4];
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-varying vec2 vUv;
 
 vec3 hash33(vec3 p){ 
     float n = sin(dot(p, vec3(7, 157, 113)));    

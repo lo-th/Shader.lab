@@ -1,3 +1,9 @@
+
+// ------------------ channel define
+// 0_# noise #_0
+// ------------------
+
+
 // Created by inigo quilez - iq/2014
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
@@ -10,11 +16,6 @@
 //
 // When the sphere is only partially visible and see clipping, it gets more complicated:
 // http://www.frostbite.com/wp-content/uploads/2014/11/course_notes_moving_frostbite_to_pbr.pdf
-uniform sampler2D iChannel0;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-varying vec2 vUv;
 
 // Sphere intersection
 float sphIntersect( in vec3 ro, in vec3 rd, in vec4 sph )

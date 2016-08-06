@@ -1,18 +1,15 @@
+
+
+// ------------------ channel define
+// 0_# noise #_0
+// 1_# grey1 #_1
+// ------------------
+
 //Xyptonjtroz by nimitz (twitter: @stormoid)
 // https://www.shadertoy.com/view/4ts3z2
 
 #define ITR 100
 #define FAR 30.
-
-uniform sampler2D iChannel0;
-uniform samplerCube envMap;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
-varying vec3 vEye;
-
 
 //    Believable animated volumetric dust storm in 7 samples,
 //    blending each layer in based on geometry distance allows to

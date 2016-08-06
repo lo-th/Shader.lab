@@ -1,13 +1,13 @@
+// ------------------ channel define
+// 0_# stone #_0
+// ------------------
+
+
+
 #define FAR 30.
 #define PI 3.14159265
 #define PRECISION 0.001
 
-precision highp float;
-precision highp int;
-uniform sampler2D iChannel2;
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-varying vec2 vUv;
 float getGrey(vec3 p) 
 {
     return p.x * 0.299 + p.y * 0.587 + p.z * 0.114;
@@ -178,8 +178,8 @@ void main() {
         vec3 sp = ro + rd * t;
         vec3 sn = getNormal(sp);
         const float texSize0 = 1. / 2.;
-        sn = doBumpMap(iChannel2, sp * texSize0, sn, 0.025);
-        vec3 objCol = tex3D(iChannel2, sp * texSize0, sn);
+        sn = doBumpMap(iChannel0, sp * texSize0, sn, 0.025);
+        vec3 objCol = tex3D(iChannel0, sp * texSize0, sn);
         vec3 ld = lp - sp;
         float lDist = max(length(ld), 0.001);
         ld /= lDist;

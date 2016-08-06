@@ -1,4 +1,11 @@
 
+// ------------------ channel define
+// 0_# tex08 #_0
+// 1_# tex05 #_1
+// ------------------
+
+// https://www.shadertoy.com/view/MlXSWX
+
 //    Abstract Corridor
 //    -------------------
     
@@ -7,17 +14,6 @@
 
 //    It's a slightly trimmed back, and hopefully, much quicker version my previous tunnel example... 
 //    which is not interesting enough to link to. :)
-
-// https://www.shadertoy.com/view/MlXSWX
-
-uniform sampler2D iChannel9;
-uniform sampler2D iChannel4;
-
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
 
 #define PI 3.1415926535898
 #define FH 1.0 // Floor height. Set it to 2.0 to get rid of the floor.
@@ -224,8 +220,8 @@ void main(){
         const float tSize1 = 1./4.;
         
         // Texture-based bump mapping.
-        if (sp.y<-(FH-0.005)) sn = doBumpMap(iChannel4, sp*tSize1, sn, 0.025); // Floor.
-        else sn = doBumpMap(iChannel9, sp*tSize0, sn, 0.025); // Walls.
+        if (sp.y<-(FH-0.005)) sn = doBumpMap(iChannel1, sp*tSize1, sn, 0.025); // Floor.
+        else sn = doBumpMap(iChannel0, sp*tSize0, sn, 0.025); // Walls.
         
         // Ambient occlusion.
         float ao = calculateAO(sp, sn);
@@ -267,8 +263,8 @@ void main(){
         // Obtaining the texel color. If the surface point is above the floor
         // height use the wall texture, otherwise use the floor texture.
         vec3 texCol;
-        if (sp.y<-(FH-0.005)) texCol = tex3D(iChannel4, sp*tSize1, sn); // Floor.
-        else texCol = tex3D(iChannel9, sp*tSize0, sn); // Walls.
+        if (sp.y<-(FH-0.005)) texCol = tex3D(iChannel1, sp*tSize1, sn); // Floor.
+        else texCol = tex3D(iChannel0, sp*tSize0, sn); // Walls.
        
         // Shadertoy doesn't appear to have anisotropic filtering turned on... although,
         // I could be wrong. Texture-bumped objects don't appear to look as crisp. Anyway, 

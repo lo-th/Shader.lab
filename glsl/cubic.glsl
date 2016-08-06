@@ -1,12 +1,5 @@
 
 
-
-
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-varying vec3 vEye;
-varying vec2 vUv;
-
 #define PI 3.14159
 
 mat3 xrot(float t) {

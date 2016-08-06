@@ -5,13 +5,6 @@
 // Uses https://www.shadertoy.com/view/Xsf3zX as base.
 // https://www.shadertoy.com/view/lsfXz4
 
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
-varying vec3 vEye;
-
 float PI  = 4.0*atan(1.0);
 vec3 sunLight  = normalize( vec3(  0.35, 0.2,  0.3 ) );
 vec3 cameraPos;

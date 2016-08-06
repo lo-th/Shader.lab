@@ -1,8 +1,4 @@
 
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-varying vec2 vUv;
-
 #define PI 3.1415926
 #define border 0.01
 #define radius 0.03

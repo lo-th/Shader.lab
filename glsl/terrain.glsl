@@ -1,20 +1,15 @@
+// #extension GL_OES_standard_derivatives
+
+// ------------------ channel define
+// 0_# tex03 #_0
+// 1_# noise #_1
+// 2_# tex08 #_2
+// ------------------
+
 // Created by inigo quilez - iq/2014
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
 // https://www.shadertoy.com/view/4sjXzG
-
-#extension GL_OES_standard_derivatives : enable
-
-
-uniform sampler2D iChannel6;
-uniform sampler2D iChannel0;
-uniform sampler2D iChannel9;
-uniform vec4 iMouse;
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
-varying vec3 vEye;
 
 
 #define USE_BOUND_PLANE
@@ -79,9 +74,9 @@ float terrainHigh( vec2 p )
         p = 0.97*m2*p + (t-0.5)*0.2;
     }
     
-    t +=   0.05*texture2D( iChannel6, 0.001*q ).x;
-    t +=   0.03*texture2D( iChannel6, 0.005*q ).x;
-    t += t*0.03*texture2D( iChannel6, 0.020*q ).x;
+    t +=   0.05*texture2D( iChannel0, 0.001*q ).x;
+    t +=   0.03*texture2D( iChannel0, 0.005*q ).x;
+    t += t*0.03*texture2D( iChannel0, 0.020*q ).x;
 
     return t*55.0;
 }
@@ -110,8 +105,8 @@ float tubesH( vec3 pos, float time )
 {
     float t = tubes( pos, time );
 
-    t += 1.0*texture2D( iChannel9, 0.01*pos.yz ).x;
-    t += 2.0*texture2D( iChannel6, 0.005*pos.xy ).x;
+    t += 1.0*texture2D( iChannel2, 0.01*pos.yz ).x;
+    t += 2.0*texture2D( iChannel0, 0.005*pos.xy ).x;
 
     return t;
 }
@@ -292,7 +287,7 @@ void main(){
 
         // clouds
         vec2 sc = ro.xz + rd.xz*(1000.0-ro.y)/rd.y;
-        col = mix( col, 0.25*vec3(0.5,0.9,1.0), 0.4*smoothstep(0.0,1.0,texture2D(iChannel6,0.000005*sc).x) );
+        col = mix( col, 0.25*vec3(0.5,0.9,1.0), 0.4*smoothstep(0.0,1.0,texture2D(iChannel0,0.000005*sc).x) );
 
         // sun scatter
         col += 0.2*0.2*vec3(1.5,0.7,0.4)*pow( sundotc, 4.0 );
@@ -308,32 +303,32 @@ void main(){
 
         // rock
         col = vec3(0.07,0.06,0.05);
-        col *= 0.2 + sqrt( texture2D( iChannel6, 0.01*pos.xy*vec2(0.5,1.0) ).x *
-                           texture2D( iChannel6, 0.01*pos.zy*vec2(0.5,1.0) ).x );
+        col *= 0.2 + sqrt( texture2D( iChannel0, 0.01*pos.xy*vec2(0.5,1.0) ).x *
+                           texture2D( iChannel0, 0.01*pos.zy*vec2(0.5,1.0) ).x );
         vec3 col2 = vec3(1.0,0.2,0.1)*0.01;
         col = mix( col, col2, 0.5*res.y );
         
         // grass
         float s = smoothstep(0.6,0.7,nor.y - 0.01*(pos.y-20.0));        
-        s *= smoothstep( 0.15,0.2,0.01*nor.x+texture2D(iChannel6, 0.001*pos.zx).x);
+        s *= smoothstep( 0.15,0.2,0.01*nor.x+texture2D(iChannel0, 0.001*pos.zx).x);
         vec3 gcol = 0.13*vec3(0.22,0.23,0.04);
-        gcol *= 0.3+texture2D( iChannel0, 0.03*pos.xz ).x*1.4;
+        gcol *= 0.3+texture2D( iChannel1, 0.03*pos.xz ).x*1.4;
         col = mix( col, gcol, s );
-        //col *= texture2D( iChannel6, 0.3*pos.xz ).x*3.2;
+        //col *= texture2D( iChannel0, 0.3*pos.xz ).x*3.2;
         nor = mix( nor, sor, 0.3*s );
         vec3 ptnor = nor;
 
         // trees
         s = smoothstep(0.9,0.95,nor.y - 0.01*(pos.y-20.0));        
-        s *= smoothstep( 0.1,0.13,-0.17+texture2D(iChannel6, 0.001*pos.zx).x);
-        vec3 tor = -1.0 + 2.0*texture2D( iChannel0, 0.015*pos.xz ).xyz;
+        s *= smoothstep( 0.1,0.13,-0.17+texture2D(iChannel0, 0.001*pos.zx).x);
+        vec3 tor = -1.0 + 2.0*texture2D( iChannel1, 0.015*pos.xz ).xyz;
         tor.y = 1.5;
         tor = normalize(tor);
         col = mix( col, 0.11*vec3(0.22,0.25,0.02)*1.0, s );
         nor = mix( nor, tor, 0.7*s );
         
         // snow
-        s = ptnor.y + 0.008*pos.y - 0.2 + 0.2*(texture2D(iChannel0,0.00015*pos.xz+0.0*sor.y).x-0.5);
+        s = ptnor.y + 0.008*pos.y - 0.2 + 0.2*(texture2D(iChannel1,0.00015*pos.xz+0.0*sor.y).x-0.5);
         float sf = fwidth(s) * 1.5;
         s = smoothstep(0.84-sf, 0.84+sf, s );
         col = mix( col, 0.15*vec3(0.42,0.6,0.8), s);

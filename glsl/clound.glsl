@@ -1,12 +1,10 @@
-// author : https://www.shadertoy.com/view/XtS3DD
 
+// ------------------ channel define
+// 0_# noise #_0
+// ------------------
 
-uniform sampler2D iChannel0;
-uniform vec2 iChannelResolution[4];
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-varying vec2 vUv;
+// https://www.shadertoy.com/view/XtS3DD
+
 
 mat2 mm2(in float a) 
 {

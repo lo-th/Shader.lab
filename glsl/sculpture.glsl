@@ -6,11 +6,7 @@
 // Tags: 3d, raymarching, noise, trigonometry
 // Original: https://www.shadertoy.com/view/XtjSDK
 //------------------------------------------------------------------------------------
-precision highp float;
-varying vec2 vUv;
-uniform float iGlobalTime;
-uniform vec4 iMouse;
-uniform vec3 iResolution;
+
 float hash1(float n) 
 {
     return fract(sin(n) * 43758.5453123);

@@ -1,12 +1,13 @@
+
+// ------------------ channel define
+// 0_# stone #_0
+// ------------------
+
+// https://www.shadertoy.com/view/lsySWw
+
 #define PI 3.14159265
 #define FAR 60.
 
-precision highp float;
-precision highp int;
-uniform sampler2D iChannel2;
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-varying vec2 vUv;
 const mat2 rM = mat2(.7071, .7071, -.7071, .7071);
 mat2 rot2(float a) 
 {
@@ -167,7 +168,7 @@ void main() {
         vec3 sn = calcNormal(sp);
         vec3 snNoBump = sn;
         const float tSize0 = 1. / 2.;
-        sn = doBumpMap(iChannel2, sp * tSize0, sn, 0.1);
+        sn = doBumpMap(iChannel0, sp * tSize0, sn, 0.1);
         vec3 tsp = sp;
         sn = doBumpMap(tsp, sn, .5);
         float ao = calculateAO(sp, sn);
@@ -180,7 +181,7 @@ void main() {
         float spec = pow(max(dot(reflect(-ld, sn), -rd), 0.0), 32.);
         float fre = pow(clamp(dot(sn, rd) + 1., .0, 1.), 1.);
         vec3 texCol = vec3(.8, .9, 1.);
-        texCol *= min(tex3D(iChannel2, sp * tSize0, sn) * 3.5, 1.);
+        texCol *= min(tex3D(iChannel0, sp * tSize0, sn) * 3.5, 1.);
         texCol *= bumpSurf3D(sp, sn) * .5 + .5;
         float shading = shadows(sp + sn * .005, ld, .05, lDist, 8.);
         sceneCol = texCol * (diff + spec + ambience);

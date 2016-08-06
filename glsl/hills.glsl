@@ -1,3 +1,6 @@
+
+// https://www.shadertoy.com/view/Xsf3zX
+
 // Rolling hills. By David Hoskins, November 2013.
 // https://www.shadertoy.com/view/Xsf3zX
 
@@ -9,14 +12,6 @@
 // For red/cyan 3D...
 //#define STEREO
 
-// https://www.shadertoy.com/view/Xsf3zX
-
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
-varying vec3 vEye;
 
 #define MOD2 vec2(3.07965, 7.4235)
 float PI  = 4.0*atan(1.0);

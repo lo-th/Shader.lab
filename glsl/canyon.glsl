@@ -1,10 +1,10 @@
-// author: https://www.shadertoy.com/view/Xs33Df
 
-uniform sampler2D iChannel1;
-uniform sampler2D iChannel2;
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-varying vec2 vUv;
+// ------------------ channel define
+// 0_# bump #_0
+// 1_# tex01 #_1
+// ------------------
+
+// https://www.shadertoy.com/view/Xs33Df
 
 #define FAR 65.
 
@@ -41,7 +41,7 @@ vec2 path(in float z)
 }
 float map(in vec3 p) 
 {
-    float tx = texture2D(iChannel1, p.xz / 16. + p.xy / 80.).x;
+    float tx = texture2D(iChannel0, p.xz / 16. + p.xy / 80.).x;
     vec3 q = p * 0.25;
     float h = dot(sin(q) * cos(q.yzx), vec3(.222)) + dot(sin(q * 1.5) * cos(q.yzx * 1.5), vec3(.111));
     float d = p.y + h * 6.;
@@ -187,7 +187,7 @@ void main() {
         vec3 ld = lp - sp;
         ld /= max(length(ld), 0.001);
         const float tSize1 = 1. / 6.;
-        sn = doBumpMap(iChannel2, sp * tSize1, sn, .007 / (1. + t / FAR));
+        sn = doBumpMap(iChannel1, sp * tSize1, sn, .007 / (1. + t / FAR));
         float shd = softShadow(sp, ld, 0.05, FAR, 8.);
         float curv = curve(sp) * .9 + .1;
         float ao = calculateAO(sp, sn, 4.);
@@ -198,7 +198,7 @@ void main() {
         float fre2 = mix(.2, 1., Schlick);
         float amb = fre * fre2 + .1;
         col = clamp(mix(vec3(.8, 0.5, .3), vec3(.5, 0.25, 0.125), (sp.y + 1.) * .15), vec3(.5, 0.25, 0.125), vec3(1.));
-        col = smoothstep(-.5, 1., tex3D(iChannel2, sp * tSize1, sn)) * (col + .25);
+        col = smoothstep(-.5, 1., tex3D(iChannel1, sp * tSize1, sn)) * (col + .25);
         curv = smoothstep(0., .7, curv);
         col *= vec3(curv, curv * 0.95, curv * 0.85);
         col += getSky(sp, reflect(rd, sn), ld) * fre * fre2 * .5;

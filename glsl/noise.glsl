@@ -1,10 +1,7 @@
-precision highp float;
-precision highp int;
-uniform sampler2D iChannel0;
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-varying vec2 vUv;
 
+// ------------------ channel define
+// 0_# noise #_0
+// ------------------
 
 #ifdef USE_PROCEDURAL
 float hash( float n ) { return fract(sin(n)*753.5453123); }

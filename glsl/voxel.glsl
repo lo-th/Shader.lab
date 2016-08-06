@@ -1,15 +1,14 @@
 
-///https://www.shadertoy.com/view/MdVSDh
+// ------------------ channel define
+// 0_# tex02 #_0
+// ------------------
+
+// https://www.shadertoy.com/view/MdVSDh
 
 #define PI 3.14159265
 #define FAR 60.
 
-precision highp float;
-precision highp int;
-uniform sampler2D iChannel4;
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-varying vec2 vUv;
+
 mat2 rot2(float a) 
 {
     vec2 v = sin(vec2(1.570796, 0) + a);
@@ -148,7 +147,7 @@ void main()
         vec3 sn = -(mask * sign(rd));
         vec3 snNoBump = sn;
         const float tSize0 = 1. / 4.;
-        sn = doBumpMap(iChannel4, sp * tSize0, sn, 0.02);
+        sn = doBumpMap(iChannel0, sp * tSize0, sn, 0.02);
         sn = doBumpMap(sp, sn, .15);
         float ao = calcVoxAO(vPos, sp, rd, mask);
         vec3 ld = lightPos - sp;
@@ -159,7 +158,7 @@ void main()
         float diff = max(dot(sn, ld), 0.0);
         float spec = pow(max(dot(reflect(-ld, sn), -rd), 0.0), 32.);
         vec3 texCol = vec3(1, .6, .4) + step(abs(snNoBump.y), .5) * vec3(0, .4, .6);
-        texCol *= tex3D(iChannel4, sp * tSize0, sn);
+        texCol *= tex3D(iChannel0, sp * tSize0, sn);
         float shading = voxShadow(sp + snNoBump * .01, ld, lDist);
         sceneCol = texCol * (diff + ambience) + vec3(.7, .9, 1.) * spec;
         sceneCol *= atten * shading * ao;
