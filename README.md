@@ -2,6 +2,6 @@
 <p align="center">Advanced shader lab with Three.js<br>
 Shader is convert from <a href="https://www.shadertoy.com/">shadertoy.com</a><br>
 i use <a href="https://github.com/mrdoob/three.js/tree/dev">three.js</a> for 3d view <br>
-note: uniforme value is added in view.setMat <br><br>
+note: uniform value is added in view.setMat <br><br>
 
 <a href="http://lo-th.github.io/Shader.lab/">LAUNCH</a><br></p>
