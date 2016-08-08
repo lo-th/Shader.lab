@@ -352,7 +352,7 @@ var view = ( function () {
 
             cube_name = [ 'grey1' ];
 
-            txt_name = [ 'noise', 'stone', 'bump', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02' ];
+            txt_name = [ 'noise', 'stone', 'bump', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02', 'tex12', 'tex10' ];
 
             pool.load( ['glsl/basic_vs.glsl', 'glsl/basic_fs.glsl', 'textures/basic.png'], view.initModel );
 
