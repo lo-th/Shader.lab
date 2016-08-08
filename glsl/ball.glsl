@@ -418,14 +418,13 @@ void main(){
     //vec2 uv = (-1.0 + 2.0 * xy) * vec2(iResolution.x/iResolution.y,1.0);
 
     vec2 xy = vUv;
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
-    
-    if (xy.y < .13 || xy.y >= .87)
-    {
-        // Top and bottom cine-crop - what a waste! :)
-        gl_FragColor=vec4(vec4(0.0));
-        return;
-    }
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
+
+    // Top and bottom cine-crop - what a waste! :)
+    //if (xy.y < .13 || xy.y >= .87){    
+    //    gl_FragColor=vec4(vec4(0.0));
+    //    return;
+    //}
 
     cameraPos = CameraPath(gTime + 0.0);
     cameraPos.x-= 20.0;

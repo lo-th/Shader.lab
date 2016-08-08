@@ -116,10 +116,10 @@ float FractalNoise(in vec2 xy)
 vec3 GetSky(in vec3 rd)
 {
     float sunAmount = max( dot( rd, sunLight), 0.0 );
-    float v = pow(1.0-max(rd.y,0.0),6.);
+    float v = pow( abs(1.0-max(rd.y,0.0)),6.);
     vec3  sky = mix(vec3(.1, .2, .3), vec3(.32, .32, .32), v);
     sky = sky + sunColour * sunAmount * sunAmount * .25;
-    sky = sky + sunColour * min(pow(sunAmount, 800.0)*1.5, .3);
+    sky = sky + sunColour * min(pow(abs(sunAmount), 800.0)*1.5, .3);
     return clamp(sky, 0.0, 1.0);
 }
 
@@ -179,7 +179,7 @@ vec3 GrassBlades(in vec3 rO, in vec3 rD, in vec3 mat, in float dist)
         {
             alpha = (1.0 - col.y) * Linstep(-rCoC, rCoC, -ret.x);//calculate the mix like cloud density
             // Mix material with white tips for grass...
-            vec3 gra = mix(mat, vec3(.35, .35, min(pow(ret.z, 4.0)*35.0, .35)), pow(ret.y, 9.0)*.7) * ret.y;
+            vec3 gra = mix(mat, vec3(.35, .35, min(pow(abs(ret.z), 4.0)*35.0, .35)), pow(abs(ret.y), 9.0)*.7) * ret.y;
             col += vec4(gra * alpha, alpha);
         }
         d += max(ret.x * .7, .1);
@@ -275,7 +275,7 @@ vec3 CameraPath( float t )
 vec3 PostEffects(vec3 rgb, vec2 xy)
 {
     // Gamma first...
-    rgb = pow(rgb, vec3(0.45));
+    rgb = pow(abs(rgb), vec3(0.45));
     
     // Then...
     #define CONTRAST 1.1
@@ -283,7 +283,7 @@ vec3 PostEffects(vec3 rgb, vec2 xy)
     #define BRIGHTNESS 1.3
     rgb = mix(vec3(.5), mix(vec3(dot(vec3(.2125, .7154, .0721), rgb*BRIGHTNESS)), rgb*BRIGHTNESS, SATURATION), CONTRAST);
     // Vignette...
-    rgb *= .4+0.5*pow(40.0*xy.x*xy.y*(1.0-xy.x)*(1.0-xy.y), 0.2 );  
+    rgb *= .4+0.5*pow(abs(40.0*xy.x*xy.y*(1.0-xy.x)*(1.0-xy.y)), 0.2 );  
     return rgb;
 }
 
@@ -295,16 +295,15 @@ void main(){
     //vec2 xy = fragCoord.xy / iResolution.xy;
     //vec2 uv = (-1.0 + 2.0 * xy) * vec2(iResolution.x/iResolution.y,1.0);
     vec2 xy = vUv;
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
 
     vec3 camTar;
-    
-    if (xy.y < .13 || xy.y >= .87)
-    {
-        // Top and bottom cine-crop - what a waste! :)
-        gl_FragColor = vec4(vec4(0.0));
-        return;
-    }
+
+    // Top and bottom cine-crop - what a waste! :)
+    //if (xy.y < .13 || xy.y >= .87){   
+    //    gl_FragColor = vec4(vec4(0.0));
+    //    return;
+    //}
 
     #ifdef STEREO
     float isCyan = mod(fragCoord.x + mod(fragCoord.y,2.0),2.0);
@@ -361,7 +360,7 @@ void main(){
         vec2 sunPos = vec2( dot( sunLight, cu ), dot( sunLight, cv ) );
         vec2 uvT = uv-sunPos;
         uvT = uvT*(length(uvT));
-        bri = pow(bri, 6.0)*.8;
+        bri = pow(abs(bri), 6.0)*.8;
 
         // glare = the red shifted blob...
         float glare1 = max(dot(normalize(vec3(dir.x, dir.y+.3, dir.z)),sunLight),0.0)*1.4;
@@ -371,9 +370,9 @@ void main(){
         // glare3 is a purple splodge...
         float glare3 = max(1.0-length(uvT+sunPos*5.0)*1.2, 0.0);
 
-        col += bri * vec3(1.0, .0, .0)  * pow(glare1, 12.5)*.05;
-        col += bri * vec3(1.0, 1.0, 0.2) * pow(glare2, 2.0)*2.5;
-        col += bri * sunColour * pow(glare3, 2.0)*3.0;
+        col += bri * vec3(1.0, .0, .0)  * pow(abs(glare1), 12.5)*.05;
+        col += bri * vec3(1.0, 1.0, 0.2) * pow(abs(glare2), 2.0)*2.5;
+        col += bri * sunColour * pow(abs(glare3), 2.0)*3.0;
     }
     col = PostEffects(col, xy); 
     

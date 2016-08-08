@@ -83,7 +83,8 @@ float GetMouseFollowRotationAngle(Rect r1, vec2 m) {
 
 void main() {
 
-    vec2 r = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    //vec2 r = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    vec2 r = ((vUv * 2.0) - 1.0 ) * vec2(iResolution.z, 1.0);
     //vec2 r = 2. * vec2(vUv.xy - .5 * iResolution.xy) / iResolution.y;
     vec2 m = 2. * vec2(iMouse.xy - .5 * iResolution.xy) / iResolution.y;
     Rect r1 = CreateRect(0.5, 0.5, 0., .0, vec3(0. ,1., 1.));

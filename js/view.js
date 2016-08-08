@@ -35,7 +35,7 @@ var view = ( function () {
     var isPostEffect = false, renderScene, effectFXAA, bloomPass, copyShader, composer = null;
 
 
-    var scene_gpu, camera_gpu, mesh_gpu;
+    var gputmp = null;
 
     //var raycaster, mouse, mouseDown = false;
 
@@ -207,7 +207,11 @@ var view = ( function () {
 
             renderer.domElement.addEventListener( 'mousemove', view.move, false );
             renderer.domElement.addEventListener( 'mousedown', view.down, false );
-            renderer.domElement.addEventListener( 'mouseup', view.up, false );           
+            renderer.domElement.addEventListener( 'mouseup', view.up, false );  
+
+
+            gputmp = new view.GpuSide( renderer );
+
 
             this.render();
             
@@ -293,21 +297,6 @@ var view = ( function () {
             scene.add( light2 );
 
         },
-
-
-
-        initGPU: function(){
-
-            scene_gpu = new THREE.Scene();
-            camera_gpu = new THREE.Camera();
-            camera_gpu.position.z = 1;
-            mesh_gpu = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2 ) );
-            scene_gpu.add( mesh_gpu );
-
-        },
-
-
-        
 
         initPostEffect: function () {
 
@@ -399,7 +388,8 @@ var view = ( function () {
                 name = txt_name[i];
                 tx = new THREE.Texture( p[name] );
                 tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
-                tx.flipY = false;
+                if(name === 'noise' || name === 'tex10'|| name === 'tex12') tx.flipY = false;
+                else tx.flipY = true;
                 tx.needsUpdate = true;
                 txt[name] = tx;
 
@@ -540,7 +530,8 @@ var view = ( function () {
             while(i--){
                 tx = new THREE.Texture( p['basic'] );
                 tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
-                tx.flipY = false;
+                if(name === 'noise' || name === 'tex10'|| name === 'tex12') tx.flipY = false;
+                else tx.flipY = true;
                 tx.needsUpdate = true;
                 txt[txt_name[i]] = tx;
             }
@@ -790,6 +781,26 @@ var view = ( function () {
         randRange: function ( min, max ) { return view.lerp( min, max, Math.random()); },
         randRangeInt: function ( min, max, n ) { return view.lerp( min, max, Math.random()).toFixed(n || 0)*1; },
 
+    }
+
+    ///
+
+    view.GpuSide = function( renderer ){
+
+        this.renderer = renderer;
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.Camera();
+        this.camera.position.z = 1;
+        this.mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2 ) );
+        this.scene.add( this.mesh );
+
+    };
+
+    view.GpuSide.prototype = {
+        render: function( material, output ){
+            mesh.material = material;
+            this.renderer.render( this.scene, this.camera, output, false )
+        }
     }
 
     return view;
