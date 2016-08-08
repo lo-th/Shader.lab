@@ -81,7 +81,8 @@ void main(){
     // sphere animation
     vec4 sph = vec4( cos( iGlobalTime + vec3(2.0,1.0,1.0) + 0.0 )*vec3(1.5,1.2,1.0), 1.0 );
 
-    vec4 rrr = texture2D( iChannel0, (vUv.xy)/vec2(256.0), -99.0  ).xzyw;
+    //vec4 rrr = texture2D( iChannel0, (vUv.xy)/vec2(256.0), -99.0  ).xzyw;
+    vec4 rrr = texture2D( iChannel0, (vUv.xy)/vec2(256.0), -16.0  ).xzyw;
 
 
     vec3 col = vec3(0.0);

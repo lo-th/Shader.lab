@@ -1,13 +1,10 @@
 
-// > buff B
-#define txBuf iChannel0
-#define txSize iChannelResolution[0].xy
+// ------------------ channel define
+// 0_# b128_phyA #_0
+// ------------------
 
-precision highp float;
-precision highp int;
-uniform float time;
-varying vec2 vUv;
-
+// "Leaping Balls Return" by dr2 - 2016
+// License: Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
 
 vec4 QtMul(vec4 q1, vec4 q2) {
     return vec4(q1.w * q2.x - q1.z * q2.y + q1.y * q2.z + q1.x * q2.w, q1.z * q2.x + q1.w * q2.y - q1.x * q2.z + q1.y * q2.w, -q1.y * q2.x + q1.x * q2.y + q1.w * q2.z + q1.z * q2.w, -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w);
@@ -108,19 +105,24 @@ mat3 LpStepMat(vec3 a) {
     m1[2][2] = b1;
     m2[2][2] = b1;
     return m1 * m2;
+
 }
 
 float Hashff(float p) {
+
     const float cHashM = 43758.54;
     return fract(sin(p) * cHashM);
+
 }
 
 const float txRow = 128.;
 
 vec4 Loadv4(int idVar) {
+
     float fi;
     fi = float(idVar);
-    return texture2D(txBuf, (vec2(mod(fi, txRow), floor(fi / txRow)) + 0.5) / txSize);
+    return texture2D(iChannel0, (vec2(mod(fi, txRow), floor(fi / txRow)) + 0.5) / iChannelResolution[0].xy);
+
 }
 
 void Savev4(int idVar, vec4 val, inout vec4 fCol, vec2 fCoord) {
@@ -131,8 +133,7 @@ void Savev4(int idVar, vec4 val, inout vec4 fCol, vec2 fCoord) {
     d = abs(fCoord - vec2(mod(fi, txRow), floor(fi / txRow)) - 0.5);
     if (max(d.x, d.y) < 0.5) fCol = val;
 
- }
-
+}
 
 const float pi = 3.14159;
 const int nBall = 144;
@@ -256,34 +257,34 @@ void main() {
     iFrag = floor(vUv);
     pxId = int(iFrag.x + txRow * iFrag.y);
     if (iFrag.x >= txRow || pxId >= 4 * nBall + 4) discard;
-     tCur = time;
+     tCur = iGlobalTime;
     if (pxId >= 4) mId = (pxId - 4) / 4;
     else mId = -1;
-    
     doInit = false;
-    if (iFrame == 0) 
-    {
+    if (iFrame == 0) {
         rLead = vec3(0., 0., 0.);
         doInit = true;
-    }
- else 
-    {
+    } else {
         nStep = Loadv4(0).x;
         ++nStep;
         rLead = Loadv4(1).xyz;
         rLead += 0.7 * vec3(0.03, 0., 0.1);
         if (mId >= 0) Step(mId, rm, vm, qm, wm, sz);
      }
-    if (doInit){
+    if (doInit) {
+
         nStep = 0.;
         if (mId >= 0) Init(mId, rm, vm, qm, wm, sz);
-     }
 
-    if (pxId == 2){
+    }
+    if (pxId == 2) {
+
         rMid = vec3(0.);
         for (int n = 0; n < nBall; n++) rMid += Loadv4(4 + 4 * n).xyz;
         rMid /= float(nBall);
+
     }
+
     if (pxId == 0) stDat = vec4(nStep, 0., 0., 0.);
     else if (pxId == 1) stDat = vec4(rLead, 0.);
     else if (pxId == 2) stDat = vec4(rMid, 0.);

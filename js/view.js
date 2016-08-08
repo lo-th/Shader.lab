@@ -34,6 +34,9 @@ var view = ( function () {
 
     var isPostEffect = false, renderScene, effectFXAA, bloomPass, copyShader, composer = null;
 
+
+    var scene_gpu, camera_gpu, mesh_gpu;
+
     //var raycaster, mouse, mouseDown = false;
 
     var cubeCamera = null;
@@ -79,6 +82,7 @@ var view = ( function () {
             if(uniforms){ 
                 //uniforms.time.value = time.x;
                 uniforms.iGlobalTime.value = time.x;
+                uniforms.iFrame.value ++;
                // uniforms.key.value = key;
                 //uniforms.mouse.value = mouse;
             }
@@ -291,6 +295,18 @@ var view = ( function () {
         },
 
 
+
+        initGPU: function(){
+
+            scene_gpu = new THREE.Scene();
+            camera_gpu = new THREE.Camera();
+            camera_gpu.position.z = 1;
+            mesh_gpu = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2 ) );
+            scene_gpu.add( mesh_gpu );
+
+        },
+
+
         
 
         initPostEffect: function () {
@@ -390,7 +406,11 @@ var view = ( function () {
                 // apply after first load
                 j = 4;
                 while(j--){
-                    if( channels[j] === name ) uniforms['iChannel'+j].value = tx;
+                    if( channels[j] === name ){ 
+                        uniforms['iChannel'+j].value = tx;
+                        channelResolution[j].x = tx.image.width; 
+                        channelResolution[j].y = tx.image.height;
+                    }
                 }
             }
 
@@ -406,52 +426,89 @@ var view = ( function () {
 
         },
 
-        setMat : function( Fragment ){
+
+        ///////////////////
+
+        createShaderMaterial : function ( frag, Uni ) {
+
+            var uni = Uni || {};
+
+            var m = new THREE.ShaderMaterial( {
+                uniforms: uni,
+                vertexShader: [ 'void main(){', 'gl_Position = vec4( position, 1.0 );', '}'].join('\n'),
+                fragmentShader: frag
+            } );
+
+            return m;
+
+        },
+
+        createRenderTarget : function ( w, h ) {
+
+            return new THREE.WebGLRenderTarget( w, h, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType, stencilBuffer: false });
+
+        },
+
+        createRenderTexture : function ( w, h ) {
+
+            var a = new Float32Array( w * h * 4 );
+            var texture = new THREE.DataTexture( a, w, h, THREE.RGBAFormat, THREE.FloatType );
+            texture.needsUpdate = true;
+            return texture;
+
+        },
+
+
+        ///////////////////
+
+
+
+        setMat : function( Fragment ) {
+
+            // reset old
 
             material.dispose();
 
-            var derive = Fragment.search("#extension GL_OES_standard_derivatives");
-            var c0 = Fragment.search("0_#");
-            var c1 = Fragment.search("1_#");
-            var c2 = Fragment.search("2_#");
-            var c3 = Fragment.search("3_#");
-            channels[0] = c0 !== -1 ? Fragment.substring( c0+4, Fragment.lastIndexOf('#_0') - 1 ) : null;
-            channels[1] = c1 !== -1 ? Fragment.substring( c1+4, Fragment.lastIndexOf('#_1') - 1 ) : null;
-            channels[2] = c2 !== -1 ? Fragment.substring( c2+4, Fragment.lastIndexOf('#_2') - 1 ) : null;
-            channels[3] = c3 !== -1 ? Fragment.substring( c3+4, Fragment.lastIndexOf('#_3') - 1 ) : null;
+            var Uni = [];
 
-            var t0 = cube_name.indexOf( channels[0] ) !== -1 ? 'samplerCube' : 'sampler2D';
-            var t1 = cube_name.indexOf( channels[1] ) !== -1 ? 'samplerCube' : 'sampler2D';
-            var t2 = cube_name.indexOf( channels[2] ) !== -1 ? 'samplerCube' : 'sampler2D';
-            var t3 = cube_name.indexOf( channels[3] ) !== -1 ? 'samplerCube' : 'sampler2D';
+            var i = 4, pre, type, name;
+            while(i--){
 
+                pre = Fragment.search( i + '_#' );
+                name = pre !== -1 ? Fragment.substring( pre + 4, Fragment.lastIndexOf( '#_' + i ) - 1 ) : null;
+                type = cube_name.indexOf( name ) !== -1 ? 'samplerCube' : 'sampler2D';
 
-            var Uni = [
+                Uni.push( 'uniform '+type+' iChannel' + i + ';' );
 
-                'uniform '+t0+' iChannel0;',
-                'uniform '+t1+' iChannel1;',
-                'uniform '+t2+' iChannel2;',
-                'uniform '+t3+' iChannel3;',
+                if( txt[ name ] ){ 
+                    uniforms['iChannel' + i].value = txt[ name ];
+                    if( type !== 'samplerCube' ) {
+                        channelResolution[i].x = txt[ name ].image.width; 
+                        channelResolution[i].y = txt[ name ].image.height;
+                    }
+                }
+
+                channels[i] = name; 
+
+            }
+
+            Uni.push(
+
                 'uniform vec4 iMouse;',
+                'uniform int iFrame;',
                 'uniform vec3 iResolution;',
                 'uniform float iGlobalTime;',
                 'uniform vec2 iChannelResolution[4];',
 
                 'varying vec2 vUv;',
-                'varying vec3 vEye;',
+                'varying vec3 vEye;'
 
-            ].join('\n');
+            );
 
-            uniforms.iChannel0.value = txt[channels[0]];
-            uniforms.iChannel1.value = txt[channels[1]];
-            uniforms.iChannel2.value = txt[channels[2]];
-            uniforms.iChannel3.value = txt[channels[3]];
+            uniforms.iGlobalTime.value = 0;
+            uniforms.iFrame.value =0;
 
-            if( channels[0] !== null ){ channelResolution[0].x = txt[channels[0]].image.width; channelResolution[0].y = txt[channels[0]].image.height; }
-
-            //uniforms.iChannelResolution.value = channelResolution;
-
-            fragment = Uni + Fragment;
+            fragment = Uni.join('\n') + Fragment;
 
             //
 
@@ -462,8 +519,10 @@ var view = ( function () {
                 transparent:true,
             }); 
 
-            
 
+
+
+            var derive = Fragment.search("#extension GL_OES_standard_derivatives");
             material.extensions.derivatives = derive !== -1 ? true : false;
 
             mesh.material = material;
@@ -474,8 +533,7 @@ var view = ( function () {
         initModel : function () {
 
             var p = pool.getResult();
-            
-
+        
             // init empty textures
 
             var i = txt_name.length, tx;
@@ -486,6 +544,8 @@ var view = ( function () {
                 tx.needsUpdate = true;
                 txt[txt_name[i]] = tx;
             }
+
+            txt['basic'] = tx;
 
             // init empty cube textures
 
@@ -525,6 +585,7 @@ var view = ( function () {
 
                 iGlobalTime: { type: 'f', value: time.x },
                 iResolution: { type: 'v3', value: vsize },
+                iFrame: { type: 'i', value: 0 },
                 iMouse: { type: 'v4', value: mouse },
 
                 //

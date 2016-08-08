@@ -289,7 +289,7 @@ var editor = ( function () {
     editor.showBigMenu = function(e){
 
         //bigContent.style.display = "block";
-        bigmenu.style.background = "rgba(43,42,45,0.5)";
+        bigmenu.style.background = "rgba(37,37,37,0.9)";
         bigmenu.style.borderBottom = "1px solid rgba(255, 255, 255, 0.1)";
         isMenu = true;
 
@@ -304,7 +304,7 @@ var editor = ( function () {
 
     editor.hideBigMenu = function(e){
 
-        bigmenu.style.background = "rgba(0,0,0,0)";
+        bigmenu.style.background = "rgba(37,37,37,0)";
         bigmenu.style.borderBottom = "1px solid rgba(255, 255, 255, 0)";
         isMenu = false;
 

@@ -19,13 +19,13 @@ float noise( in vec3 x )
     f = f*f*(3.0-2.0*f);
 #ifndef HIGH_QUALITY_NOISE
     vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-    vec2 rg = texture2D( iChannel0, (uv+ 0.5)/256.0, -16.0 ).yx;
+    vec2 rg = texture2D( iChannel0, (uv+ 0.5)/256.0, -100.0 ).yx;
 #else
     vec2 uv = (p.xy+vec2(37.0,17.0)*p.z);
-    vec2 rg1 = texture2D( iChannel0, (uv+ vec2(0.5,0.5))/256.0, -16.0 ).yx;
-    vec2 rg2 = texture2D( iChannel0, (uv+ vec2(1.5,0.5))/256.0, -16.0 ).yx;
-    vec2 rg3 = texture2D( iChannel0, (uv+ vec2(0.5,1.5))/256.0, -16.0 ).yx;
-    vec2 rg4 = texture2D( iChannel0, (uv+ vec2(1.5,1.5))/256.0, -16.0 ).yx;
+    vec2 rg1 = texture2D( iChannel0, (uv+ vec2(0.5,0.5))/256.0, -100.0 ).yx;
+    vec2 rg2 = texture2D( iChannel0, (uv+ vec2(1.5,0.5))/256.0, -100.0 ).yx;
+    vec2 rg3 = texture2D( iChannel0, (uv+ vec2(0.5,1.5))/256.0, -100.0 ).yx;
+    vec2 rg4 = texture2D( iChannel0, (uv+ vec2(1.5,1.5))/256.0, -100.0 ).yx;
     vec2 rg = mix( mix(rg1,rg2,f.x), mix(rg3,rg4,f.x), f.y );
 #endif  
     return mix( rg.x, rg.y, f.z );
@@ -38,7 +38,7 @@ float noise( in vec2 x )
     vec2 p = floor(x);
     vec2 f = fract(x);
     vec2 uv = p.xy + f.xy*f.xy*(3.0-2.0*f.xy);
-    return texture2D( iChannel0, (uv+118.4)/256.0, -16.0 ).x;
+    return texture2D( iChannel0, (uv+118.4)/256.0, -100.0 ).x;
 }
 
 vec4 texcube( sampler2D sam, in vec3 p, in vec3 n )
@@ -142,7 +142,7 @@ vec4 raymarchClouds( in vec3 ro, in vec3 rd, in vec3 bcol, float tmax )
 {
     vec4 sum = vec4( 0.0 );
 
-    float sun = pow( abs(clamp( dot(rd,lig), 0.0, 1.0 )),6.0 );
+    float sun = pow( clamp( dot(rd,lig), 0.0, 1.0 ),6.0 );
     float t = 0.0;
     for( int i=0; i<60; i++ )
     {
@@ -221,7 +221,7 @@ void main(){
     // sky   
     vec3 col = vec3(0.32,0.36,0.4) - rd.y*0.4;
     float sun = clamp( dot(rd,lig), 0.0, 1.0 );
-    col += vec3(1.0,0.8,0.4)*0.2*pow( abs(sun), 6.0 );
+    col += vec3(1.0,0.8,0.4)*0.2*pow( sun, 6.0 );
     col *= 0.9;
 
     vec3 bcol = col;
@@ -252,7 +252,7 @@ void main(){
         col = vec3(0.8);
 
         vec3 lin = vec3(0.0);
-        lin += sun*vec3(1.80,1.27,0.99)*pow( abs(vec3(sha)),vec3(1.0,1.2,1.5));
+        lin += sun*vec3(1.80,1.27,0.99)*pow(vec3(sha),vec3(1.0,1.2,1.5));
         lin += sky*vec3(0.16,0.20,0.40)*occ;
         lin += bac*vec3(0.40,0.28,0.20)*occ;
         lin += amb*vec3(0.15,0.17,0.20)*occ;
@@ -281,7 +281,7 @@ void main(){
     }
 
     // sun glow
-    col += vec3(1.0,0.6,0.2)*0.2*pow( abs(sun), 2.0 )*clamp( (rd.y+0.4)/(0.0+0.4),0.0,1.0);
+    col += vec3(1.0,0.6,0.2)*0.2*pow( sun, 2.0 )*clamp( (rd.y+0.4)/(0.0+0.4),0.0,1.0);
     
     // smoke    
     {
@@ -291,13 +291,13 @@ void main(){
     }
 
     // gamma    
-    col = pow( abs(clamp( col, 0.0, 1.0 )), vec3(0.45) );
+    col = pow( clamp( col, 0.0, 1.0 ), vec3(0.45) );
 
     // contrast, desat, tint and vignetting 
     col = col*0.3 + 0.7*col*col*(3.0-2.0*col);
     col = mix( col, vec3(col.x+col.y+col.z)*0.33, 0.2 );
     col *= 1.3*vec3(1.06,1.1,1.0);
-    col *= 0.5 + 0.5*pow( abs(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y)), 0.1 );
+    col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1 );
     
     gl_FragColor = vec4( col, 1.0 );
 }

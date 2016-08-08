@@ -18,7 +18,7 @@
 
 #define SEALEVEL -25.
 #define MAXSTEPS 180 
-//#define HOUSE
+#define HOUSE
 
 vec3 sundir = normalize( vec3(-0.5,0.6,0.7) );
 
@@ -38,14 +38,16 @@ float noise( in vec3 x ) {
     f = f*f*(3.0-2.0*f);
     
     vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-    vec2 rg = texture2D( iChannel0, (uv+ 0.5)/256.0, -100.0 ).yx;
+    //vec2 rg = texture2D( iChannel0, (uv+ 0.5)/256.0, -100.0 ).yx;
+    vec2 rg = texture2D( iChannel0, (uv+ 0.5)/256.0, -16.0 ).yx;
     return mix( rg.x, rg.y, f.z );
 }
 float noise( in vec2 x ) {
     vec2 p = floor(x);
     vec2 f = fract(x);
     vec2 uv = p.xy + f.xy*f.xy*(3.0-2.0*f.xy);
-    return texture2D( iChannel0, (uv+118.4)/256.0, -100.0 ).x;
+    //return texture2D( iChannel0, (uv+118.4)/256.0, -100.0 ).x;
+    return texture2D( iChannel0, (uv+118.4)/256.0, -16.0 ).x;
 }
 float sum(vec3 v) { return dot(v, vec3(1.0)); }
 
@@ -116,7 +118,8 @@ float mapTerrain( vec2 p ) {
     p *= 0.02;
 
     float f;
-    f  = 0.500*texture2D( iChannel1, p*0.01, -100. ).x;
+    //f  = 0.500*texture2D( iChannel1, p*0.01, -100. ).x;
+    f  = 0.500*texture2D( iChannel1, p*0.01, -16. ).x;
     f += 0.1250*noise( p*4.01 );
     return  max( 50.0*f-30., SEALEVEL);
 }
@@ -316,7 +319,7 @@ void main() {
 
     float sun = clamp( dot(sundir,rd), 0.0, 1.0 );
     vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;
-    col += 0.2*vec3(1.0,.6,0.1)*pow( sun, 8.0 );
+    col += 0.2*vec3(1.0,.6,0.1)*pow( abs(sun), 8.0 );
     col *= 0.95;
     
     vec3 vos, dir;
@@ -384,10 +387,10 @@ void main() {
         }           
     }
     
-    col += 0.2*vec3(1.0,0.4,0.2)*pow( sun, 3.0 );
+    col += 0.2*vec3(1.0,0.4,0.2)*pow( abs(sun), 3.0 );
     
     // gamma    
-    col = pow( col, vec3(0.45) );
+    col = pow( abs(col), vec3(0.45) );
     
     // contrast
     col = col* 0.25 + 0.75*col*col*(3.0-2.0*col);
@@ -395,7 +398,7 @@ void main() {
     col = clamp( col, 0.0, 1.0 );
 
     // vignetting   
-    col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1 );
+    col *= 0.5 + 0.5*pow( abs(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y)), 0.1 );
     
     gl_FragColor = vec4( col, 1.0 );
 }

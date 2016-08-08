@@ -1,15 +1,13 @@
-#define txBuf iChannel0
-#define txSize iChannelResolution[0].xy
 
+// ------------------ channel define
+// 0_# buffer128_phyA #_0
+// 1_# buffer128_phyB #_1
+// ------------------
 
 // https://www.shadertoy.com/view/4sG3Wt
 
-precision highp float;
-precision highp int;
-uniform vec2 resolution;
-uniform vec2 mouse;
-uniform float time;
-varying vec2 vUv;
+// "Leaping Balls Return" by dr2 - 2016
+// License: Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
 
 mat3 QtToRMat(vec4 q) {
 
@@ -47,7 +45,7 @@ const float txRow = 128.;
 vec4 Loadv4(int idVar) {
     float fi;
     fi = float(idVar);
-    return texture2D(txBuf, (vec2(mod(fi, txRow), floor(fi / txRow)) + 0.5) / txSize);
+    return texture2D(iChannel0, (vec2(mod(fi, txRow), floor(fi / txRow)) + 0.5) / iChannelResolution[0].xy);
 }
 
 const float pi = 3.14159;
@@ -245,11 +243,11 @@ void main() {
     vec3 col, rd, ro, vd, u, rLead, rMid;
     vec2 canvas, uv;
     float az, el, zmFac, f;
-    canvas = resolution.xy;
+    canvas = iResolution.xy;
     uv = 2. * vUv.xy / canvas - 1.;
     uv.x *= canvas.x / canvas.y;
-    tCur = time;
-    mPtr = mouse;
+    tCur = iGlobalTime;
+    mPtr = iMouse;
     mPtr.xy = mPtr.xy / canvas - 0.5;
     rLead = Loadv4(1).xyz;
     rMid = Loadv4(2).xyz;
