@@ -28,7 +28,7 @@ varying vec2 vUv;
 vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
 
 
-// error with 
+// error with OES_standard_derivatives in webgl 2
 
 dFdx, dFdy, fwidth
 

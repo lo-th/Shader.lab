@@ -17,6 +17,9 @@ var view = ( function () {
 
     }
 
+    var channels = [];
+    var channelResolution;
+
     var currentScene = -1;
 
     var gl = null;
@@ -25,7 +28,7 @@ var view = ( function () {
     var radtodeg = 57.295779513082320876;
 
     var canvas, renderer, scene, camera, controls, light, clock;
-    var vsize, mouse, time, key = new Float32Array( 20 ), channelResolution, channels;
+    var vsize, mouse, time, key = new Float32Array( 20 );
 
     var vs = { w:1, h:1, l:0, x:0 , y:0};
 
@@ -118,6 +121,8 @@ var view = ( function () {
             time.x = 0;
         },
 
+       
+
         init: function () {
 
             channelResolution = [
@@ -133,6 +138,19 @@ var view = ( function () {
             canvas.ondrop = function(e) { e.preventDefault(); };
             document.body.appendChild( canvas );
 
+            var isWebGL2 = false;
+
+            // Try creating a WebGL 2 context first
+             gl = canvas.getContext( 'webgl2', { antialias: false, alpha:false, stencil:false, depth:false } );
+             if (!gl) {
+                gl = canvas.getContext( 'experimental-webgl2', { antialias: false, alpha:false, stencil:false, depth:false  } );
+            }
+            isWebGL2 = !!gl;
+
+            console.log('Webgl 2 is ' + isWebGL2 );
+
+            //gl.getExtension("OES_standard_derivatives");
+
             time = new THREE.Vector2();
             clock = new THREE.Clock();
 
@@ -144,14 +162,14 @@ var view = ( function () {
 
             mouse = new THREE.Vector4();
 
-            renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:false, alpha:true });
+            renderer = new THREE.WebGLRenderer({ canvas:canvas, context:gl, antialias:false, alpha:false });
             //renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setPixelRatio( params.pixelRatio );
             renderer.setSize( vsize.x, vsize.y );
-            renderer.setClearColor( 0x000000, 0 );
+            renderer.setClearColor( 0x252525, 1 );
 
 
-            gl = renderer.getContext();
+            //gl = renderer.getContext();
 
             //canvas.addEventListener("webglcontextlost", function(event) {
                 //event.preventDefault();
@@ -330,13 +348,61 @@ var view = ( function () {
 
         loadAssets : function ( EnvName ) {
 
-            txt_name = [ 'noise', 'stone', 'bump', 'tex19', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02' ]
+            envName = envName || 'grey1'
 
-            envName = envName || 'grey1';
+            cube_name = [ 'grey1' ];
 
-            cube_name.push( envName );
+            txt_name = [ 'noise', 'stone', 'bump', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02' ];
 
-            pool.load( ['glsl/basic_vs.glsl', 'glsl/basic_fs.glsl', 'textures/noise.png', 'textures/tex01.png', 'textures/tex02.png', 'textures/tex05.png', 'textures/stone.jpg', 'textures/bump.png', 'textures/tex06.png', 'textures/tex18.png', 'textures/tex07.png', 'textures/tex03.png', 'textures/tex09.png', 'textures/tex00.png', 'textures/tex08.png','textures/cube/'+envName+'.cube'], view.initModel );
+            pool.load( ['glsl/basic_vs.glsl', 'glsl/basic_fs.glsl', 'textures/basic.png'], view.initModel );
+
+        },
+
+        loadAssetsPlus : function ( EnvName ) {
+
+            var urls = [];
+            
+            var i = txt_name.length;
+            while(i--) urls.push('textures/'+txt_name[i]+'.png');
+
+            //envName = envName || 'grey1';
+            urls.push('textures/cube/'+envName+'.cube');
+
+            pool.load( urls, view.endLoading );
+
+        },
+
+        endLoading: function() {
+
+            var p = pool.getResult();
+
+            // init textures
+
+            var i = txt_name.length, tx, j, name;
+            while(i--){
+                name = txt_name[i];
+                tx = new THREE.Texture( p[name] );
+                tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
+                tx.flipY = false;
+                tx.needsUpdate = true;
+                txt[name] = tx;
+
+                // apply after first load
+                j = 4;
+                while(j--){
+                    if( channels[j] === name ) uniforms['iChannel'+j].value = tx;
+                }
+            }
+
+            // init envmap
+            txt[envName] = p[envName];
+            textureCube = p[envName];
+
+            j = 4;
+                while(j--){
+                if( channels[j] === envName ) uniforms['iChannel'+j].value = txt[envName];
+            }
+
 
         },
 
@@ -349,15 +415,15 @@ var view = ( function () {
             var c1 = Fragment.search("1_#");
             var c2 = Fragment.search("2_#");
             var c3 = Fragment.search("3_#");
-            var ch0 = c0 !== -1 ? Fragment.substring( c0+4, Fragment.lastIndexOf('#_0') - 1 ) : null;
-            var ch1 = c1 !== -1 ? Fragment.substring( c1+4, Fragment.lastIndexOf('#_1') - 1 ) : null;
-            var ch2 = c2 !== -1 ? Fragment.substring( c2+4, Fragment.lastIndexOf('#_2') - 1 ) : null;
-            var ch3 = c3 !== -1 ? Fragment.substring( c3+4, Fragment.lastIndexOf('#_3') - 1 ) : null;
+            channels[0] = c0 !== -1 ? Fragment.substring( c0+4, Fragment.lastIndexOf('#_0') - 1 ) : null;
+            channels[1] = c1 !== -1 ? Fragment.substring( c1+4, Fragment.lastIndexOf('#_1') - 1 ) : null;
+            channels[2] = c2 !== -1 ? Fragment.substring( c2+4, Fragment.lastIndexOf('#_2') - 1 ) : null;
+            channels[3] = c3 !== -1 ? Fragment.substring( c3+4, Fragment.lastIndexOf('#_3') - 1 ) : null;
 
-            var t0 = cube_name.indexOf( ch0 ) !== -1 ? 'samplerCube' : 'sampler2D';
-            var t1 = cube_name.indexOf( ch1 ) !== -1 ? 'samplerCube' : 'sampler2D';
-            var t2 = cube_name.indexOf( ch2 ) !== -1 ? 'samplerCube' : 'sampler2D';
-            var t3 = cube_name.indexOf( ch3 ) !== -1 ? 'samplerCube' : 'sampler2D';
+            var t0 = cube_name.indexOf( channels[0] ) !== -1 ? 'samplerCube' : 'sampler2D';
+            var t1 = cube_name.indexOf( channels[1] ) !== -1 ? 'samplerCube' : 'sampler2D';
+            var t2 = cube_name.indexOf( channels[2] ) !== -1 ? 'samplerCube' : 'sampler2D';
+            var t3 = cube_name.indexOf( channels[3] ) !== -1 ? 'samplerCube' : 'sampler2D';
 
 
             var Uni = [
@@ -376,12 +442,12 @@ var view = ( function () {
 
             ].join('\n');
 
-            uniforms.iChannel0.value = txt[ch0];
-            uniforms.iChannel1.value = txt[ch1];
-            uniforms.iChannel2.value = txt[ch2];
-            uniforms.iChannel3.value = txt[ch3];
+            uniforms.iChannel0.value = txt[channels[0]];
+            uniforms.iChannel1.value = txt[channels[1]];
+            uniforms.iChannel2.value = txt[channels[2]];
+            uniforms.iChannel3.value = txt[channels[3]];
 
-            if( ch0 !== null ){ channelResolution[0].x = txt[ch0].image.width; channelResolution[0].y = txt[ch0].image.height; }
+            if( channels[0] !== null ){ channelResolution[0].x = txt[channels[0]].image.width; channelResolution[0].y = txt[channels[0]].image.height; }
 
             //uniforms.iChannelResolution.value = channelResolution;
 
@@ -400,11 +466,6 @@ var view = ( function () {
 
             material.extensions.derivatives = derive !== -1 ? true : false;
 
-
-                //var status = gl.getProgramParameter( material.program, gl.LINK_STATUS );
-
-               // if ( status ) {
-
             mesh.material = material;
             editor.setTitle();
 
@@ -413,34 +474,33 @@ var view = ( function () {
         initModel : function () {
 
             var p = pool.getResult();
+            
 
-            // init textures
+            // init empty textures
 
             var i = txt_name.length, tx;
             while(i--){
-                tx = new THREE.Texture( p[txt_name[i]] );
+                tx = new THREE.Texture( p['basic'] );
                 tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
                 tx.flipY = false;
                 tx.needsUpdate = true;
-
                 txt[txt_name[i]] = tx;
             }
 
-            // init envmap
-            txt[envName] = p[envName];
-            textureCube = p[envName];
-            //scene.background = textureCube;
+            // init empty cube textures
+
+            var imgs = [];
+            i=6;
+            while(i--) imgs.push(p['basic']);
+            txt[envName] = new THREE.CubeTexture( imgs );
+
+
+           
 
             // init basic shader
 
             vertex = p['basic_vs'];
             fragment = p['basic_fs'];
-
-            
-
-            channelResolution[0].x = txt.noise.image.width;
-            channelResolution[0].y = txt.noise.image.height;
-
 
             uniforms = {
 
@@ -460,44 +520,6 @@ var view = ( function () {
                     type: 't',
                     value: null//txt.tex06
                 },
-
-
-                /*iChannel4: {
-                    type: 't',
-                    value: txt.tex18
-                },
-                iChannel5: {
-                    type: 't',
-                    value: txt.tex07
-                },
-                iChannel6: {
-                    type: 't',
-                    value: txt.tex03
-                },
-                iChannel7: {
-                    type: 't',
-                    value: txt.tex09
-                },
-                iChannel8: {
-                    type: 't',
-                    value: txt.tex00
-                },
-                iChannel9: {
-                    type: 't',
-                    value: txt.tex08
-                },
-                envMap: {
-                    type: 't',
-                    value: textureCube
-                },*/
-
-                //
-
-                //time: { type: 'f', value: time.x },
-                //resolution: { type: 'v3', value: vsize },
-                //mouse: { type: 'v4', value: mouse },
-
-                //
 
                 iChannelResolution: { type: 'v2v', value: channelResolution },
 
@@ -535,9 +557,10 @@ var view = ( function () {
             camera.add( mesh );*/
 
             view.setScene(0);
-            
 
             ready();
+
+            view.loadAssetsPlus();
 
         },
 
@@ -549,10 +572,6 @@ var view = ( function () {
                 if(currentScene === 0 ) camera.remove( mesh );
                 else scene.remove( mesh );
             }
-
-
-
-            
 
             if( n === 0 ){
 
@@ -583,10 +602,7 @@ var view = ( function () {
 
             }
 
-
-
-
-            currentScene = n
+            currentScene = n;
 
         },
 
