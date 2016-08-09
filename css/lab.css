@@ -503,7 +503,7 @@ span.CodeMirror-selectedtext { background: none; }
 .cm-s-monokai span.cm-operator {color: #f92672;}
 .cm-s-monokai span.cm-qualifier {color: #FF0555;}
 .cm-s-monokai span.cm-string-2 {color: #f50;}
-.cm-s-monokai span.cm-meta {color: #555;}
+.cm-s-monokai span.cm-meta {color: #66ef9d;}
 .cm-s-monokai span.cm-builtin {color: #ff030a;}
 .cm-s-monokai span.cm-hr {color: #999;}
 .cm-s-monokai span.cm-header {color: blue;}

@@ -13,34 +13,33 @@ const float freqB = 0.25 / 2.75;
 const float ampA = 20.0;
 const float ampB = 4.0;
 
-mat2 rot2(float th) 
-{
+mat2 rot2(float th) {
     vec2 a = sin(vec2(1.5707963, 0) + th);
     return mat2(a, -a.y, a.x);
 }
-float hash(float n) 
-{
+
+float hash(float n) {
     return fract(cos(n) * 45758.5453);
 }
-float hash(vec3 p) 
-{
+
+float hash(vec3 p) {
     return fract(sin(dot(p, vec3(7, 157, 113))) * 45758.5453);
 }
-float getGrey(vec3 p) 
-{
+
+float getGrey(vec3 p) {
     return dot(p, vec3(0.299, 0.587, 0.114));
 }
-float smaxP(float a, float b, float s) 
-{
+
+float smaxP(float a, float b, float s) {
     float h = clamp(0.5 + 0.5 * (a - b) / s, 0., 1.);
     return mix(b, a, h) + h * (1.0 - h) * s;
 }
-vec2 path(in float z) 
-{
+
+vec2 path(in float z) {
     return vec2(ampA * sin(z * freqA), ampB * cos(z * freqB) + 3. * (sin(z * 0.025) - 1.));
 }
-float map(in vec3 p) 
-{
+
+float map(in vec3 p) {
     float tx = texture2D(iChannel0, p.xz / 16. + p.xy / 80.).x;
     vec3 q = p * 0.25;
     float h = dot(sin(q) * cos(q.yzx), vec3(.222)) + dot(sin(q * 1.5) * cos(q.yzx * 1.5), vec3(.111));
@@ -51,8 +50,8 @@ float map(in vec3 p)
     float tnl = 1.5 - length(p.xy * vec2(.33, .66)) + h + (1. - tx) * .25;
     return smaxP(d, tnl, 2.) - tx * .5 + tnl * .8;
 }
-float logBisectTrace(in vec3 ro, in vec3 rd) 
-{
+
+float logBisectTrace(in vec3 ro, in vec3 rd) {
     float t = 0., told = 0., mid, dn;
     float d = map(rd * t + ro);
     float sgn = sign(d);
@@ -78,27 +77,27 @@ float logBisectTrace(in vec3 ro, in vec3 rd)
     }
      return min(t, FAR);
 }
-vec3 normal(in vec3 p) 
-{
+
+vec3 normal(in vec3 p) {
     vec2 e = vec2(-1., 1.) * 0.001;
     return normalize(e.yxx * map(p + e.yxx) + e.xxy * map(p + e.xxy) + e.xyx * map(p + e.xyx) + e.yyy * map(p + e.yyy));
 }
-vec3 tex3D(sampler2D tex, in vec3 p, in vec3 n) 
-{
+
+vec3 tex3D(sampler2D tex, in vec3 p, in vec3 n) {
     n = max(n * n, 0.001);
     n /= (n.x + n.y + n.z);
     return (texture2D(tex, p.yz) * n.x + texture2D(tex, p.zx) * n.y + texture2D(tex, p.xy) * n.z).xyz;
 }
-vec3 doBumpMap(sampler2D tex, in vec3 p, in vec3 nor, float bumpfactor) 
-{
+
+vec3 doBumpMap(sampler2D tex, in vec3 p, in vec3 nor, float bumpfactor) {
     const float eps = 0.001;
     vec3 grad = vec3(getGrey(tex3D(tex, vec3(p.x - eps, p.y, p.z), nor)), getGrey(tex3D(tex, vec3(p.x, p.y - eps, p.z), nor)), getGrey(tex3D(tex, vec3(p.x, p.y, p.z - eps), nor)));
     grad = (grad - getGrey(tex3D(tex, p, nor))) / eps;
     grad -= nor * dot(nor, grad);
     return normalize(nor + grad * bumpfactor);
 }
-float softShadow(in vec3 ro, in vec3 rd, in float start, in float end, in float k) 
-{
+
+float softShadow(in vec3 ro, in vec3 rd, in float start, in float end, in float k) {
     float shade = 1.0;
     const int maxIterationsShad = 10;
     float dist = start;
@@ -112,8 +111,8 @@ float softShadow(in vec3 ro, in vec3 rd, in float start, in float end, in float 
      }
     return min(max(shade, 0.) + 0.1, 1.0);
 }
-float calculateAO(in vec3 p, in vec3 n, float maxDist) 
-{
+
+float calculateAO(in vec3 p, in vec3 n, float maxDist) {
     float ao = 0.0, l;
     const float nbIte = 6.0;
     for (float i = 1.; i < nbIte + .5; i++) 
@@ -123,8 +122,8 @@ float calculateAO(in vec3 p, in vec3 n, float maxDist)
     }
     return clamp(1. - ao / nbIte, 0., 1.);
 }
-float noise3D(in vec3 p) 
-{
+
+float noise3D(in vec3 p) {
     const vec3 s = vec3(7, 157, 113);
     vec3 ip = floor(p);
     vec4 h = vec4(0., s.yz, s.y + s.z) + dot(ip, s);
@@ -134,12 +133,13 @@ float noise3D(in vec3 p)
     h.xy = mix(h.xz, h.yw, p.y);
     return mix(h.x, h.y, p.z);
 }
-float fbm(in vec3 p) 
-{
+
+float fbm(in vec3 p) {
     return 0.5333 * noise3D(p) + 0.2667 * noise3D(p * 2.02) + 0.1333 * noise3D(p * 4.03) + 0.0667 * noise3D(p * 8.03);
 }
-vec3 getSky(in vec3 ro, in vec3 rd, vec3 sunDir) 
-{
+
+vec3 getSky(in vec3 ro, in vec3 rd, vec3 sunDir) {
+
     float sun = max(dot(rd, sunDir), 0.0);
     float horiz = pow(1.0 - max(rd.y, 0.0), 3.) * .35;
     vec3 col = mix(vec3(.25, .35, .5), vec3(.4, .375, .35), sun * .75);
@@ -152,8 +152,8 @@ vec3 getSky(in vec3 ro, in vec3 rd, vec3 sunDir)
     sc.y *= 3.;
     return mix(col, vec3(1.0, 0.95, 1.0), 0.5 * smoothstep(0.5, 1.0, fbm(.001 * sc)) * clamp(rd.y * 4., 0., 1.));
 }
-float curve(in vec3 p) 
-{
+
+float curve(in vec3 p) {
     const float eps = 0.05, amp = 4.0, ampInit = 0.5;
     vec2 e = vec2(-1., 1.) * eps;
     float t1 = map(p + e.yxx), t2 = map(p + e.xxy);
@@ -163,7 +163,7 @@ float curve(in vec3 p)
 
 void main() {
 
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
 
     vec2 u = uv;
     vec3 lookAt = vec3(0.0, 0.0, iGlobalTime * 8.);
@@ -208,4 +208,5 @@ void main() {
     u = vUv / iResolution.xy;
     col *= pow( abs( 16.0 * u.x * u.y * (1.0 - u.x) * (1.0 - u.y)), .0625);
     gl_FragColor = vec4(clamp(col, 0., 1.), 1.0);
+
 }
