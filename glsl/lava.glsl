@@ -144,5 +144,9 @@ void main()
         }
          t += d;
     }
+
+    // tone mapping
+    color = toneMap( color );
+
     gl_FragColor = vec4(color, 1.);
 }

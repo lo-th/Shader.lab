@@ -133,6 +133,8 @@ void main() {
     vec3  col  = mix(env(ray1)*0.3,(0.01+mtr*0.1+env(nor))*pow(ocl,0.6),bkg);
           col += (vec3(1.70,1.65,1.60)+mtr*0.3)*dif;
           col += (vec3(0.80,0.80,0.70)+mtr*0.3)*spc;
+    // tone mapping
+    col = toneMap( col );
     
     
     // Fake some visible light
@@ -142,5 +144,7 @@ void main() {
           l += fog*0.2*lightdist*lightdepth + fog*0.01;
     
     gl_FragColor = vec4(sqrt(col+l)-dot(uv,uv)*0.12,1.0);
+
+
 
 }
