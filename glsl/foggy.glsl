@@ -80,6 +80,8 @@ void main(){
     vec3  sky = cloud+ray.y*0.1-0.02;   
     
     gl_FragColor = vec4(sqrt(smoothstep(0.2,1.0,mix(mix(ground,sky,h),cloud,f)-dot(uv,uv)*0.1)),1.0);
+    // tone mapping
+    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
     
 
 }

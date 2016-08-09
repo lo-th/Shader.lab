@@ -124,5 +124,9 @@ void main()
     vec4 ty = texture2D(iChannel1, tuv.xz) + texture2D(iChannel1, -tuv.xz);
     vec4 tz = texture2D(iChannel3, tuv.xy) + texture2D(iChannel3, -tuv.xy);
     vec4 col = tx * tpn.x + ty * tpn.y + tz * tpn.z;
+
     gl_FragColor = col * diff * min(1.0, fade * 10.0) + w;
+    // tone mapping
+    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
+
 }

@@ -379,6 +379,9 @@ void main(){
     #ifdef STEREO   
     col *= vec3( isCyan, 1.0-isCyan, 1.0-isCyan );  
     #endif
+
+    // tone mapping
+    col = toneMap( col );
     
     gl_FragColor = vec4(col,1.0);
 }

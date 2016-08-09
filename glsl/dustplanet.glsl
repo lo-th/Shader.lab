@@ -196,5 +196,9 @@ void main()
     col = min(pow(col * 1.1, vec3(1.6)), 1.0);
     float f = smoothstep(0.0, 3.0, iGlobalTime) * .5;
     col *= f + f * pow(70. * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), .2);
+
+    // tone mapping
+    col = toneMap( col );
+    
     gl_FragColor = vec4(col, 1.0);
 }

@@ -493,6 +493,9 @@ void main(){
         col += bri * sunColour * pow(glare3, 2.0)*3.0;
     }
     col = PostEffects(col, xy); 
+
+    // tone mapping
+    col = toneMap( col );
     
     gl_FragColor=vec4(col,1.0);
 }

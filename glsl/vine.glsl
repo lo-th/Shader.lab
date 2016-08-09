@@ -201,7 +201,8 @@ void main() {
     vec3 fogCol = mix(vec3(bgShade * 0.8 + 0.2) * vec3(1., 0.85, 0.6), sc, mist * fog);
     sc = sc * 0.65 + fogCol * 0.35;
 
-    gl_FragColor = vec4(clamp(sc, 0., 1.), 1.0);
     // tone mapping
-    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
+    sc = toneMap( clamp(sc, 0., 1.) );
+
+    gl_FragColor = vec4( sc, 1.0);
 }

@@ -250,8 +250,11 @@ void main() {
         sky += GetClouds(cameraPos, dir);
         col = mix(sky, col, alpha);
     }
-     col = PostEffects(col, xy) * smoothstep(.0, 2.0, iGlobalTime);
-    gl_FragColor = vec4(col, 1.0);
+    col = PostEffects(col, xy) * smoothstep(.0, 2.0, iGlobalTime);
+    
     // tone mapping
-    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
+    col = toneMap( col );
+
+    gl_FragColor = vec4(col, 1.0);
+    
 }
