@@ -241,11 +241,12 @@ void main() {
     mat3 vuMat;
     vec4 mPtr;
     vec3 col, rd, ro, vd, u, rLead, rMid;
-    vec2 canvas, uv;
+    //vec2 canvas, uv;
     float az, el, zmFac, f;
-    canvas = iResolution.xy;
-    uv = 2. * vUv.xy / canvas - 1.;
-    uv.x *= canvas.x / canvas.y;
+    vec2 canvas = iResolution.xy;
+    //uv = 2. * vUv.xy / canvas - 1.;
+    //uv.x *= canvas.x / canvas.y;
+    vec2 uv = ( ( vUv * 2.0 ) - 1.0 ) * vec2(iResolution.z, 1.0);
     tCur = iGlobalTime;
     mPtr = iMouse;
     mPtr.xy = mPtr.xy / canvas - 0.5;
@@ -255,12 +256,12 @@ void main() {
     az = -0.01 * pi * tCur;
     el = 0.1 * pi + 0.05 * pi * sin(0.011 * pi * tCur);
     zmFac = 6.;
-    if (mPtr.z > 0.) 
-    {
+    if (mPtr.z > 0.) {
         el = clamp(el - 0.5 * pi * mPtr.y, 0.02 * pi, 0.45 * pi);
         az -= 2. * pi * mPtr.x;
     }
-     ro = 0.5 * (rLead + rMid) + 60. * vec3(cos(el) * cos(az), sin(el), cos(el) * sin(az));
+    
+    ro = 0.5 * (rLead + rMid) + 60. * vec3(cos(el) * cos(az), sin(el), cos(el) * sin(az));
     vd = normalize(rMid - ro);
     u = -vd.y * vd;
     f = 1. / sqrt(1. - vd.y * vd.y);

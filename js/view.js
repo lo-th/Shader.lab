@@ -18,6 +18,7 @@ var view = ( function () {
     }
 
     var channels = [];
+    var isBuff = [false, false, false, false];
     var channelResolution;
 
     var currentScene = -1;
@@ -448,6 +449,22 @@ var view = ( function () {
 
         },
 
+        load : function ( url ) {
+
+            var xhr = new XMLHttpRequest();
+            xhr.overrideMimeType('text/plain; charset=x-user-defined'); 
+            xhr.open('GET', url, true);
+
+            xhr.onload = function(){ 
+
+                //code.setValue( xhr.responseText ); 
+
+            }
+            
+            xhr.send();
+
+        },
+
 
         ///////////////////
 
@@ -459,16 +476,34 @@ var view = ( function () {
 
             material.dispose();
 
-            var Uni = [];
+            var Uni = ['precision highp float;'];
 
-            var i = 4, pre, type, name;
+            isBuff = [ false, false, false, false ];
+
+            var i = 4, pre, type, name, n, s, f;
             while(i--){
 
                 pre = Fragment.search( i + '_#' );
                 name = pre !== -1 ? Fragment.substring( pre + 4, Fragment.lastIndexOf( '#_' + i ) - 1 ) : null;
                 type = cube_name.indexOf( name ) !== -1 ? 'samplerCube' : 'sampler2D';
 
-                Uni.push( 'uniform '+type+' iChannel' + i + ';' );
+                if(name !== null){
+                    if(name.substring(0,6) === 'buffer'){ 
+                        var s, n;
+                        if( ! isNaN(name.substring(6,10)) ) n = 10;
+                        else if( ! isNaN(name.substring(6,9)) ) n = 9;
+                        else if( ! isNaN(name.substring(6,8)) ) n = 8;
+                        isBuff[i] = true;
+                        s = name.substring(6,n);
+                        f = name.substring(n+1);
+
+                        console.log(s, f);
+                    }
+                    
+                }
+                
+
+                Uni.push( 'uniform '+ type +' iChannel' + i + ';' );
 
                 if( txt[ name ] ){ 
                     uniforms['iChannel' + i].value = txt[ name ];
@@ -500,14 +535,19 @@ var view = ( function () {
 
             fragment = Uni.join('\n') + Fragment;
 
+            view.validate( fragment );
+
             //
 
-            material = new THREE.ShaderMaterial({
+            /*material = new THREE.ShaderMaterial({
                 uniforms: uniforms,
                 vertexShader: vertex,
                 fragmentShader: fragment,
                 transparent:true,
             }); 
+
+
+            //view.validate( fragment );
 
 
 
@@ -516,8 +556,74 @@ var view = ( function () {
             material.extensions.derivatives = derive !== -1 ? true : false;
 
             mesh.material = material;
+            editor.setTitle();*/
+
+        },
+
+        applyMaterial : function () {
+
+            material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: vertex,
+                fragmentShader: fragment,
+                transparent:true,
+            });
+
+            mesh.material = material;
             editor.setTitle();
 
+        },
+
+        validate : function ( value ) {
+
+            var details, error, i, line, lines, log, message, shader, status, _i, _len;
+            var data = [];//{lineNumber:0, message:''};
+
+            try {
+                shader = gl.createShader( gl.FRAGMENT_SHADER );
+                gl.shaderSource( shader, value );
+                gl.compileShader(shader);
+                status = gl.getShaderParameter( shader, gl.COMPILE_STATUS );
+                if (!status) {
+                    console.log( gl.getShaderInfoLog(shader));
+                }
+                //console.log('yooo::' + status )
+            } catch (e) {
+                //console.log('!!!!:' + e.getMessage );
+                data.push( {lineNumber:0, message:e.getMessage } );
+              // return [false, 0, e.getMessage];
+            } 
+
+            if (status === true) {
+                gl.deleteShader( shader );
+                view.applyMaterial();
+
+            }else{
+
+                log = gl.getShaderInfoLog( shader );
+                gl.deleteShader( shader );
+                lines = log.split('\n');
+                for (_i = 0, _len = lines.length; _i < _len; _i++) {
+                    i = lines[_i];
+                    if (i.substr(0, 5) === 'ERROR') { error = i; }
+                }
+                if (!error) {
+                    data.push( {lineNumber:0, message:'Unable to parse error.'} );
+                    //editor.showError( [false, 0, 'Unable to parse error.'] );
+                }
+                details = error.split(':');
+                if ( details.length < 4 ) {
+                    data.push( {lineNumber:0, message:error} );
+                    //editor.showError( [false, 0, error] );
+                }
+                line = details[2];
+                message = details.splice(3).join(':');
+                data.push( {lineNumber:parseInt(line)-11, message:message } );
+
+                editor.setTitle('/!&#92; ERROR');
+            }
+
+            editor.validate( data );
         },
 
         initModel : function () {
@@ -669,6 +775,8 @@ var view = ( function () {
         // -----------------------
         //  GET FUNCTION
         // -----------------------
+
+        getContext: function () { return gl; },
 
         getParams: function () { return params; },
 

@@ -1,6 +1,6 @@
 
 // ------------------ channel define
-// 0_# b128_phyB #_0
+// 0_# buffer128_phyB #_0
 // ------------------
 
 // "Leaping Balls Return" by dr2 - 2016
