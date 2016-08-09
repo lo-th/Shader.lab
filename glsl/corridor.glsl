@@ -300,7 +300,10 @@ void main(){
        
     
     }
+
+    sceneCol = toneMap( clamp(sceneCol, 0., 1.) );
+    //
     
-    gl_FragColor = vec4(clamp(sceneCol, 0., 1.), 1.0);
+    gl_FragColor = vec4(sceneCol, 1.0);
     
 }

@@ -252,4 +252,6 @@ void main() {
     }
      col = PostEffects(col, xy) * smoothstep(.0, 2.0, iGlobalTime);
     gl_FragColor = vec4(col, 1.0);
+    // tone mapping
+    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
 }

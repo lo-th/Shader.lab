@@ -208,5 +208,7 @@ void main() {
     u = vUv / iResolution.xy;
     col *= pow( abs( 16.0 * u.x * u.y * (1.0 - u.x) * (1.0 - u.y)), .0625);
     gl_FragColor = vec4(clamp(col, 0., 1.), 1.0);
+    // tone mapping
+    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
 
 }

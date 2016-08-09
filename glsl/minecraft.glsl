@@ -401,4 +401,6 @@ void main() {
     col *= 0.5 + 0.5*pow( abs(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y)), 0.1 );
     
     gl_FragColor = vec4( col, 1.0 );
+    // tone mapping
+    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
 }

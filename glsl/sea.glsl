@@ -194,5 +194,7 @@ void main() {
         
     // post
     gl_FragColor = vec4(pow(abs(color),vec3(0.75)), 1.0);
+    // tone mapping
+    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
 
 }

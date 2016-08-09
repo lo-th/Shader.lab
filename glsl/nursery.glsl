@@ -161,4 +161,6 @@ void main(){
     col = mix(vec3(.5), mix(vec3(dot(vec3(.2125, .7154, .0721), col*BRIGHTNESS)), col*BRIGHTNESS, SATURATION), CONTRAST);
     
     gl_FragColor = vec4( col, 1.0 );
+    // tone mapping
+    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
 }

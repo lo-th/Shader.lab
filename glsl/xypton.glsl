@@ -253,6 +253,10 @@ void main() {
     //post
     col = pow(col,vec3(0.8));
     col *= 1.-smoothstep(0.1,2.,length(p));
+
+    // tone mapping
+    col = toneMap( col );
     
     gl_FragColor = vec4( col, 1.0 );
+
 }

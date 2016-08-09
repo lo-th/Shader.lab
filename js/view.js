@@ -7,7 +7,10 @@ var view = ( function () {
     var params = {
         background: false,
         sphere: false,
-        exposure: 1.0,
+        // toneMapping
+        exposure: 3.0,
+        whitePoint: 5.0,
+        tone: "Uncharted2",
         // bloom
         strength: 1.5,
         threshold: 0.9,
@@ -16,6 +19,8 @@ var view = ( function () {
         pixelRatio : 1,
 
     }
+
+
 
     var channels = [];
     var isBuff = [false, false, false, false];
@@ -58,6 +63,7 @@ var view = ( function () {
     var envName;
 
     var extraUpdate = [];
+    var toneMappings;
 
     var WIDTH = 512;
 
@@ -130,6 +136,14 @@ var view = ( function () {
 
         init: function () {
 
+            /*toneMappings = {
+                None: THREE.NoToneMapping,
+                Linear: THREE.LinearToneMapping,
+                Reinhard: THREE.ReinhardToneMapping,
+                Uncharted2: THREE.Uncharted2ToneMapping,
+                Cineon: THREE.CineonToneMapping
+            };*/
+
             channelResolution = [
                 new THREE.Vector2(),
                 new THREE.Vector2(),
@@ -181,8 +195,8 @@ var view = ( function () {
             //    editor.setTitle('Error');
             //}, false);
 
-            //renderer.gammaInput = true;
-            //renderer.gammaOutput = true;
+            renderer.gammaInput = true;
+            renderer.gammaOutput = true;
 
             //
 
@@ -213,9 +227,22 @@ var view = ( function () {
 
             gputmp = new view.GpuSide( renderer );
 
-
+            //this.setTone();
             this.render();
             
+        },
+
+        setTone : function(v) {
+
+            //if(v!==undefined) params.tone = v;
+
+            //renderer.toneMapping = toneMappings[ params.tone ];
+            //renderer.toneMappingExposure = params.exposure;
+            //renderer.toneMappingWhitePoint = params.whitePoint;
+
+            uniforms.exposure.value = params.exposure;
+            uniforms.whitePoint.value = params.whitePoint;
+
         },
 
         setQuality: function ( v ) {
@@ -530,6 +557,18 @@ var view = ( function () {
 
             );
 
+            Uni.push(
+                '#define saturate(a) clamp( a, 0.0, 1.0 )',
+                'uniform float exposure;',
+                'uniform float whitePoint;',
+
+                '#define Uncharted2Helper( x ) max( ( ( x * ( 0.15 * x + 0.10 * 0.50 ) + 0.20 * 0.02 ) / ( x * ( 0.15 * x + 0.50 ) + 0.20 * 0.30 ) ) - 0.02 / 0.30, vec3( 0.0 ) )',
+                'vec3 toneMap( vec3 color ) {',
+                '    color *= exposure;',
+                '    return saturate( Uncharted2Helper( color ) / Uncharted2Helper( vec3( whitePoint ) ) );',
+                '}'
+            );
+
             uniforms.iGlobalTime.value = 0;
             uniforms.iFrame.value =0;
 
@@ -568,6 +607,8 @@ var view = ( function () {
                 fragmentShader: fragment,
                 transparent:true,
             });
+
+            //console.log(material.fragmentShader)
 
             mesh.material = material;
             editor.setTitle();
@@ -661,22 +702,10 @@ var view = ( function () {
 
             uniforms = {
 
-                iChannel0: {
-                    type: 't',
-                    value: null//txt.noise
-                },
-                iChannel1: {
-                    type: 't',
-                    value: null//txt.bump
-                },
-                iChannel2: {
-                    type: 't',
-                    value: null//txt.stone
-                },
-                iChannel3: {
-                    type: 't',
-                    value: null//txt.tex06
-                },
+                iChannel0: { type: 't', value: null },
+                iChannel1: { type: 't', value: null },
+                iChannel2: { type: 't', value: null },
+                iChannel3: { type: 't', value: null },
 
                 iChannelResolution: { type: 'v2v', value: channelResolution },
 
@@ -685,11 +714,12 @@ var view = ( function () {
                 iFrame: { type: 'i', value: 0 },
                 iMouse: { type: 'v4', value: mouse },
 
+                exposure: { type: 'f', value: params.exposure },
+                whitePoint: { type: 'f', value: params.whitePoint },
+
                 //
-                key: {
-                    type:'fv',
-                    value:key
-                }
+                key: { type:'fv', value:key },
+                 
             };
 
             material = new THREE.ShaderMaterial({

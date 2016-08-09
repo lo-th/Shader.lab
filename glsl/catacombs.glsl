@@ -339,6 +339,8 @@ void main(){
     // vigneting
     col *= 0.25+0.75*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.15 );
     gl_FragColor = vec4( col, 1.0 );
+    // tone mapping
+    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
 }
 
 //void mainVR( out vec4 gl_FragColor, in vec2 gl_FragCoord, in vec3 fragRayOri, in vec3 fragRayDir )

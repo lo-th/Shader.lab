@@ -163,6 +163,8 @@ void main()
         sceneCol = texCol * (diff + ambience) + vec3(.7, .9, 1.) * spec;
         sceneCol *= atten * shading * ao;
     }
-     sceneCol = mix(sceneCol, vec3(.08, .16, .34), smoothstep(0., .95, t / FAR));
+    sceneCol = mix(sceneCol, vec3(.08, .16, .34), smoothstep(0., .95, t / FAR));
     gl_FragColor = vec4(sqrt(clamp(sceneCol, 0., 1.)), 1.0);
+    // tone mapping
+    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
 }
