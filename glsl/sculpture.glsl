@@ -141,5 +141,8 @@ void main(void)
      col = pow(col, vec3(0.4545));
     col = pow(col, vec3(1.0, 1.0, 1.4)) + vec3(0.0, 0.02, 0.14);
     col += (1.0 / 255.0) * hash1(vUv.xy);
+     // tone mapping
+    col = toneMap( col );
+    
     gl_FragColor = vec4(col, 1.0);
 }

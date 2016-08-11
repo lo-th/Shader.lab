@@ -236,6 +236,9 @@ void main(){
     col = mix(col.zyx, col, dot(cos(rd*9. +sin(rd.yzx*9.)), vec3(.333))*.15+.85);//xzy
 
     //col = mix(col.zyx, col, dot(rd, vec3(.5))+.5);
+    
+    // tone mapping
+    col = toneMap( col );
 
     gl_FragColor = vec4(col, 1.0);
 }

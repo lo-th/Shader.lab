@@ -1,3 +1,7 @@
+// ------------------ channel define
+// 0_# grey1 #_0
+// ------------------
+
 //these options seem to be too much for Windows: turn on for moar fun.
 //#define MOAR_CSG
 //#define BUILD_UP_AND_DOWN
@@ -7,7 +11,7 @@
 #extension GL_OES_standard_derivatives : enable
 
 
-uniform samplerCube envMap;
+uniform samplerCube iChannel0;
 uniform vec4 iMouse;
 uniform vec3 iResolution;
 
@@ -184,16 +188,16 @@ vec2 gain(vec2 x, float g) {
 }
 
 //http://www.robertcailliau.eu/Lego/Dimensions/zMeasurements-en.xhtml
-/*
-There are five basic dimensions:
-The horizontal pitch, or distance between knobs:  8mm.
-The vertical pitch, or height of a classic brick:  9.6mm.
-The horizontal tolerance:  0.1mm
-This is half the gap between bricks in the horizontal plane.  The horizontal tolerance prevents friction between bricks during building.
-The knob diameter:  4.8mm
-This is also the diameter of axles and holes.  Actually a knob must be slightly larger and an axle slightly smaller (4.85 and 4.75 respectively, otherwise axles would not turn in bearing holes and knobs would not stick in them) but we will ignore this difference here.
-The height of a knob:  1.8mm
-*/
+
+//There are five basic dimensions:
+//The horizontal pitch, or distance between knobs:  8mm.
+//The vertical pitch, or height of a classic brick:  9.6mm.
+//The horizontal tolerance:  0.1mm
+//This is half the gap between bricks in the horizontal plane.  The horizontal tolerance prevents friction between bricks during building.
+//The knob diameter:  4.8mm
+//This is also the diameter of axles and holes.  Actually a knob must be slightly larger and an axle slightly smaller (4.85 and 4.75 respectively, otherwise axles would not turn in bearing holes and knobs would not stick in them) but we will ignore this difference here.
+//The height of a knob:  1.8mm
+
 #define brick_h 9.6
 #define brick_w (8./brick_h)
 #define knob_h  (1.8/brick_h)
@@ -582,7 +586,7 @@ vec3 Light(vec3 X, vec3 n, vec3 V)
 
     vec3 c = vec3( max(dot(lightDir, n), 0.) );
 
-    c = pow(textureCube(envMap,n).xyz,vec3(2.2));
+    c = pow(textureCube(iChannel0,n).xyz,vec3(2.2));
     
         
 #ifdef SHADOWS  

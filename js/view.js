@@ -216,7 +216,7 @@ var view = ( function () {
 
 
             window.addEventListener( 'resize', view.resize, false ); 
-            window.addEventListener( 'error', function(e, url, line){  editor.setTitle('Error'); }, false );
+           // window.addEventListener( 'error', function(e, url, line){  editor.setTitle('Error'); }, false );
 
             //window.onerror = function(e, url, line){  editor.setTitle('Error'); };
 
@@ -626,7 +626,7 @@ var view = ( function () {
                 gl.compileShader(shader);
                 status = gl.getShaderParameter( shader, gl.COMPILE_STATUS );
                 if (!status) {
-                    console.log( gl.getShaderInfoLog(shader));
+                    console.log( gl.getShaderInfoLog(shader) );
                 }
                 //console.log('yooo::' + status )
             } catch (e) {

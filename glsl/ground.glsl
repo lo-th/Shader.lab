@@ -185,6 +185,13 @@ void main(void)
         col += bri * vec3(1.0, 1.0, 0.0) * pow(glare2, 3.0) * 4.0;
         col += bri * vec3(1.0, 1.0, 1.0) * pow(glare3, 33.9) * .7;
     }
-     col = PostEffects(col, xy);
+    
+     // tone mapping
+    col = toneMap( col );
+
+    col = PostEffects(col, xy);
+
+   
+
     gl_FragColor = vec4(col, 1.0);
 }

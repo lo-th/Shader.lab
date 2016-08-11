@@ -1,11 +1,12 @@
-#define FAR 2.
+// ------------------ channel define
+// 0_# tex07 #_0
+// ------------------
+
+
 //https://www.shadertoy.com/view/Mld3Rn
-precision highp float;
-precision highp int;
-uniform sampler2D envMap;
-uniform vec3 resolution;
-uniform float iGlobalTime;
-varying vec2 vUv;
+
+
+#define FAR 2.
 int id = 0;
 vec3 tex3D(sampler2D tex, in vec3 p, in vec3 n) 
 {
@@ -86,15 +87,16 @@ vec3 eMap(vec3 rd, vec3 sn)
     vec3 col = vec3(min(c * 1.5, 1.), pow(c, 2.5), pow(c, 12.)).zyx;
     return mix(col, col.yzx, sRd * .25 + .25);
 }
+
 void main() 
 {
 
-    vec2 uv = gl_FragCoord.xy / resolution.xy;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
     uv = 1.0 - uv * 2.0;
-    uv.x *= resolution.x / resolution.y;   
+    uv.x *= iResolution.x / iResolution.y;   
     uv.y *= -1.;
 
-    vec3 r =  vec3(uv.xy, 1.0);//vec3 r = normalize(vec3(vUv - resolution.xy * .5, resolution.y));
+    vec3 r =  vec3(uv.xy, 1.0);//vec3 r = normalize(vec3(vUv - iResolution.xy * .5, iResolution.y));
     vec3 o = vec3(0);
     vec3 l = o + vec3(0, 0, -1);
 
@@ -117,7 +119,7 @@ void main()
         d = max(length(l), 0.001);
         l /= d;
         float hm = heightMap(p);
-        vec3 tx = tex3D(envMap, (p * 2. + hm * .2), n);
+        vec3 tx = tex3D(iChannel0, (p * 2. + hm * .2), n);
         gl_FragColor.xyz = vec3(1.) * (hm * .8 + .2);
         gl_FragColor.xyz *= vec3(1.5) * tx;
         gl_FragColor.x = dot(gl_FragColor.xyz, vec3(.299, .587, .114));

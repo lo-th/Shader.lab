@@ -1,8 +1,3 @@
-precision highp float;
-precision highp int;
-uniform vec2 resolution;
-uniform float time;
-varying vec2 vUv;
 
 vec3 firePalette(float i) 
 {
@@ -40,7 +35,7 @@ float voronoi(vec3 p)
 }
 float noiseLayers(in vec3 p) 
 {
-    vec3 t = vec3(0., 0., p.z + time * 1.5);
+    vec3 t = vec3(0., 0., p.z + iGlobalTime * 1.5);
     const int iter = 5;
     float tot = 0., sum = 0., amp = 1.;
     for (int i = 0; i < iter; i++) 
@@ -55,20 +50,20 @@ float noiseLayers(in vec3 p)
 }
 void main() 
 {
-    //vec2 uv = (vUv.xy - resolution.xy * 0.5) / resolution.y;
+    //vec2 uv = (vUv.xy - iResolution.xy * 0.5) / iResolution.y;
 
-    vec2 uv = gl_FragCoord.xy / resolution.xy;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
     uv = 1.0 - uv * 2.0;
-    uv.x *= resolution.x / resolution.y;   
+    uv.x *= iResolution.x / iResolution.y;   
     uv.y *= -1.;
 
     uv =  1.0 - vUv * 2.0;
-    uv.x *= resolution.x / resolution.y;
+    uv.x *= iResolution.x / iResolution.y;
 
-    //uv += vec2(sin(time * 0.5) * 0.25, cos(time * 0.5) * 0.125);
+    //uv += vec2(sin(iGlobalTime * 0.5) * 0.25, cos(iGlobalTime * 0.5) * 0.125);
 
     vec3 rd = normalize(vec3(uv.x, uv.y, 3.1415926535898 / 8.));
-    float cs = cos(time * 0.25), si = sin(time * 0.25);
+    float cs = cos(iGlobalTime * 0.25), si = sin(iGlobalTime * 0.25);
     rd.xy = rd.xy * mat2(cs, -si, si, cs);
     float c = noiseLayers(rd * 2.);
     c = max(c + dot(hash33(rd) * 2. - 1., vec3(0.015)), 0.);

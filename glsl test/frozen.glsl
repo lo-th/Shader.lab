@@ -1,18 +1,11 @@
 #define ITR 90
 #define FAR 110.
-//#define time iGlobalTime
+//#define iGlobalTime iGlobalTime
 #define MOD3 vec3(.16532,.17369,.15787)
 #define SUN_COLOUR vec3(1., .95, .85)
 #define TRIANGLE_NOISE 
 #define MOD2 vec2(.16632,.17369)
 
-precision highp float;
-precision highp int;
-uniform vec3 resolution;
-uniform vec4 mouse;
-uniform float time;
-varying vec2 vUv;
-uniform float time;
 float height(in vec2 p) 
 {
     float h = sin(p.x * .1 + p.y * .2) + sin(p.y * .1 - p.x * .2) * .5;
@@ -62,8 +55,8 @@ float map(vec3 p)
 }
 float fogmap(in vec3 p, in float d) 
 {
-    p.xz -= time * 7. + sin(p.z * .3) * 3.;
-    p.y -= time * .5;
+    p.xz -= iGlobalTime * 7. + sin(p.z * .3) * 3.;
+    p.y -= iGlobalTime * .5;
     return (max(Noise3d(p * .008 + .1) - .1, 0.0) * Noise3d(p * .1)) * .3;
 }
 float march(in vec3 ro, in vec3 rd, out float drift, in vec2 scUV) 
@@ -123,7 +116,7 @@ vec3 Clouds(vec3 sky, vec3 rd)
     float ele = rd.y;
     float v = (200.0) / rd.y;
     rd.y = v;
-    rd.xz = rd.xz * v - time * 8.0;
+    rd.xz = rd.xz * v - iGlobalTime * 8.0;
     rd.xz *= .0004;
     float f = Noise3d(rd.xzz * 3.) * Noise3d(rd.zxx * 1.3) * 2.5;
     f = f * pow(ele, .5) * 2.;
@@ -144,16 +137,16 @@ float Occ(vec3 p)
 }
 void main() 
 {
-    vec2 p = vUv.xy / resolution.xy - 0.5;
-    vec2 q = vUv.xy / resolution.xy;
-    p.x *= resolution.x / resolution.y;
-    vec2 mo = mouse.xy / resolution.xy - .5;
+    vec2 p = vUv.xy / iResolution.xy - 0.5;
+    vec2 q = vUv.xy / iResolution.xy;
+    p.x *= iResolution.x / iResolution.y;
+    vec2 mo = iMouse.xy / iResolution.xy - .5;
     mo = (mo == vec2(-.5)) ? mo = vec2(-0.1, 0.07) : mo;
-    mo.x *= resolution.x / resolution.y;
-    vec3 ro = vec3(0. + smoothstep(0., 1., tri(time * 1.5) * .3) * 1.1, smoothstep(0., 1., tri(time * 3.) * 3.) * 0.08, -time * 3.5 - 130.0);
+    mo.x *= iResolution.x / iResolution.y;
+    vec3 ro = vec3(0. + smoothstep(0., 1., tri(iGlobalTime * 1.5) * .3) * 1.1, smoothstep(0., 1., tri(iGlobalTime * 3.) * 3.) * 0.08, -iGlobalTime * 3.5 - 130.0);
     ro.y -= camHeight(ro.zx) - .4;
-    mo.x += smoothstep(0.7, 1., sin(time * .35)) * .5 - 1.5 - smoothstep(-.7, -1., sin(time * .35)) * .5;
-    vec3 eyedir = normalize(vec3(cos(mo.x), mo.y * 2. - .05 + sin(time * .5) * 0.1, sin(mo.x)));
+    mo.x += smoothstep(0.7, 1., sin(iGlobalTime * .35)) * .5 - 1.5 - smoothstep(-.7, -1., sin(iGlobalTime * .35)) * .5;
+    vec3 eyedir = normalize(vec3(cos(mo.x), mo.y * 2. - .05 + sin(iGlobalTime * .5) * 0.1, sin(mo.x)));
     vec3 rightdir = normalize(vec3(cos(mo.x + 1.5708), 0., sin(mo.x + 1.5708)));
     vec3 updir = normalize(cross(rightdir, eyedir));
     vec3 rd = normalize((p.x * rightdir + p.y * updir) * 1. + eyedir);
@@ -186,7 +179,7 @@ void main()
     col = mix(col, vec3(0.7, .7, .7), fg);
     col = mix(col, vec3(.5), -.1);
     col = sqrt(col);
-    float f = smoothstep(0.0, 3.0, time) * .5;
+    float f = smoothstep(0.0, 3.0, iGlobalTime) * .5;
     col *= f + f * pow(70. * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), .2);
     gl_FragColor = vec4(col, 1.0);
 }

@@ -1,15 +1,11 @@
+// ------------------ channel define
+// 0_# noise #_0
+// -----------------
+
 // I started working a bit on the colors of Remix 2, ended up with something like this. :)
 // Remix 2 here: https://www.shadertoy.com/view/MtcGD7
 // Remix 1 here: https://www.shadertoy.com/view/llc3DM
 // Original here: https://www.shadertoy.com/view/XsXXRN
-
-uniform sampler2D iChannel0;
-uniform samplerCube envMap;
-uniform vec3 iResolution;
-uniform vec4 iMouse;
-uniform float iGlobalTime;
-
-varying vec2 vUv;
 
 float rand(vec2 n) {
     return fract(sin(cos(dot(n, vec2(12.9898,12.1414)))) * 83758.5453);

@@ -1,11 +1,7 @@
+
 #define TAU 6.28318530718
 #define MAX_ITER 5
 
-precision highp float;
-precision highp int;
-uniform vec3 iResolution;
-uniform float iGlobalTime;
-varying vec2 vUv;
 void main() {
 
     float iGlobalTime = iGlobalTime * .5 + 23.0;
@@ -33,4 +29,5 @@ void main() {
     vec3 colour = vec3(pow(abs(c), 8.0));
     colour = clamp(colour + vec3(0.0, 0.35, 0.5), 0.0, 1.0);
     gl_FragColor = vec4(colour, 1.0);
+    
 }

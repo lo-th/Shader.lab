@@ -185,5 +185,10 @@ void main()
     col = col * 0.5 + 0.5 * col * col * (3.0 - 2.0 * col);
     col = pow( abs( col ), vec3(0.416667)) * 1.055 - 0.055;
     col *= pow( abs( 16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y)) , 0.12);
+
+    // tone mapping
+    col = toneMap( col );
+
     gl_FragColor = vec4(col, 1.0);
+    
 }

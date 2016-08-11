@@ -291,8 +291,11 @@ vec4 corners( in vec3 vos, in vec3 nor, in vec3 dir )
 
 void main() {
     // inputs   
+    //vec2 q = vUv;
+    //vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+
     vec2 q = vUv;
-    vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    vec2 p = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
     //vec2 q = fragCoord.xy / iResolution.xy;
     //vec2 p = -1.0 + 2.0*q;
     //p.x *= iResolution.x/ iResolution.y;
