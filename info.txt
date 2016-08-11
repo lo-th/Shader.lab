@@ -33,3 +33,7 @@ vec2 uv = ((vUv - 0.5) * 2.0) * vec2(resolution.z, 1.0);
 dFdx, dFdy, fwidth
 
 #extension GL_OES_standard_derivatives : enable
+
+
+best rally
+https://www.shadertoy.com/view/XdcGWS
