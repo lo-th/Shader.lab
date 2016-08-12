@@ -223,7 +223,7 @@ float curve(in vec3 p, in float w){
 void main(){
     
     // Screen coordinates.
-    vec2 uv = (gl_FragCoord - iResolution.xy*0.5)/iResolution.y;
+    vec2 uv = (gl_FragCoord.xy - iResolution.xy*0.5)/iResolution.y;
     
     // Camera Setup.
     vec3 lookAt = vec3(0.0, 0.0, iGlobalTime*4.);  // "Look At" position.
@@ -357,7 +357,10 @@ void main(){
        
     
     }
+
+    // tone mapping
+    sceneCol = toneMap( clamp(sceneCol, 0., 1.) );
     
-    gl_FragColor = vec4(clamp(sceneCol, 0., 1.), 1.0);
+    gl_FragColor = vec4(sceneCol, 1.0);
     
 }
