@@ -39,7 +39,10 @@ var view = ( function () {
     var radtodeg = 57.295779513082320876;
 
     var canvas, renderer, scene, camera, controls, light;//, clock;
-    var vsize, mouse, time = 0, key = new Float32Array( 20 );
+    var vsize, mouse, key = new Float32Array( 20 );
+
+    var time = 0;
+    var frame = 0;
 
     var vs = { w:1, h:1, l:0, x:0 , y:0};
 
@@ -97,8 +100,10 @@ var view = ( function () {
             if(uniforms){ 
 
                 time += params.Speed * 0.01;
+                frame ++;
+
                 uniforms.iGlobalTime.value = time;
-                uniforms.iFrame.value ++;
+                uniforms.iFrame.value = frame;
                // uniforms.key.value = key;
                 //uniforms.mouse.value = mouse;
             }
@@ -527,15 +532,14 @@ var view = ( function () {
 
             if(isNew){
                 time = 0;
-                //clock.start();
-                //console.log('new shader', isNew )
+                frame = 0;
             }
 
             // reset old
 
             material.dispose();
 
-            var Uni = ['precision highp float;'];
+            var Uni = [];//'precision highp float;'];
 
             isBuff = [ false, false, false, false ];
 
@@ -602,8 +606,8 @@ var view = ( function () {
                 '}'
             );*/
 
-            uniforms.iGlobalTime.value = 0;
-            uniforms.iFrame.value =0;
+            uniforms.iGlobalTime.value = time;
+            uniforms.iFrame.value = frame;
 
             fragment = Uni.join('\n') + Fragment;
 
@@ -655,7 +659,7 @@ var view = ( function () {
 
             try {
                 shader = gl.createShader( gl.FRAGMENT_SHADER );
-                gl.shaderSource( shader, value );
+                gl.shaderSource( shader, 'precision highp float;' + value );
                 gl.compileShader( shader );
                 status = gl.getShaderParameter( shader, gl.COMPILE_STATUS );
                 if (!status) {
