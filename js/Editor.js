@@ -23,6 +23,7 @@ var editor = ( function () {
     var right = 0;
     var oldleft = 0;
     var fileName = '';
+    var fileName_old = '';
     var nextDemo = null;
     var selectColor = '#308AFF';
     var scrollOn = false;
@@ -473,6 +474,8 @@ var editor = ( function () {
             var prev = 'glsl/';
             var end = '.glsl'
 
+            //fileName_old = fileName;
+
             fileName = name;//url.substring(url.indexOf("/")+1, url.indexOf("."));
 
             //if( demos.indexOf( fileName ) !== -1 ) prev = 'glsl/';
@@ -554,12 +557,15 @@ var editor = ( function () {
 
             
             var value = code.getValue();
+            var isNew = fileName_old !== fileName ? true : false;
             //editor.inject( value );
 
-            view.setMat( value );
+            //view.setMat( value, isNew );
 
-            //clearTimeout( interval );
-           // interval = setTimeout( function() { editor.inject( value ); }, 100 );
+            //fileName_old = fileName;
+
+            clearTimeout( interval );
+            interval = setTimeout( function() { view.setMat( value, isNew ); fileName_old = fileName; }, 10 );
             //if( this.validate( value ) ) interval = setTimeout( function() { editor.inject( value ); }, 500);
 
         },

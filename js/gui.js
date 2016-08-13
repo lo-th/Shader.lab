@@ -12,7 +12,12 @@ var gui = ( function () {
 
             var params = view.getParams(); 
 
+
+
             ui.add('fps',  {});
+            //ui.add('title',  { name:'SPEED' });
+            ui.add( params, 'Speed', { min:0, max:10, stype:0, precision:2, stype :2 } );
+
             ui.add('title',  { name:'Pixel Ratio' });
             ui.add('button',  {width:60, sa:5, sb:50, name:0.125}).onChange( function(){view.setQuality(0.125)} );
             ui.add('button',  {width:60, sa:5, sb:50, name:0.25}).onChange( function(){view.setQuality(0.25)} );

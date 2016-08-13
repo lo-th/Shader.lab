@@ -5,6 +5,9 @@ var view = ( function () {
     'use strict';
 
     var params = {
+
+        Speed: 1,
+
         background: false,
         sphere: false,
         // toneMapping
@@ -35,8 +38,8 @@ var view = ( function () {
     var degtorad = 0.0174532925199432957;
     var radtodeg = 57.295779513082320876;
 
-    var canvas, renderer, scene, camera, controls, light, clock;
-    var vsize, mouse, time, key = new Float32Array( 20 );
+    var canvas, renderer, scene, camera, controls, light;//, clock;
+    var vsize, mouse, time = 0, key = new Float32Array( 20 );
 
     var vs = { w:1, h:1, l:0, x:0 , y:0};
 
@@ -85,12 +88,16 @@ var view = ( function () {
             var i = extraUpdate.length;
             while(i--) extraUpdate[i]();
 
-            time.x += clock.getDelta();
+            
+
             key = user.getKey();
 
+            //console.log(clock.getDelta())
+
             if(uniforms){ 
-                //uniforms.time.value = time.x;
-                uniforms.iGlobalTime.value = time.x;
+
+                time += params.Speed * 0.01;
+                uniforms.iGlobalTime.value = time;
                 uniforms.iFrame.value ++;
                // uniforms.key.value = key;
                 //uniforms.mouse.value = mouse;
@@ -131,7 +138,7 @@ var view = ( function () {
         reset: function ( ) {
 
             //console.clear();
-            time.x = 0;
+            //time.x = 0;
         },
 
        
@@ -177,8 +184,8 @@ var view = ( function () {
 
             //gl.getExtension("OES_standard_derivatives");
 
-            time = new THREE.Vector2();
-            clock = new THREE.Clock();
+            //time = 0;
+            //clock = new THREE.Clock();
 
             //container = document.createElement( 'div' );
             //document.body.appendChild( container );
@@ -504,7 +511,15 @@ var view = ( function () {
 
 
 
-        setMat : function( Fragment ) {
+        setMat : function( Fragment, isNew ) {
+
+            //console.log('yooch')
+
+            if(isNew){
+                time = 0;
+                //clock.start();
+                //console.log('new shader', isNew )
+            }
 
             // reset old
 
@@ -647,8 +662,10 @@ var view = ( function () {
 
                 gl.deleteShader( shader );
 
-                clearTimeout( interval );
-                interval = setTimeout( function() { view.applyMaterial(); }, 500 );
+                view.applyMaterial();
+
+                //clearTimeout( interval );
+                //interval = setTimeout( function() { view.applyMaterial(); }, 10 );
                 //view.applyMaterial();
 
             }else{
@@ -724,7 +741,7 @@ var view = ( function () {
 
                 iChannelResolution: { type: 'v2v', value: channelResolution },
 
-                iGlobalTime: { type: 'f', value: time.x },
+                iGlobalTime: { type: 'f', value: time },
                 iResolution: { type: 'v3', value: vsize },
                 iFrame: { type: 'i', value: 0 },
                 iMouse: { type: 'v4', value: mouse },
