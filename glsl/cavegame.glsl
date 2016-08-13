@@ -15,7 +15,7 @@ float noise3f( in vec3 x )
     f = f*f*(3.0-2.0*f);
     
     vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-    vec2 rg = texture2D( iChannel0, (uv+0.5)/256.0, -100.0 ).yx;
+    vec2 rg = texture2D( iChannel0, (uv+0.5)/256.0, -16.0 ).yx;
     return mix( rg.x, rg.y, f.z )*2.-1.;
 }
 
@@ -94,8 +94,10 @@ vec4 getColor(vec3 p, vec3 n, vec3 org, vec3 dir)
 
 void main(){
 
-    vec2 v = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
-    v.x *= iResolution.x/iResolution.y; 
+    //vec2 v = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
+    //v.x *= iResolution.x/iResolution.y; 
+
+    vec2 v = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
     
     vec3 org = raymarcheSmall(vec3(iMouse.x*sensivity,0.,-pow(iGlobalTime,speed)),vec3(.0,-1.,.0))+vec3(.0,.15,.0);
     vec3 dir = normalize(vec3(v.x*1.6,v.y,-.9-1./pow(iGlobalTime,speed)));
@@ -106,10 +108,14 @@ void main(){
     vec3 refdir = reflect(dir,getNormal(p));
     p = raymarcheSmall(p+refdir,refdir);
     color = mix( color, getColor(p,getNormal(p),org,dir), .15 );
-    
-    if(scene(org)<.0) //Fail ? red screen !
-        color = vec4(1.,.0,.0,1.);
+
+    // tone mapping
+    color.rgb = toneMap( color.rgb );
+    //Fail ? red screen !
+    if(scene(org)<.0)  color = vec4(1.,.0,.0,1.);
+
     gl_FragColor = color;
+
 }
 
 
