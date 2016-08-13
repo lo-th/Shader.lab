@@ -411,7 +411,9 @@ void main(){
     }
 
     // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     if ( Toggle(kLensFX,10) )
     {

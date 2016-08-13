@@ -263,7 +263,9 @@ void main(){
     tot /= float(samples);
 
     // tone mapping
-    tot = toneMap( tot );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
 
     //-----------------------------------------------------
     // postprocessing

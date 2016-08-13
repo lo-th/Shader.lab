@@ -672,8 +672,10 @@ void main(){
     finalColor = RayTrace(fragCoord.xy);
 #endif
 
-    // tone mapping
-    finalColor = toneMap( finalColor );
+
+    #if defined( TONE_MAPPING ) 
+    finalColor = toneMapping( finalColor ); 
+    #endif
 
     gl_FragColor = vec4(sqrt(clamp(finalColor, 0.0, 1.0)),1.0);
 }

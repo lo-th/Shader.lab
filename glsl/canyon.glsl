@@ -207,8 +207,13 @@ void main() {
      col = mix(col, sky, sqrt(smoothstep(FAR - 15., FAR, t)));
     u = vUv / iResolution.xy;
     col *= pow( abs( 16.0 * u.x * u.y * (1.0 - u.x) * (1.0 - u.y)), .0625);
-    gl_FragColor = vec4(clamp(col, 0., 1.), 1.0);
-    // tone mapping
-    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
+
+    col = clamp(col, 0., 1.);
+
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
+
+    gl_FragColor = vec4(col, 1.0);
 
 }

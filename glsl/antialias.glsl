@@ -171,13 +171,14 @@ void main(){
     //---------------------------------------------
     
     col = pow( col, vec3(0.5,0.7,0.5) );
+
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     //vec2 q = fragCoord.xy/iResolution.xy;
     vec2 q = vUv;
     col *= pow(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y),0.1);
-
-    // tone mapping
-    col = toneMap( col );
     
     gl_FragColor = vec4( col, 1.0 );
 }

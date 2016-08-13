@@ -300,7 +300,9 @@ void main(){
     //col = mix(vec4(0.0), vec4(1.0), col * contr + (1.0 - contr) * col * col * (3.0 - 2.0 * col));
 
     // tone mapping
-    col.rgb = toneMap( col.rgb );
+    #if defined( TONE_MAPPING ) 
+    col.rgb = toneMapping( col.rgb ); 
+    #endif
 
     gl_FragColor = col;
     

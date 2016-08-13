@@ -255,7 +255,9 @@ void main() {
     col *= 1.-smoothstep(0.1,2.,length(p));
 
     // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     gl_FragColor = vec4( col, 1.0 );
 

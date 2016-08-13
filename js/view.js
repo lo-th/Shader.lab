@@ -13,7 +13,7 @@ var view = ( function () {
         // toneMapping
         exposure: 3.0,
         whitePoint: 5.0,
-        //tone: "Uncharted2",
+        tone: "Uncharted2",
         // bloom
         strength: 1.5,
         threshold: 0.9,
@@ -145,13 +145,13 @@ var view = ( function () {
 
         init: function () {
 
-            /*toneMappings = {
+            toneMappings = {
                 None: THREE.NoToneMapping,
                 Linear: THREE.LinearToneMapping,
                 Reinhard: THREE.ReinhardToneMapping,
                 Uncharted2: THREE.Uncharted2ToneMapping,
                 Cineon: THREE.CineonToneMapping
-            };*/
+            };
 
             channelResolution = [
                 new THREE.Vector2(),
@@ -241,21 +241,31 @@ var view = ( function () {
 
             gputmp = new view.GpuSide( renderer );
 
-            //this.setTone();
+            this.setTone();
             this.render();
             
         },
 
         setTone : function(v) {
 
-            //if(v!==undefined) params.tone = v;
+            var nup = false;
 
-            //renderer.toneMapping = toneMappings[ params.tone ];
-            //renderer.toneMappingExposure = params.exposure;
-            //renderer.toneMappingWhitePoint = params.whitePoint;
+            if(v!==undefined){ 
+                params.tone = v;
+                nup = true;
+            }
 
-            uniforms.exposure.value = params.exposure;
-            uniforms.whitePoint.value = params.whitePoint;
+            renderer.toneMapping = toneMappings[ params.tone ];
+            renderer.toneMappingExposure = params.exposure;
+            renderer.toneMappingWhitePoint = params.whitePoint;
+
+            if( material && nup ) material.needsUpdate = true;
+
+            /*if(uniforms){
+                if( nup ) material.needsUpdate = true;
+                uniforms.exposure.value = params.exposure;
+                uniforms.whitePoint.value = params.whitePoint;
+            }*/
 
         },
 
@@ -580,7 +590,7 @@ var view = ( function () {
 
             );
 
-            Uni.push(
+            /*Uni.push(
                 '#define saturate(a) clamp( a, 0.0, 1.0 )',
                 'uniform float exposure;',
                 'uniform float whitePoint;',
@@ -590,7 +600,7 @@ var view = ( function () {
                 '    color *= exposure;',
                 '    return saturate( Uncharted2Helper( color ) / Uncharted2Helper( vec3( whitePoint ) ) );',
                 '}'
-            );
+            );*/
 
             uniforms.iGlobalTime.value = 0;
             uniforms.iFrame.value =0;
@@ -746,8 +756,8 @@ var view = ( function () {
                 iFrame: { type: 'i', value: 0 },
                 iMouse: { type: 'v4', value: mouse },
 
-                exposure: { type: 'f', value: params.exposure },
-                whitePoint: { type: 'f', value: params.whitePoint },
+                //exposure: { type: 'f', value: params.exposure },
+                //whitePoint: { type: 'f', value: params.whitePoint },
 
                 //
                 key: { type:'fv', value:key },

@@ -160,8 +160,10 @@ void main() {
     final = mix(final, vec3(1.0), fog);
     fog = 1.0 / (1.0 + t * t * 0.1);
     
-    // tone mapping
-    final = toneMap( final );
+
+    #if defined( TONE_MAPPING ) 
+    final = toneMapping( final ); 
+    #endif
 
     gl_FragColor = vec4(final * fog, fog );
 

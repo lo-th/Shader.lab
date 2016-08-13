@@ -374,8 +374,10 @@ void main(){
         col += bri * vec3(1.0, 1.0, 0.2) * pow(abs(glare2), 2.0)*2.5;
         col += bri * sunColour * pow(abs(glare3), 2.0)*3.0;
     }
-    // tone mapping
-    col = toneMap( col );
+    
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     col = PostEffects(col, xy); 
     

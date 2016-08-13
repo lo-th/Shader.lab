@@ -349,8 +349,11 @@ void main(){
     vec3 bg = vec3(.5, .7, 1);
     col = mix(clamp(col, 0., 1.), bg, smoothstep(0., FAR-5., t));
 
-    // tone mapping
-    col = toneMap( sqrt(clamp(col, 0., 1.)) );
+    col = sqrt(clamp(col, 0., 1.));
+
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     // Half hearted gamma correction.
     gl_FragColor = vec4( col, 1.);

@@ -116,8 +116,9 @@ void main(){
         }
     }
 
-    // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     gl_FragColor = mix( vec4(col, 1.0), vec4(DeepColor, 1.), 1.0 - exp( -d.x/3.) ); // fog
 }

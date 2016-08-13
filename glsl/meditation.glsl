@@ -842,7 +842,10 @@ void main(){
 #else
     col = colorSum;
 #endif
-    
+
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
 
     // Compress bright colours, (because bloom vanishes in vignette)
     vec3 c = (col-1.0);

@@ -160,5 +160,10 @@ void main(){
     col*=length(clamp((.6-pow(abs(uv2),vec2(3.))),vec2(0.),vec2(1.)));
     col=col*vec3(1.1,1.03,1.)+vec3(.05,.02,.0);
     col+=vec3(1,.85,.7)*pow(max(0.,.3-length(uv))/.3,2.)*.5;
+
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
+
     gl_FragColor = vec4(col,1.);
 }

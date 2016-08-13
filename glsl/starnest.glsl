@@ -65,9 +65,8 @@ void main(){
         fade*=distfading; // distance fading
         s+=stepsize;
     }
+    
     v=mix(vec3(length(v)),v,saturation); //color adjust
-    // tone mapping
-    //v = toneMap( v );
 
     gl_FragColor = vec4(v*.01,1.); 
     

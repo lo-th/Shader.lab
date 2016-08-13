@@ -361,7 +361,11 @@ void main(){
     }
 
     // tone mapping
-    sceneCol = toneMap( clamp(sceneCol, 0., 1.) );
+    sceneCol = clamp(sceneCol, 0., 1.);
+
+    #if defined( TONE_MAPPING ) 
+    sceneCol = toneMapping( sceneCol ); 
+    #endif
     
     gl_FragColor = vec4(sceneCol, 1.0);
     

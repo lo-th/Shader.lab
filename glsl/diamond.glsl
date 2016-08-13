@@ -170,22 +170,28 @@ void main() {
         origin += direction * distMin;
     }
 
+    vec3 col = vec3(0.0);
+
     // Check whether we hit something
     if (dist >= 0.0){
-        gl_FragColor.rgb = textureCube(iChannel0, direction).rgb;
+        col = textureCube(iChannel0, direction).rgb;
     } else {
         // Get the normal
         normal.xyz = getNormal(origin);
         // Basic lighting
         float relfectionDiffuse = max(0.0, dot(normal.xyz, lightDirection));
         float relfectionSpecular = pow(max(0.0, dot(reflect(direction, normal.xyz), lightDirection)), SPECULAR_POWER) * SPECULAR_INTENSITY;
-        gl_FragColor.rgb = (AMBIENT + relfectionDiffuse) * COLOR + relfectionSpecular;
+        col = (AMBIENT + relfectionDiffuse) * COLOR + relfectionSpecular;
         // Cast a ray for each color channel
-        gl_FragColor.r = raycast(origin, direction, normal, gl_FragColor.r, vec3(1.0, 0.0, 0.0));
-        gl_FragColor.g = raycast(origin, direction, normal, gl_FragColor.g, vec3(0.0, 1.0, 0.0));
-        gl_FragColor.b = raycast(origin, direction, normal, gl_FragColor.b, vec3(0.0, 0.0, 1.0));
+        col.r = raycast(origin, direction, normal, gl_FragColor.r, vec3(1.0, 0.0, 0.0));
+        col.g = raycast(origin, direction, normal, gl_FragColor.g, vec3(0.0, 1.0, 0.0));
+        col.b = raycast(origin, direction, normal, gl_FragColor.b, vec3(0.0, 0.0, 1.0));
     }
 
-    gl_FragColor.a = 1.0;
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
+
+    gl_FragColor = vec4( col, 1.0);
 
 }

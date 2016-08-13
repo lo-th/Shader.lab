@@ -350,7 +350,9 @@ void main(){
     col = pow( col, vec3(0.4545) );
 
     // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
 
     gl_FragColor=vec4( col, 1.0 );
 }

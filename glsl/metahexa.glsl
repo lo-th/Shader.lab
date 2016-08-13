@@ -217,7 +217,9 @@ void main(){
         color = background(d);
 
     // tone mapping
-    color = toneMap( color );
+    #if defined( TONE_MAPPING ) 
+    color = toneMapping( color ); 
+    #endif
     
     //post procesing
     color *=.85;

@@ -15,7 +15,7 @@ float noise( in vec3 x )
     vec2 offz = vec2(0.317,0.123);
     vec2 uv1 = x.xy + offz*floor(z); 
     vec2 uv2 = uv1  + offz;
-    return mix(texture2D( iChannel0, uv1 ,-100.0).x,texture2D( iChannel0, uv2 ,-100.0).x,fract(z))-0.5;
+    return mix(texture2D( iChannel0, uv1 ,-16.0).x,texture2D( iChannel0, uv2 ,-16.0).x,fract(z))-0.5;
 }
 
 float noises( in vec3 p){
@@ -77,11 +77,15 @@ void main(){
     vec3  cloud = vec3(0.70,0.72,0.70)+light*0.05+sin(fog*0.0002)*0.2+noise(p1)*0.05;
 
     float h = smoothstep(10000.,40000.0,dist);
-    vec3  sky = cloud+ray.y*0.1-0.02;   
+    vec3  sky = cloud+ray.y*0.1-0.02;
+
+    vec3 col = sqrt(smoothstep(0.2,1.0,mix(mix(ground,sky,h),cloud,f)-dot(uv,uv)*0.1));
+
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
-    gl_FragColor = vec4(sqrt(smoothstep(0.2,1.0,mix(mix(ground,sky,h),cloud,f)-dot(uv,uv)*0.1)),1.0);
-    // tone mapping
-    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
+    gl_FragColor = vec4( col,1.0);
     
 
 }

@@ -237,8 +237,9 @@ void main(){
 
     //col = mix(col.zyx, col, dot(rd, vec3(.5))+.5);
     
-    // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
 
     gl_FragColor = vec4(col, 1.0);
 }

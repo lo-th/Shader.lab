@@ -353,8 +353,9 @@ void main(){
 
     col = sqrt(col);
     
-    // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     // Borders...
     float f = smoothstep(0.0, 3.0, iGlobalTime)*.5;

@@ -156,7 +156,9 @@ void main(){
     col = mix( col, res.xyz, res.w*1.3);
 
     // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     #define CONTRAST 1.1
     #define SATURATION 1.15

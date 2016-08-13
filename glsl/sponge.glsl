@@ -380,7 +380,9 @@ void main(){
     col = mix(col, vec3(.55, .75, 1.), smoothstep(0., FAR - 15., t));////1.-exp(-0.01*t*t)
 
     // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
 
     
     gl_FragColor = vec4(col, 1.0);

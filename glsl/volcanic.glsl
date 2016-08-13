@@ -299,8 +299,9 @@ void main(){
     col *= 1.3*vec3(1.06,1.1,1.0);
     col *= 0.5 + 0.5*pow( abs(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y)), 0.1 );
 
-    // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     gl_FragColor = vec4( col, 1.0 );
 }

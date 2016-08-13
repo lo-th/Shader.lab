@@ -109,8 +109,10 @@ void main(){
     p = raymarcheSmall(p+refdir,refdir);
     color = mix( color, getColor(p,getNormal(p),org,dir), .15 );
 
-    // tone mapping
-    color.rgb = toneMap( color.rgb );
+    #if defined( TONE_MAPPING ) 
+    color.rgb = toneMapping( color.rgb ); 
+    #endif
+    
     //Fail ? red screen !
     if(scene(org)<.0)  color = vec4(1.,.0,.0,1.);
 

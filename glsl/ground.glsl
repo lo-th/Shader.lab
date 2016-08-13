@@ -186,8 +186,9 @@ void main(void)
         col += bri * vec3(1.0, 1.0, 1.0) * pow(glare3, 33.9) * .7;
     }
     
-     // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
 
     col = PostEffects(col, xy);
 

@@ -133,8 +133,11 @@ void main() {
     vec3  col  = mix(env(ray1)*0.3,(0.01+mtr*0.1+env(nor))*pow(ocl,0.6),bkg);
           col += (vec3(1.70,1.65,1.60)+mtr*0.3)*dif;
           col += (vec3(0.80,0.80,0.70)+mtr*0.3)*spc;
-    // tone mapping
-    col = toneMap( col );
+  
+  
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     
     // Fake some visible light

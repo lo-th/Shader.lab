@@ -646,6 +646,10 @@ vec4 render(){
     col = combineFog(col, fogDensColor);
     #endif
 
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
+
     return vec4(col, 1.0);
 }
 

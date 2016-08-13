@@ -230,7 +230,9 @@ void main() {
     c *= (1.0 - dist/far);
 
     // tone mapping
-    c = toneMap( c );
+    #if defined( TONE_MAPPING ) 
+    c = toneMapping( c ); 
+    #endif
     
     #ifdef POST
     c *= 2.5 - rand(pos) * 0.1;

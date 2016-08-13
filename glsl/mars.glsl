@@ -323,8 +323,9 @@ void main(){
 
     col = mix(GetSky(dir), col, normal.w);
 
-    // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
 
     // bri is the brightness of sun at the centre of the camera direction.
     // Yeah, the lens flares is not exactly subtle, but it was good fun making it.

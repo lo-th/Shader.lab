@@ -217,6 +217,10 @@ void main(){
     
     float w=color.x+color.y+color.z;
     color = mix(color,vec3(w,w,w)*0.3,w*0.35);
+
+    #if defined( TONE_MAPPING ) 
+    color = toneMapping( color ); 
+    #endif
     
     gl_FragColor = vec4(color,1.0);
 }

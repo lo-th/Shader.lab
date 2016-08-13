@@ -252,7 +252,9 @@ void main(){
     color += GodRays(p)*mix(float(skyColor),1.0,p.y*p.y)*vec3(0.7,1.0,1.0);
 
     // tone mapping
-    color = toneMap( color );
+    #if defined( TONE_MAPPING ) 
+    color = toneMapping( color ); 
+    #endif
     
     // gamma correction
     vec3 gamma = vec3(0.46);

@@ -124,8 +124,11 @@ void main(){
     }
     v=mix(vec3(length(v)),v,saturation); //color adjust
 
-    // tone mapping
-    v = toneMap( v*.01 );
+    v *= .01;
+
+    #if defined( TONE_MAPPING ) 
+    v = toneMapping( v ); 
+    #endif
 
     gl_FragColor = vec4(v,1.); 
 }

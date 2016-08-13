@@ -191,10 +191,14 @@ void main() {
         getSkyColor(dir),
         getSeaColor(p,n,light,dir,dist),
         pow(abs(smoothstep(0.0,-0.05,dir.y)),0.3));
-        
+
     // post
-    gl_FragColor = vec4(pow(abs(color),vec3(0.75)), 1.0);
-    // tone mapping
-    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
+    color = pow(abs(color),vec3(0.75));
+
+    #if defined( TONE_MAPPING ) 
+    color = toneMapping( color ); 
+    #endif
+        
+    gl_FragColor = vec4( color, 1.0);
 
 }

@@ -194,8 +194,9 @@ void main()
     col = mix(col, vec3(0.6, .62, .7), fg);
     col = min(pow(col * 1.1, vec3(1.6)), 1.0);
 
-    // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
 
     // Borders...
     float f = smoothstep(0.0, 3.0, iGlobalTime) * .5;

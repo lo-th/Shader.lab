@@ -190,8 +190,13 @@ void main() {
     }
      vec3 fog = vec3(.6, .8, 1) / 2. * (rd.y * .5 + .5);
     sceneCol = mix(sceneCol, fog, smoothstep(0., .95, t / FAR));
-    gl_FragColor = vec4(sqrt(clamp(sceneCol, 0., 1.)), 1.0);
 
-    // tone mapping
-    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
+    sceneCol = sqrt(clamp(sceneCol, 0., 1.));
+
+    #if defined( TONE_MAPPING ) 
+    sceneCol = toneMapping( sceneCol ); 
+    #endif
+
+    gl_FragColor = vec4( sceneCol, 1.0);
+    
 }

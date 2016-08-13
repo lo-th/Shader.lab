@@ -391,7 +391,9 @@ void main() {
     }
 
     // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
     
     col += 0.2*vec3(1.0,0.4,0.2)*pow( abs(sun), 3.0 );
 
