@@ -168,6 +168,11 @@ var view = ( function () {
             }
             isWebGL2 = !!gl;
 
+            if(!isWebGL2) {
+                gl = canvas.getContext( 'webgl', { antialias: false, alpha:false, stencil:false, depth:false } );
+                if (!gl) gl = canvas.getContext( 'experimental-webgl', { antialias: false, alpha:false, stencil:false, depth:false  } );
+            }
+
             console.log('Webgl 2 is ' + isWebGL2 );
 
             //gl.getExtension("OES_standard_derivatives");
