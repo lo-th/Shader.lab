@@ -155,7 +155,8 @@ vec3 sun(vec3 dir) //makes that bright spot on the sky
 
 void main(){
 
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
     vec2 m = iMouse.xy / iResolution.xy - 0.5;
     m+=vec2(0.0,0.1);
     

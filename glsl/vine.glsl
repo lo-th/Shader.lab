@@ -160,7 +160,7 @@ float getMist(in vec3 ro, in vec3 rd, in vec3 lp, in float t)
 }
 void main() {
 
-    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
 
     vec3 ro = vec3(0., 0., iGlobalTime * 2.);
     vec3 rd = normalize(vec3(uv, 0.5));

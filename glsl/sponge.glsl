@@ -270,7 +270,11 @@ void main(){
     
     // Unit direction ray vector: Note the absence of a divide term. I came across this via a comment 
     // Shadertoy user "Coyote" made. I'm pretty happy with this.
-    vec3 rd = (vec3(2.*gl_FragCoord.xy - iResolution.xy, iResolution.y)); // Normalizing below.
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
+
+    //vec3 rd = (vec3(2.*gl_FragCoord.xy - iResolution.xy, iResolution.y)); // Normalizing below.
+    vec3 rd = (vec3(uv, 1.0)); // Normalizing below.
+
     
     // Barrel distortion. Looks interesting, but I like it because it fits more of the scene in.
     // If you comment this out, make sure you normalize the line above.

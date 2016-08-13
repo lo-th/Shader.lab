@@ -223,7 +223,9 @@ float curve(in vec3 p, in float w){
 void main(){
     
     // Screen coordinates.
-    vec2 uv = (gl_FragCoord.xy - iResolution.xy*0.5)/iResolution.y;
+    //vec2 uv = (gl_FragCoord.xy - iResolution.xy*0.5)/iResolution.y;
+    // object  coordinates.
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
     
     // Camera Setup.
     vec3 lookAt = vec3(0.0, 0.0, iGlobalTime*4.);  // "Look At" position.
