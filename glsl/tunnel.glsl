@@ -9,8 +9,6 @@ Contact: tamby@tambako.ch
 // Switches, you can play with them!
 #define specular
 #define reflections
-//#define antialias
-
 #define show_water
 //#define debug_water
 #define show_lamps
@@ -597,11 +595,13 @@ vec3 getGlassAbsColor(float dist, vec3 color)
 }
 
 // Main render function with reflections and refractions
-vec4 render(vec2 fragCoord)
-{   
-    vec2 uv = fragCoord.xy / iResolution.xy; 
-    uv = uv*2.0 - 1.0;
-    uv.x*= iResolution.x / iResolution.y;
+vec4 render(){   
+
+    //vec2 uv = fragCoord.xy / iResolution.xy; 
+    //uv = uv*2.0 - 1.0;
+    //uv.x*= iResolution.x / iResolution.y;
+
+    vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
     vec3 ray0 = GetCameraRayDir(uv, camdir, fov);
     vec3 ray = ray0;
@@ -652,24 +652,6 @@ vec4 render(vec2 fragCoord)
 void main(){   
     
     init();
-    
-    // Antialiasing
-    #ifdef antialias
-    vec4 vs = vec4(0.);
-    aaIndex = 0.;
-    for (int j=0;j<aasamples ;j++)
-    {
-       float oy = float(j)*aawidth/max(float(aasamples-1), 1.);
-       for (int i=0;i<aasamples ;i++)
-       {
-          float ox = float(i)*aawidth/max(float(aasamples-1), 1.);
-          vs+= render(fragCoord + vec2(ox, oy));
-          aaIndex++;
-       }
-    }
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    gl_FragColor = vs/vec4(aasamples*aasamples);
-    #else
-    gl_FragColor = render(fragCoord);
-    #endif
+
+    gl_FragColor = render();
 }

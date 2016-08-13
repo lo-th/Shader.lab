@@ -274,7 +274,10 @@ void main(){
     float m = (iMouse.x/iResolution.x)*300.0;
     float gTime = (iGlobalTime*8.0+m+2321.0)*.006;
     vec2 xy = gl_FragCoord.xy / iResolution.xy;
-    vec2 uv = (-1.0 + 2.0 * xy) * vec2(iResolution.x/iResolution.y,1.0);
+    //vec2 uv = (-1.0 + 2.0 * xy) * vec2(iResolution.x/iResolution.y,1.0);
+
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
+
     coord = gl_FragCoord.xy / iChannelResolution[0].xy;
     vec3 camTar;
     
@@ -320,6 +323,9 @@ void main(){
 
     col = mix(GetSky(dir), col, normal.w);
 
+    // tone mapping
+    col = toneMap( col );
+
     // bri is the brightness of sun at the centre of the camera direction.
     // Yeah, the lens flares is not exactly subtle, but it was good fun making it.
     float bri = dot(cw, sunLight)*.7;
@@ -348,8 +354,7 @@ void main(){
     col *= vec3( isRed, 1.0-isRed, 1.0-isRed ); 
     #endif
 
-    // tone mapping
-    col = toneMap( col );
+    
     
     gl_FragColor=vec4(col,1.0);
 }

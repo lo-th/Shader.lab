@@ -159,7 +159,9 @@ void main(){
     
     if(iMouse.z > 0.1)
         ctrlPts.p[2] = getUV(iMouse.xy);
-    vec2 uv = getUV(gl_FragCoord.xy);
+    //vec2 uv = getUV(gl_FragCoord.xy);
+
+    vec2 uv = ((vUv * 2.0) - 1.0 ) * vec2(iResolution.z, 1.0);
     
     float fTime = iGlobalTime*0.15;
     vec2 pA = catmullRom(fract(fTime), ctrlPts);

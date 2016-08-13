@@ -172,9 +172,14 @@ vec3 object_material(vec3 p, vec3 d)
 
 void main(){
 
-    vec2 uv = gl_FragCoord.xy / iResolution.xy - 0.5;
-    uv.x *= iResolution.x/iResolution.y; //fix aspect ratio
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy - 0.5;
+    //uv.x *= iResolution.x/iResolution.y; //fix aspect ratio
+
+    vec2 uv = ((vUv * 2.0) - 1.0 ) * vec2(iResolution.z, 1.0);
+
     vec3 mouse = vec3(iMouse.xy/iResolution.xy - 0.5,iMouse.z-.5);
+
+
     
     float t = iGlobalTime*.5*object_speed_modifier + 2.0;
     
@@ -210,6 +215,9 @@ void main(){
         color = object_material(p,d);
     else
         color = background(d);
+
+    // tone mapping
+    color = toneMap( color );
     
     //post procesing
     color *=.85;
@@ -217,5 +225,7 @@ void main(){
     color -= hash(color.xy+uv.xy)*.015;
     color -= length(uv)*.1;
     color =cc(color,.5,.6);
+
     gl_FragColor = vec4(color,1.0);
+    
 }

@@ -187,15 +187,19 @@ void main(){
 
         // move camera      
         float an = 0.5*time - 6.2831*(m.x-0.5);
-        vec3 ro = vec3(5.0*sin(an),2.5*cos(0.4*an),5.0*cos(an));
+        vec3 dist = vec3(5.0, 2.5, 5.0) * 2.0;
+        vec3 ro = vec3(sin(an),cos(0.4*an),cos(an)) * dist;
+        //vec3 ro = vec3(dist.x*sin(an),dist.y*cos(0.4*an),dist.z*cos(an));
         vec3 ta = vec3(0.0,0.0,0.0);
 
         //-----------------------------------------------------
         // camera
         //-----------------------------------------------------
         // image plane      
-        vec2 p = -1.0 + 2.0 * (gl_FragCoord.xy + poff) / iResolution.xy;
-        p.x *= iResolution.x/iResolution.y;
+        //vec2 p = -1.0 + 2.0 * (gl_FragCoord.xy + poff) / iResolution.xy;
+        //p.x *= iResolution.x/iResolution.y;
+        vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+        
         // camera matrix
         vec3 ww = normalize( ta - ro );
         vec3 uu = normalize( cross(ww,vec3(0.0,1.0,0.0) ) );
@@ -257,6 +261,9 @@ void main(){
         tot += col;
     }
     tot /= float(samples);
+
+    // tone mapping
+    tot = toneMap( tot );
 
     //-----------------------------------------------------
     // postprocessing

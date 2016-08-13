@@ -112,7 +112,7 @@ vec4 raymarch( in vec3 ro, in vec3 rd )
 void main(){
 
     vec2 q = vUv;
-    vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    vec2 p = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
 
     //vec2 q = fragCoord.xy / iResolution.xy;
     //vec2 p = -1.0 + 2.0*q;
@@ -154,14 +154,16 @@ void main(){
 
     // Mix in the clouds...
     col = mix( col, res.xyz, res.w*1.3);
+
+    // tone mapping
+    col = toneMap( col );
     
     #define CONTRAST 1.1
     #define SATURATION 1.15
     #define BRIGHTNESS 1.03
     col = mix(vec3(.5), mix(vec3(dot(vec3(.2125, .7154, .0721), col*BRIGHTNESS)), col*BRIGHTNESS, SATURATION), CONTRAST);
 
-    // tone mapping
-    col = toneMap( col );
+    
     
     gl_FragColor = vec4( col, 1.0 );
 }
