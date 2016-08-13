@@ -1,3 +1,8 @@
+
+// ------------------ channel define
+// 0_# noise #_0
+// ------------------
+
 /*by musk License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
     I've been planning to do something like this for years,
@@ -226,14 +231,15 @@ vec3 backdrop(vec3 d)
     return mix(mix(mix(ac,vec3(1.0),pow(cl,5.0)),vec3(.1)+ac*.5,pow(cl,4.0)*.5),ac,.7);;
 }
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
-    vec2 uv = fragCoord.xy / iResolution.xy - 0.5;
-    uv.x *= iResolution.x/iResolution.y; //fix aspect ratio
+void main(){
+    //vec2 uv = fragCoord.xy / iResolution.xy - 0.5;
+    //uv.x *= iResolution.x/iResolution.y; //fix aspect ratio
+    vec2 uv = ( ( vUv * 2.0 ) - 1.0 ) * vec2(iResolution.z, 1.0);
+
     vec3 mouse = vec3(iMouse.xy/iResolution.xy - 0.5,iMouse.z-.5);
 
     #ifdef motion_blur
-    t = (iGlobalTime + noise(fragCoord.xy).y/24.0 + float(time_offset))*general_speed;
+    t = (iGlobalTime + noise(gl_FragCoord.xy).y/24.0 + float(time_offset))*general_speed;
     #else
     t = (iGlobalTime + float(time_offset))*general_speed;
     #endif
@@ -451,7 +457,13 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     c+=noise(vec3(uv*iResolution.y,iGlobalTime*60.0))*0.02;
     c=mix(c,vec3(length(c)),length(c)*2.0-1.0);
     c = max(vec3(.0),c);
+
+    c = pow(c,vec3(1.0/1.8));
+
+    #if defined( TONE_MAPPING ) 
+    c = toneMapping( c ); 
+    #endif
     
-    fragColor = vec4(pow(c,vec3(1.0/1.8)),1.0);
+    gl_FragColor = vec4(c,1.0);
     
 }

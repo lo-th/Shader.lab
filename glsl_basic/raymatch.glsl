@@ -99,13 +99,17 @@ vec3 rgb2hsv(vec3 c);
 
 
 void main(){
-    gl_FragColor = vec4(0.1);
+
+    vec3 color = vec3(0.1);
+    //gl_FragColor = vec4(0.1);
     
     // get aspect corrected normalized pixel coordinate
     vec2 q = gl_FragCoord.xy / iResolution.xy;
-    vec2 pp = -1.0 + 2.0*q;
-    float aspect = iResolution.x / iResolution.y;
-    pp.x *= aspect;
+    //vec2 pp = -1.0 + 2.0*q;
+    vec2 pp = ( ( vUv * 2.0 ) - 1.0 ) * vec2(iResolution.z, 1.0);
+
+    float aspect = iResolution.z;
+    //pp.x *= aspect;
     
     if( pp.y > 0. )
     {
@@ -119,7 +123,7 @@ void main(){
             (abs(pp.x) < 0.0125/aspect && abs(pp.y) < 0.1) ||
             (abs(pp.y) < 0.0125 && abs(pp.x) < 0.1/aspect) )
         {
-            gl_FragColor.rgb = vec3(0.,1.,0.);
+            color = vec3(0.,1.,0.);
             return;
         }
         
@@ -133,7 +137,7 @@ void main(){
         float t = raymarchFPI(ro,rd, cnt);
         float iters = clamp(cnt/float(ITERCNT),0.,1.);
         
-        gl_FragColor.xyz = vec3( iters );
+        color = vec3( iters );
     }
     else
     {
@@ -142,9 +146,8 @@ void main(){
         // checking if we are close to the curve.
         
         // axis
-        if( abs(gl_FragCoord.y - iResolution.y/4.) < 1.)
-        {
-            gl_FragColor.rgb = vec3(0.4);
+        if( abs(gl_FragCoord.y - iResolution.y/4.) < 1.){
+            color = vec3(0.4);
         }
         
         // compute ray for the middle of the screen. this is where the cross
@@ -192,7 +195,7 @@ void main(){
         float alpha = abs(thisDist - dist)*iResolution.y/sqrt(1.+distGradient*distGradient);
         // antialias
         alpha = smoothstep( 80., 30., alpha );
-        gl_FragColor.rgb = (1.-alpha) * gl_FragColor.rgb + lineColor * alpha;
+        color = (1.-alpha) * color + lineColor * alpha;
         
         
         // additional visualisation - for sphere tracing, visualise each sphere
@@ -231,10 +234,14 @@ void main(){
             
             stept += STEPMULT*d;
         }
-        gl_FragColor.rgb += (1.-alpha) * clamp(stepTotalAlpha,0.,1.)*vec3(1.0,1.0,0.);
+
+        color += (1.-alpha) * clamp(stepTotalAlpha,0.,1.)*vec3(1.0,1.0,0.);
         
         #endif
     }
+
+    gl_FragColor = vec4(color, 1.0);
+
 }
 
 
