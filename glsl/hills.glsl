@@ -374,14 +374,16 @@ void main(){
         col += bri * vec3(1.0, 1.0, 0.2) * pow(abs(glare2), 2.0)*2.5;
         col += bri * sunColour * pow(abs(glare3), 2.0)*3.0;
     }
+    // tone mapping
+    col = toneMap( col );
+    
     col = PostEffects(col, xy); 
     
     #ifdef STEREO   
     col *= vec3( isCyan, 1.0-isCyan, 1.0-isCyan );  
     #endif
 
-    // tone mapping
-    col = toneMap( col );
+    
     
     gl_FragColor = vec4(col,1.0);
 }

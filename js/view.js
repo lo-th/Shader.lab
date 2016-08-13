@@ -394,7 +394,7 @@ var view = ( function () {
 
             txt_name = [ 'noise', 'stone', 'bump', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02', 'tex12', 'tex10', 'tex17' ];
 
-            pool.load( ['glsl/basic_vs.glsl', 'glsl/basic_fs.glsl', 'textures/basic.png'], view.initModel );
+            pool.load( ['glsl_basic/basic_vs.glsl', 'glsl_basic/basic_fs.glsl', 'textures/basic.png'], view.initModel );
 
         },
 

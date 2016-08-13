@@ -389,8 +389,13 @@ void main() {
             col = mix( mCol*lin*0.2, col, 1.0-exp(-0.0000001*t*t*t) );
         }           
     }
+
+    // tone mapping
+    col = toneMap( col );
     
     col += 0.2*vec3(1.0,0.4,0.2)*pow( abs(sun), 3.0 );
+
+
     
     // gamma    
     col = pow( abs(col), vec3(0.45) );
@@ -404,6 +409,5 @@ void main() {
     col *= 0.5 + 0.5*pow( abs(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y)), 0.1 );
     
     gl_FragColor = vec4( col, 1.0 );
-    // tone mapping
-    gl_FragColor.rgb = toneMap( gl_FragColor.rgb );
+    
 }
