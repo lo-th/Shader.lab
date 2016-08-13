@@ -228,14 +228,16 @@ void main() {
 
     vec3 c = colorize(h, ray, dir); 
     c *= (1.0 - dist/far);
+
+    // tone mapping
+    c = toneMap( c );
     
     #ifdef POST
     c *= 2.5 - rand(pos) * 0.1;
     c -= 0.4*smoothstep(0.6,3.7, length(pos));
     #endif
 
-    // tone mapping
-    c = toneMap( c );
+    
     
     gl_FragColor = vec4(c, 1.0);
 }
