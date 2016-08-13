@@ -91,10 +91,12 @@ vec3 eMap(vec3 rd, vec3 sn)
 void main() 
 {
 
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    uv = 1.0 - uv * 2.0;
-    uv.x *= iResolution.x / iResolution.y;   
-    uv.y *= -1.;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    //uv = 1.0 - uv * 2.0;
+    //uv.x *= iResolution.x / iResolution.y;   
+    //uv.y *= -1.;
+
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
 
     vec3 r =  vec3(uv.xy, 1.0);//vec3 r = normalize(vec3(vUv - iResolution.xy * .5, iResolution.y));
     vec3 o = vec3(0);

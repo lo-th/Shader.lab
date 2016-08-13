@@ -246,10 +246,12 @@ bool trace(inout vec3 rp, in vec3 rd, inout vec4 col)
 
 void main(){
     
-    gl_FragColor = vec4(0.0);
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    uv -= vec2(0.5);
-    uv.y /= iResolution.x / iResolution.y;
+    vec4 col = vec4(0.0);
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    //uv -= vec2(0.5);
+    //uv.y /= iResolution.x / iResolution.y;
+
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
     
     vec3 rp = vec3(0.0, 0.5, -1.0);
     rp.z += iGlobalTime * 0.15;
@@ -264,7 +266,7 @@ void main(){
     rd *= roty( (m.x / iResolution.y) * 3.0);
     rd = normalize(rd);
     bool hit = false;
-    hit = trace(rp, rd, gl_FragColor);
+    hit = trace(rp, rd, col);
     
     if(!hit)
     {
@@ -275,26 +277,31 @@ void main(){
     float dist = length(ro - rp);
     vec4 fog = vec4(0.1, 0.25, 0.4, 0.0) * 0.7;
     fog = mix(fog, vec4(1.0), smoothstep(0.5,-0.4, rd.y));
-    gl_FragColor = mix(gl_FragColor, fog, smoothstep(3.0, 10.0, dist));
+    col = mix(col, fog, smoothstep(3.0, 10.0, dist));
     
     if(rd.y > 0.0)
     {
         vec4 clds = clouds(ro, rd);
         clds *= smoothstep(0.0, 0.2, rd.y);
-        gl_FragColor = mix(gl_FragColor, vec4(1.0) * 0.95, clds);
+        col = mix(col, vec4(1.0) * 0.95, clds);
     }
 
     vec2 halo = rd.xy;
     float hl = length(halo);
     if(rd.z < 0.0) hl = 11.0;
-    gl_FragColor += clamp(1.0 - pow(hl, .3), 0.0, 1.0);
+    col += clamp(1.0 - pow(hl, .3), 0.0, 1.0);
     
-    float mx = max(gl_FragColor.r, gl_FragColor.g);
-    mx = max(gl_FragColor.b, mx);
-    gl_FragColor /= max(1.0, mx);
+    float mx = max(col.r, col.g);
+    mx = max(col.b, mx);
+    col /= max(1.0, mx);
     
     // contrast
-    float contr = 0.2;
-    gl_FragColor = mix(vec4(0.0), vec4(1.0), gl_FragColor * contr + (1.0 - contr) * gl_FragColor * gl_FragColor * (3.0 - 2.0 * gl_FragColor));
+    //float contr = 0.2;
+    //col = mix(vec4(0.0), vec4(1.0), col * contr + (1.0 - contr) * col * col * (3.0 - 2.0 * col));
+
+    // tone mapping
+    col.rgb = toneMap( col.rgb );
+
+    gl_FragColor = col;
     
 }

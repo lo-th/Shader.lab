@@ -29,7 +29,11 @@ float fractal(vec3 n)
 }
 void main(){
 
-    vec3 n = vec3((gl_FragCoord.xy-iResolution.xy*0.5)/SCALE,-iGlobalTime*ZOOM);
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
+    vec3 n = vec3(uv*(iResolution.xy*0.5),-iGlobalTime*ZOOM);
+
+    //vec3 n = vec3((gl_FragCoord.xy-iResolution.xy*0.5)/SCALE,-iGlobalTime*ZOOM);
+
     float p1 = fractal(n);
     float p2 = fractal(n+vec3(0.5,1.0,0.0)*8.0*SCALE);
     

@@ -52,13 +52,15 @@ void main()
 {
     //vec2 uv = (vUv.xy - iResolution.xy * 0.5) / iResolution.y;
 
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    uv = 1.0 - uv * 2.0;
-    uv.x *= iResolution.x / iResolution.y;   
-    uv.y *= -1.;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    //uv = 1.0 - uv * 2.0;
+    //uv.x *= iResolution.x / iResolution.y;   
+    //uv.y *= -1.;
 
-    uv =  1.0 - vUv * 2.0;
-    uv.x *= iResolution.x / iResolution.y;
+    //uv =  1.0 - vUv * 2.0;
+    //uv.x *= iResolution.x / iResolution.y;
+
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
 
     //uv += vec2(sin(iGlobalTime * 0.5) * 0.25, cos(iGlobalTime * 0.5) * 0.125);
 

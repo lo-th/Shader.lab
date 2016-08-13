@@ -30,7 +30,9 @@ var editor = ( function () {
     var bigmenu;
     var github;
     var bigButton = [];
+    var rubrics = [];
     var bigContent;
+
     var isMenu = false;
     var isWithCode = true;
     var separator2;
@@ -272,6 +274,11 @@ var editor = ( function () {
             bigContent = document.createElement( 'div' );
             bigContent.className = 'bigContent';
             bigmenu.appendChild( bigContent );
+
+
+
+
+
             //bigContent.style.display = "none";
 
 
@@ -293,18 +300,40 @@ var editor = ( function () {
 
         showBigMenu : function ( e ) {
 
+            var lng, i;
+
             //bigContent.style.display = "block";
             bigmenu.style.background = "rgba(37,37,37,0.9)";
-            bigmenu.style.borderBottom = "1px solid rgba(255, 255, 255, 0.1)";
+            bigmenu.style.borderBottom = "1px solid rgba(255, 255, 255, 0.2)";
             isMenu = true;
 
+            //
 
+            lng = demos_basic.length;
+            if( lng )  editor.addRubric('BASIC');
+            for( i = 0; i < lng ; i++ ) editor.addButtonBig( demos_basic[i] );
 
-            var lng = demos.length, name, n=1;
-            for( var i = 0; i < lng ; i++ ) {
-                name = demos[i];
-                if( name !== fileName ) editor.addButtonBig( demos[i] );
-            }
+            //
+
+            lng = demos.length;
+            if( lng ) editor.addRubric('SHADERS');
+            for( i = 0; i < lng ; i++ ) editor.addButtonBig( demos[i] );
+
+            //
+
+            lng = demos_advanced.length;
+            if( lng ) editor.addRubric('ADVANCED');
+            for( i = 0; i < lng ; i++ ) editor.addButtonBig( demos_advanced[i] );
+
+            //
+
+            lng = demos_texture.length;
+            if( lng ) editor.addRubric('TEXTURES');
+            for( i = 0; i < lng ; i++ ) editor.addButtonBig( demos_texture[i] );
+            
+
+            
+
         },
 
         hideBigMenu : function ( e ) {
@@ -324,6 +353,15 @@ var editor = ( function () {
 
         },
 
+        addRubric : function ( name ) {
+
+            var r = document.createElement('div');
+            r.className = 'bigRubric';
+            r.innerHTML = name;
+            bigContent.appendChild( r );
+
+        },
+
         addButtonBig : function ( name ) {
 
             var b = document.createElement('div');
@@ -333,13 +371,15 @@ var editor = ( function () {
             b.name = name;
             b.addEventListener('mousedown', editor.bigDown, false );
 
+            if( name === fileName ) b.style.color = selectColor;
+
         },
 
         bigDown : function ( e ) {
 
             editor.hideBigMenu();
             //editor.load('demos/' + e.target.name + '.js');
-            editor.load('glsl/' + e.target.name + '.glsl');
+            editor.load( e.target.name );
 
         },
 
@@ -428,13 +468,21 @@ var editor = ( function () {
 
         // code
 
-        load : function ( url ) {
+        load : function ( name ) {
 
-            fileName = url.substring(url.indexOf("/")+1, url.indexOf("."));
+            var prev = 'glsl/';
+            var end = '.glsl'
+
+            fileName = name;//url.substring(url.indexOf("/")+1, url.indexOf("."));
+
+            //if( demos.indexOf( fileName ) !== -1 ) prev = 'glsl/';
+            if( demos_basic.indexOf( fileName ) !== -1 ) prev = 'glsl_basic/';
+            if( demos_advanced.indexOf( fileName ) !== -1 ) prev = 'glsl_advanced/';
+            if( demos_texture.indexOf( fileName ) !== -1 ) prev = 'glsl_texture/';
 
             var xhr = new XMLHttpRequest();
             xhr.overrideMimeType('text/plain; charset=x-user-defined'); 
-            xhr.open('GET', url, true);
+            xhr.open( 'GET', prev + fileName + end, true );
 
             xhr.onload = function(){ 
 
@@ -508,15 +556,17 @@ var editor = ( function () {
             var value = code.getValue();
             //editor.inject( value );
 
-            clearTimeout( interval );
-            interval = setTimeout( function() { editor.inject( value ); }, 100 );
+            view.setMat( value );
+
+            //clearTimeout( interval );
+           // interval = setTimeout( function() { editor.inject( value ); }, 100 );
             //if( this.validate( value ) ) interval = setTimeout( function() { editor.inject( value ); }, 500);
 
         },
 
         inject : function ( value ) {
 
-            view.setMat( value );
+            //view.setMat( value );
 
             /*
             var oScript = document.createElement("script");
@@ -529,12 +579,16 @@ var editor = ( function () {
            // menuCode.innerHTML = '&bull; ' + fileName;
             //title.innerHTML = fileName.charAt(0).toUpperCase() + fileName.substring(1).toLowerCase();//fileName;
 
-            callback( fileName );
+            //callback( fileName );
 
         },
 
         setTitle : function ( value ) {
-            if( value === undefined ) menuCode.innerHTML = '&bull; ' + fileName;
+
+            if( value === undefined ){ 
+                menuCode.innerHTML = '&bull; ' + fileName;
+                callback( fileName );
+            }
             else menuCode.innerHTML = '<font color="red">' + value + '</font>';
 
         },

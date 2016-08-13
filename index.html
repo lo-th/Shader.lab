@@ -33,13 +33,27 @@
 'use strict';
 
 var demos = [ 
-    'basic', 'cave', 'lunar', 'ground', 'canyon', 'dustplanet', 'diamond', 'cubic', 'xypton', 'neptune', 'catacombs', 'nursery',
-    'noise', 'alien', 'clound', 'voxel', 'test', 'sea', 'follow', 'volcanic', 'sculpture', 'lava', 'vine', 'metahexa',
+    'cave', 'lunar', 'ground', 'canyon', 'dustplanet', 'diamond', 'cubic', 'xypton', 'neptune', 'catacombs', 'nursery',
+    'noise', 'alien', 'clound', 'voxel', 'test', 'sea', 'volcanic', 'sculpture', 'lava', 'vine', 'metahexa',
     'building', 'metashape', 'corridor', 'hills', 'minecraft', 'ball', 'cloundy', 'primitives', 'antialias', 'foggy', 'ao', 'frozen', 'metaball', 'wetsand', 'meditation',
     'glacius', 'cavegame', 'spline', 'subterran', 'tunnel', 'terrain', 'windplaine', 'mars', 'sponge', 'cosmic'
 ];
 
+var demos_basic = [ 
+    'basic', 'follow',
+];
+
+var demos_advanced = [
+];
+
+var demos_texture = [
+    'fire', 'fired', 'flame', 'infinit', 'plexi', 'water', 'text'
+];
+
 demos.sort();
+demos_basic.sort();
+demos_advanced.sort();
+demos_texture.sort();
 
 var demoName = 'follow';
 
@@ -58,19 +72,14 @@ function ready () {
 
     if(hash !=='') demoName = hash;
 
-    editor.load('glsl/' + demoName + '.glsl');
+    editor.load( demoName );
 
 };
 
-function launch (name) {
+function launch ( name ) {
 
-    var full = true;
     var hash = location.hash.substr( 1 );
-    if( hash === name ) full = false;
-
     location.hash = name;
-
-    view.reset( full );
 
 };
 

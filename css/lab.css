@@ -51,9 +51,18 @@ body{
 }
 
 .bigContent {
-    padding: 10px 40px;
+    padding: 10px 20px;
     width:100%;
     display: block;
+
+}
+
+.bigRubric {
+    padding: 0px 0px;
+    width:100%;
+    display: block;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    color:rgba(255, 255, 255, 0.2);
 }
 
 .menuButtonBig{

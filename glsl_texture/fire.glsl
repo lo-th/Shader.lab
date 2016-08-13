@@ -42,8 +42,10 @@ void main() {
     
     float dist = 3.5-sin(iGlobalTime*0.4)/1.89;
     
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    vec2 p = gl_FragCoord.xy * dist / iResolution.xx;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
+    //vec2 p = gl_FragCoord.xy * dist / iResolution.xx;
+    vec2 p = vUv * dist;
     p += sin(p.yx*4.0+vec2(.2,-.3)*iGlobalTime)*0.04;
     p += sin(p.yx*8.0+vec2(.6,+.1)*iGlobalTime)*0.01;
     

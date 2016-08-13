@@ -8,10 +8,12 @@ void main() {
 
     //vec2 uv = vUv.xy / iResolution.xy;
 
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    uv = 1.0 - uv * 2.0;
-    uv.x *= iResolution.x / iResolution.y;   
-    uv.y *= -1.;
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    //uv = 1.0 - uv * 2.0;
+    //uv.x *= iResolution.x / iResolution.y;   
+    //uv.y *= -1.;
+
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
 
     //vec2 p = mod(uv*TAU*2.0, TAU)-250.0;//tilling
     vec2 p = mod(uv * TAU, TAU) - 250.0;

@@ -10,7 +10,7 @@ var view = ( function () {
         // toneMapping
         exposure: 3.0,
         whitePoint: 5.0,
-        tone: "Uncharted2",
+        //tone: "Uncharted2",
         // bloom
         strength: 1.5,
         threshold: 0.9,
@@ -19,6 +19,8 @@ var view = ( function () {
         pixelRatio : 1,
 
     }
+
+    var interval = null;
 
 
 
@@ -550,6 +552,7 @@ var view = ( function () {
                 'uniform int iFrame;',
                 'uniform vec3 iResolution;',
                 'uniform float iGlobalTime;',
+                'uniform float iDate;',
                 'uniform vec2 iChannelResolution[4];',
 
                 'varying vec2 vUv;',
@@ -623,7 +626,7 @@ var view = ( function () {
             try {
                 shader = gl.createShader( gl.FRAGMENT_SHADER );
                 gl.shaderSource( shader, value );
-                gl.compileShader(shader);
+                gl.compileShader( shader );
                 status = gl.getShaderParameter( shader, gl.COMPILE_STATUS );
                 if (!status) {
                     console.log( gl.getShaderInfoLog(shader) );
@@ -636,13 +639,18 @@ var view = ( function () {
             } 
 
             if (status === true) {
+
                 gl.deleteShader( shader );
-                view.applyMaterial();
+
+                clearTimeout( interval );
+                interval = setTimeout( function() { view.applyMaterial(); }, 500 );
+                //view.applyMaterial();
 
             }else{
 
                 log = gl.getShaderInfoLog( shader );
                 gl.deleteShader( shader );
+                
                 lines = log.split('\n');
                 for (_i = 0, _len = lines.length; _i < _len; _i++) {
                     i = lines[_i];
@@ -706,6 +714,8 @@ var view = ( function () {
                 iChannel1: { type: 't', value: null },
                 iChannel2: { type: 't', value: null },
                 iChannel3: { type: 't', value: null },
+
+                iDate: { type: 'f', value: 0 },
 
                 iChannelResolution: { type: 'v2v', value: channelResolution },
 
@@ -921,7 +931,9 @@ var view = ( function () {
 
     }
 
-    ///
+    // ------------------------------
+    //   GPU RENDER
+    // ------------------------------
 
     view.GpuSide = function( renderer ){
 
@@ -935,9 +947,12 @@ var view = ( function () {
     };
 
     view.GpuSide.prototype = {
+
         render: function( material, output ){
-            mesh.material = material;
-            this.renderer.render( this.scene, this.camera, output, false )
+
+            this.mesh.material = material;
+            this.renderer.render( this.scene, this.camera, output, false );
+
         }
     }
 

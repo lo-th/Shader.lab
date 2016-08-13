@@ -52,8 +52,10 @@ vec4 raymarch(vec3 org, vec3 dir)
 
 void main(){
 
-    vec2 v = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
-    v.x *= iResolution.x/iResolution.y;
+    //vec2 v = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
+    //v.x *= iResolution.x/iResolution.y;
+
+    vec2 v = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
     
     vec3 org = vec3(0., -2., 4.);
     vec3 dir = normalize(vec3(v.x*1.6, -v.y, -1.5));

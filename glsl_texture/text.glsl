@@ -248,8 +248,10 @@ float text( in vec2 uv )
 void main(){
 
     // Get normalized UV coords.
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    uv.x *= iResolution.x/iResolution.y; //fix aspect ratio
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    //uv.x *= iResolution.x/iResolution.y; //fix aspect ratio
+
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
     
     // Draw some text!
     float txt = text(uv);
