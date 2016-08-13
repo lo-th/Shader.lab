@@ -264,7 +264,7 @@ void main(){
 
     // tone mapping
     #if defined( TONE_MAPPING ) 
-    col = toneMapping( col ); 
+    tot = toneMapping( tot ); 
     #endif
 
     //-----------------------------------------------------
