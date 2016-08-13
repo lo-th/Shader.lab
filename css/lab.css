@@ -47,14 +47,13 @@ body{
     background: rgba(0,0,0,0);
     transition:background 0.3s ease;
     border-bottom:  1px solid rgba(255, 255, 255, 0);
-    transition:border 0.3s ease;
+    /*transition: 0.3s ease;*/
 }
 
 .bigContent {
     padding: 10px 20px;
     width:100%;
     display: block;
-
 }
 
 .bigRubric {

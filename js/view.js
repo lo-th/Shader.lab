@@ -241,7 +241,10 @@ var view = ( function () {
 
             renderer.domElement.addEventListener( 'mousemove', view.move, false );
             renderer.domElement.addEventListener( 'mousedown', view.down, false );
-            renderer.domElement.addEventListener( 'mouseup', view.up, false );  
+            renderer.domElement.addEventListener( 'mouseup', view.up, false );
+
+            //renderer.domElement.addEventListener( 'drop', function(e){ e.preventDefault(); return false; }, false );  
+            renderer.domElement.addEventListener( 'dragover', function(e){ e.preventDefault(); return false; }, false );  
 
 
             gputmp = new view.GpuSide( renderer );

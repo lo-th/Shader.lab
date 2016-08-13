@@ -88,6 +88,8 @@ var editor = ( function () {
             title.className = 'title';
             document.body.appendChild( title );
 
+            
+
             // editor
 
             content = document.createElement('div');
@@ -139,6 +141,10 @@ var editor = ( function () {
             }
 
             bigmenu.style.width =  window.innerWidth - left - right +'px';
+
+
+            //title.addEventListener( 'drop', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, false );  
+            //document.body.addEventListener( 'dragover', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, false ); 
 
 
             
@@ -216,8 +222,6 @@ var editor = ( function () {
             this.addSeparatorEvent();
 
             editor.resize();
-
-
 
         },
 
@@ -306,6 +310,7 @@ var editor = ( function () {
             //bigContent.style.display = "block";
             bigmenu.style.background = "rgba(37,37,37,0.9)";
             bigmenu.style.borderBottom = "1px solid rgba(255, 255, 255, 0.2)";
+            //bigmenu.addEventListener('mouseout', editor.selectBigMenu, false );
             isMenu = true;
 
             //

@@ -5,6 +5,8 @@ var gui = ( function () {
     gui = {
         init: function(){
             ui = new UIL.Gui({css:'right:0px;' , size:240, color:'no', height:20, close:false });
+
+
             this.basic();
         },
 
@@ -46,6 +48,6 @@ var gui = ( function () {
        
     }
 
-return gui;
+    return gui;
 
 })();
