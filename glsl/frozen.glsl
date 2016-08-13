@@ -295,7 +295,7 @@ void main(){
     //vec2 q = uvx/iResolution.xy;
     vec2 q = vUv;
     vec2 p = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
-    p.x*=iResolution.x/iResolution.y;
+    //p.x*=iResolution.x/iResolution.y;
     vec2 mo = iMouse.xy / iResolution.xy-.5;
     mo = (mo==vec2(-.5))?mo=vec2(-0.1,0.07):mo;
     mo.x *= iResolution.x/iResolution.y;
