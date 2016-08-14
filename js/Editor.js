@@ -133,9 +133,7 @@ var editor = ( function () {
             version.className = 'version';
             content.appendChild( version );
 
-            var b = view.getGlVersion();
-
-            version.innerHTML = 'webgl' + (b ? '2' : '1');
+            
 
 
             content.style.display = 'none';
@@ -168,6 +166,11 @@ var editor = ( function () {
 
             //content.addEventListener( 'mousewheel', editor.wheel, false );
 
+        },
+
+        setT2 : function( T ) {
+
+            version.innerHTML = T
         },
 
 
