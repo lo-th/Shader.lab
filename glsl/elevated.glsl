@@ -17,10 +17,10 @@ vec3 noised( in vec2 x )
     vec2 p = floor(x);
     vec2 f = fract(x);
     vec2 u = f*f*(3.0-2.0*f);
-    float a = texture2D(iChannel0,(p+vec2(0.5,0.5))/256.0,-100.0).x;
-    float b = texture2D(iChannel0,(p+vec2(1.5,0.5))/256.0,-100.0).x;
-    float c = texture2D(iChannel0,(p+vec2(0.5,1.5))/256.0,-100.0).x;
-    float d = texture2D(iChannel0,(p+vec2(1.5,1.5))/256.0,-100.0).x;
+    float a = texture2D(iChannel0,(p+vec2(0.5,0.5))/256.0,-16.0).x;
+    float b = texture2D(iChannel0,(p+vec2(1.5,0.5))/256.0,-16.0).x;
+    float c = texture2D(iChannel0,(p+vec2(0.5,1.5))/256.0,-16.0).x;
+    float d = texture2D(iChannel0,(p+vec2(1.5,1.5))/256.0,-16.0).x;
     return vec3(a+(b-a)*u.x+(c-a)*u.y+(a-b-c+d)*u.x*u.y,
                 6.0*f*(1.0-f)*(vec2(b-a,c-a)+(a-b-c+d)*u.yx));
 }
@@ -178,14 +178,14 @@ vec3 render( in vec3 ro, in vec3 rd )
         // sky      
         col = vec3(0.3,.55,0.8)*(1.0-0.8*rd.y)*0.9;
         // sun
-        col += 0.25*vec3(1.0,0.7,0.4)*pow( sundot,5.0 );
-        col += 0.25*vec3(1.0,0.8,0.6)*pow( sundot,64.0 );
-        col += 0.2*vec3(1.0,0.8,0.6)*pow( sundot,512.0 );
+        col += 0.25*vec3(1.0,0.7,0.4)*pow( abs(sundot),5.0 );
+        col += 0.25*vec3(1.0,0.8,0.6)*pow( abs(sundot),64.0 );
+        col += 0.2*vec3(1.0,0.8,0.6)*pow( abs(sundot),512.0 );
         // clouds
         vec2 sc = ro.xz + rd.xz*(SC*1000.0-ro.y)/rd.y;
         col = mix( col, vec3(1.0,0.95,1.0), 0.5*smoothstep(0.5,0.8,fbm(0.0005*sc/SC)) );
         // horizon
-        col = mix( col, vec3(0.7,0.75,0.8), pow( 1.0-max(rd.y,0.0), 8.0 ) );
+        col = mix( col, vec3(0.7,0.75,0.8), pow( abs(1.0-max(rd.y,0.0)), 8.0 ) );
     }
     else
     {
@@ -222,21 +222,21 @@ vec3 render( in vec3 ro, in vec3 rd )
         lin += bac*vec3(0.40,0.50,0.60);
         col *= lin;
         
-        col += s*0.1*pow(fre,4.0)*vec3(7.0,5.0,3.0)*sh * pow( clamp(dot(light1,ref), 0.0, 1.0),16.0);
-        col += s*0.1*pow(fre,4.0)*vec3(0.4,0.5,0.6)*smoothstep(0.0,0.6,ref.y);
+        col += s*0.1*pow(abs(fre),4.0)*vec3(7.0,5.0,3.0)*sh * pow( abs(clamp(dot(light1,ref), 0.0, 1.0)),16.0);
+        col += s*0.1*pow(abs(fre),4.0)*vec3(0.4,0.5,0.6)*smoothstep(0.0,0.6,ref.y);
 
         // fog
         //float fo = 1.0-exp(-0.000004*t*t/(SC*SC) );
         float fo = 1.0-exp(-0.001*t/SC );
-        vec3 fco = 0.7*vec3(0.5,0.7,0.9) + 0.1*vec3(1.0,0.8,0.5)*pow( sundot, 4.0 );
+        vec3 fco = 0.7*vec3(0.5,0.7,0.9) + 0.1*vec3(1.0,0.8,0.5)*pow( abs(sundot), 4.0 );
         col = mix( col, fco, fo );
 
         // sun scatter
-        col += 0.3*vec3(1.0,0.8,0.4)*pow( sundot, 8.0 )*(1.0-exp(-0.002*t/SC));
+        col += 0.3*vec3(1.0,0.8,0.4)*pow( abs(sundot), 8.0 )*(1.0-exp(-0.002*t/SC));
     }
 
     // gamma
-    col = pow(col,vec3(0.4545));
+    col = pow(abs(col),vec3(0.4545));
     
     return col;
 }
@@ -266,7 +266,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec3 col = render( ro, rd );
     
     // vignetting   
-    col *= 0.5 + 0.5*pow( (xy.x+1.0)*(xy.y+1.0)*(xy.x-1.0)*(xy.y-1.0), 0.1 );
+    col *= 0.5 + 0.5*pow( abs((xy.x+1.0)*(xy.y+1.0)*(xy.x-1.0)*(xy.y-1.0)), 0.1 );
 
     fragColor = vec4( col, 1.0 );
 }

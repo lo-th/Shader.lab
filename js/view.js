@@ -75,6 +75,8 @@ var view = ( function () {
 
     var WIDTH = 512;
 
+    var isWebGL2 = false;
+
 
     var mesh, mesh2;
     var material = null;
@@ -146,7 +148,11 @@ var view = ( function () {
             //time.x = 0;
         },
 
-       
+        getGlVersion : function () {
+
+            return isWebGL2
+
+        },
 
         init: function () {
 
@@ -171,7 +177,7 @@ var view = ( function () {
             canvas.ondrop = function(e) { e.preventDefault(); };
             document.body.appendChild( canvas );
 
-            var isWebGL2 = false;
+            isWebGL2 = false;
 
             // Try creating a WebGL 2 context first
              gl = canvas.getContext( 'webgl2', { antialias: false, alpha:false, stencil:false, depth:false } );

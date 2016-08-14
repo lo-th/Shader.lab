@@ -12,7 +12,7 @@ var editor = ( function () {
 
     var rl = 250;
 
-    var content, codeContent, code, separator, menuCode, debug, title; 
+    var content, codeContent, code, separator, menuCode, version, bigmenu2;//, debug, title; 
     var callback = function(){};
     var isSelfDrag = false;
     var isFocus = false;
@@ -59,6 +59,10 @@ var editor = ( function () {
 
             // big menu
 
+            bigmenu2 = document.createElement( 'div' );
+            bigmenu2.className = 'bigmenu';
+            document.body.appendChild( bigmenu2 );
+
             bigmenu = document.createElement( 'div' );
             bigmenu.className = 'bigmenu';
             document.body.appendChild( bigmenu );
@@ -78,7 +82,7 @@ var editor = ( function () {
 
             // debug
 
-            debug = document.createElement( 'div' );
+           /* debug = document.createElement( 'div' );
             debug.className = 'debug';
             document.body.appendChild( debug );
 
@@ -86,7 +90,9 @@ var editor = ( function () {
 
             title = document.createElement( 'div' );
             title.className = 'title';
-            document.body.appendChild( title );
+            document.body.appendChild( title );*/
+
+            
 
             
 
@@ -122,6 +128,16 @@ var editor = ( function () {
             menuCode.className = 'menuCode';
             content.appendChild( menuCode );
 
+
+            version = document.createElement( 'div' );
+            version.className = 'version';
+            content.appendChild( version );
+
+            var b = view.getGlVersion();
+
+            version.innerHTML = 'webgl' + (b ? '2' : '1');
+
+
             content.style.display = 'none';
             separator.style.display = 'none';
 
@@ -141,6 +157,7 @@ var editor = ( function () {
             }
 
             bigmenu.style.width =  window.innerWidth - left - right +'px';
+            bigmenu2.style.width =  window.innerWidth - left - right +'px';
 
 
             //title.addEventListener( 'drop', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, false );  
@@ -152,6 +169,7 @@ var editor = ( function () {
             //content.addEventListener( 'mousewheel', editor.wheel, false );
 
         },
+
 
         wheel : function( e ){
 
@@ -227,7 +245,10 @@ var editor = ( function () {
 
         resizeMenu : function ( w ) {
 
-            if( bigmenu ) bigmenu.style.width = w +'px';
+            if( bigmenu ){
+             bigmenu.style.width = w +'px';
+             bigmenu2.style.width = w +'px';
+         }
 
         },
 
@@ -242,8 +263,9 @@ var editor = ( function () {
 
             github.style.right = right + 'px';
             bigmenu.style.left = left +'px';
-            title.style.left = left +'px';
-            debug.style.left = left +'px';
+            bigmenu2.style.left = left +'px';
+            //title.style.left = left +'px';
+            //debug.style.left = left +'px';
             separator.style.left = left - 10 + 'px';
             separator2.style.right = right - 10 + 'px';
             content.style.width = left - 10 + 'px';
@@ -252,14 +274,14 @@ var editor = ( function () {
         },
 
         tell : function ( str ) { 
-            debug.innerHTML = str; 
+            //debug.innerHTML = str; 
         },
 
         // bigmenu
 
         makeBigMenu : function() {
 
-            bigmenu.style.width = window.innerWidth - left +'px';
+            //bigmenu.style.width = window.innerWidth - left +'px';
 
             bigButton[0] = document.createElement( 'div' );
             bigButton[0].className = 'bigButton';
@@ -278,7 +300,7 @@ var editor = ( function () {
 
             bigContent = document.createElement( 'div' );
             bigContent.className = 'bigContent';
-            bigmenu.appendChild( bigContent );
+            bigmenu2.appendChild( bigContent );
 
 
 
@@ -308,8 +330,10 @@ var editor = ( function () {
             var lng, i;
 
             //bigContent.style.display = "block";
-            bigmenu.style.background = "rgba(37,37,37,0.9)";
-            bigmenu.style.borderBottom = "1px solid rgba(255, 255, 255, 0.2)";
+            bigmenu2.style.background = "rgba(37,37,37,0.9)";
+            bigmenu2.style.borderBottom = "1px solid rgba(255, 255, 255, 0.2)";
+            bigmenu2.style.height = 'auto';
+            bigmenu2.style.display = 'block';
             //bigmenu.addEventListener('mouseout', editor.selectBigMenu, false );
             isMenu = true;
 
@@ -344,8 +368,10 @@ var editor = ( function () {
 
         hideBigMenu : function ( e ) {
 
-            bigmenu.style.background = "rgba(37,37,37,0)";
-            bigmenu.style.borderBottom = "1px solid rgba(255, 255, 255, 0)";
+            bigmenu2.style.background = "rgba(37,37,37,0)";
+            bigmenu2.style.borderBottom = "1px solid rgba(255, 255, 255, 0)";
+            bigmenu2.style.height = '0px';
+            bigmenu2.style.display = 'none';
             isMenu = false;
 
             var i = bigContent.childNodes.length, b;
@@ -575,7 +601,7 @@ var editor = ( function () {
 
         },
 
-        inject : function ( value ) {
+        //inject : function ( value ) {
 
             //view.setMat( value );
 
@@ -592,7 +618,7 @@ var editor = ( function () {
 
             //callback( fileName );
 
-        },
+        //},
 
         setTitle : function ( value ) {
 
