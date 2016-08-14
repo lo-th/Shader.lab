@@ -1,5 +1,5 @@
 // ------------------ channel define
-// 0_# tex19 #_0
+// 0_# bump #_0
 // ------------------
 
 
@@ -201,7 +201,7 @@ void main(){
     // screen space
     //vec2 coord = gl_FragCoord.xy;
     // object space
-    vec2 coord = vUv * (iResolution.xy/3.0);
+    vec2 coord = vUv * iResolution.xy;
 
     mainImage( color, coord );
 
