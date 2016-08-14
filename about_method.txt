@@ -1,0 +1,57 @@
+Convert from shadertoy for three js fragment
+( vertex is alway same glsl_basic/basic_vs.glsl )
+
+1°/ add channel target 
+
+// ------------------ channel define
+// 0_# noise #_0
+// 1_# tex02 #_1
+// 2_# tex03 #_2
+// 3_# tex04 #_3
+// ------------------
+
+2°/ add to shader
+
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
+uniform sampler2D iChannel2;
+uniform sampler2D iChannel3;
+uniform vec2 iChannelResolution[4];
+uniform samplerCube envMap;
+uniform float iGlobalTime;
+uniform vec3 iResolution;
+uniform vec4 iMouse;
+
+varying vec3 vEye;
+varying vec2 vUv;
+
+3°/ add to shader
+
+void main(){
+
+    vec4 color = vec4(0.0);
+
+    // for screen space
+    // vec2 coord = gl_FragCoord.xy;
+    // for object space
+    vec2 coord = vUv * iResolution.xy;
+
+    mainImage( color, coord );
+
+    // three tone mapping
+    #if defined( TONE_MAPPING ) 
+    color.rgb = toneMapping( color.rgb ); 
+    #endif
+
+    gl_FragColor = color;
+
+}
+
+
+NOTES:
+
+// error with OES_standard_derivatives on webgl2
+
+dFdx, dFdy, fwidth
+
+#extension GL_OES_standard_derivatives : enable
