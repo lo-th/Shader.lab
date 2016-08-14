@@ -201,7 +201,7 @@ void main(){
     // screen space
     //vec2 coord = gl_FragCoord.xy;
     // object space
-    vec2 coord = vUv * iResolution.xy;
+    vec2 coord = vUv * (iResolution.xy/3.0);
 
     mainImage( color, coord );
 

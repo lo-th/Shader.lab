@@ -67,7 +67,9 @@ void main(){
 
     vec4 color = mix(vec4(0.), col, pow(glow*2.,4.));
 
-    color.rgb = toneMap( color.rgb );
+    #if defined( TONE_MAPPING ) 
+    color.rgb = toneMapping( color.rgb ); 
+    #endif
     
     gl_FragColor = color;
     //gl_FragColor = mix(vec4(1.), mix(vec4(1.,.5,.1,1.),vec4(0.1,.5,1.,1.),p.y*.02+.4), pow(glow*2.,4.));
