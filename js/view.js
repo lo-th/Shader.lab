@@ -93,6 +93,8 @@ var view = ( function () {
     var tx, tx2;
     var vertex, fragment;
 
+    var precision = 'highp';
+
 
     view = {
 
@@ -172,7 +174,7 @@ var view = ( function () {
 
             isMobile = view.testMobile();
 
-            var prec = isMobile ? 'lowp' : 'highp';
+            precision = isMobile ? 'lowp' : 'highp';
 
             toneMappings = {
                 None: THREE.NoToneMapping,
@@ -197,16 +199,18 @@ var view = ( function () {
 
             isWebGL2 = false;
 
+             var options = { antialias: false, alpha:false, stencil:false, depth:false, precision:precision }
+
             // Try creating a WebGL 2 context first
-             gl = canvas.getContext( 'webgl2', { antialias: false, alpha:false, stencil:false, depth:false } );
-             if (!gl) {
-                gl = canvas.getContext( 'experimental-webgl2', { antialias: false, alpha:false, stencil:false, depth:false  } );
+            gl = canvas.getContext( 'webgl2', options );
+            if (!gl) {
+                gl = canvas.getContext( 'experimental-webgl2', options );
             }
             isWebGL2 = !!gl;
 
             if(!isWebGL2) {
-                gl = canvas.getContext( 'webgl', { antialias: false, alpha:false, stencil:false, depth:false } );
-                if (!gl) gl = canvas.getContext( 'experimental-webgl', { antialias: false, alpha:false, stencil:false, depth:false  } );
+                gl = canvas.getContext( 'webgl', options );
+                if (!gl) gl = canvas.getContext( 'experimental-webgl', options );
             }
 
             console.log('Webgl 2 is ' + isWebGL2 );
@@ -224,7 +228,7 @@ var view = ( function () {
 
             mouse = new THREE.Vector4();
 
-            renderer = new THREE.WebGLRenderer({ canvas:canvas, context:gl, antialias:false, alpha:false, precision:prec });
+            renderer = new THREE.WebGLRenderer({ canvas:canvas, context:gl, antialias:false, alpha:false, precision:precision });
             //renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setPixelRatio( params.pixelRatio );
             renderer.setSize( vsize.x, vsize.y );
@@ -653,10 +657,12 @@ var view = ( function () {
                 transparent: true,
             });
 
-            //console.log(material.fragmentShader)
+            
 
             mesh.material = material;
             editor.setTitle();
+
+            //console.log(material)
 
         },
 
@@ -667,7 +673,7 @@ var view = ( function () {
 
             try {
                 shader = gl.createShader( gl.FRAGMENT_SHADER );
-                gl.shaderSource( shader, 'precision highp float;' + value );
+                gl.shaderSource( shader, 'precision '+precision+' float; precision '+precision+' int;'+ value );
                 gl.compileShader( shader );
                 status = gl.getShaderParameter( shader, gl.COMPILE_STATUS );
                 if (!status) {
