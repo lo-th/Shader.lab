@@ -84,6 +84,7 @@ var view = ( function () {
     var WIDTH = 512;
 
     var isWebGL2 = false;
+    var isMobile = false;
 
 
     var mesh, mesh2;
@@ -92,7 +93,10 @@ var view = ( function () {
     var tx, tx2;
     var vertex, fragment;
 
+
     view = {
+
+
 
         render: function () {
 
@@ -157,7 +161,18 @@ var view = ( function () {
             //time.x = 0;
         },
 
+        testMobile: function () {
+            var nav = navigator.userAgent;
+            if (nav.match(/Android/i) || nav.match(/webOS/i) || nav.match(/iPhone/i) || nav.match(/iPad/i) 
+                || nav.match(/iPod/i) || nav.match(/BlackBerry/i) || nav.match(/Windows Phone/i)) return true;
+            else return false;        
+        },
+
         init: function () {
+
+            isMobile = view.testMobile();
+
+            var prec = isMobile ? 'lowp' : 'highp';
 
             toneMappings = {
                 None: THREE.NoToneMapping,
@@ -209,7 +224,7 @@ var view = ( function () {
 
             mouse = new THREE.Vector4();
 
-            renderer = new THREE.WebGLRenderer({ canvas:canvas, context:gl, antialias:false, alpha:false });
+            renderer = new THREE.WebGLRenderer({ canvas:canvas, context:gl, antialias:false, alpha:false, precision:prec });
             //renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setPixelRatio( params.pixelRatio );
             renderer.setSize( vsize.x, vsize.y );
@@ -263,6 +278,9 @@ var view = ( function () {
 
             this.setTone();
             this.render();
+
+
+            //console.log(renderer.getPrecision())
             
         },
 
