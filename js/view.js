@@ -28,6 +28,14 @@ var view = ( function () {
 
 
     var channels = [];
+
+
+
+    
+    var C_materials = [null, null, null, null];
+    var C_textures = [null, null, null, null];
+    var C_uniforms = [];
+    var C_size = [0, 0, 0, 0];
     var isBuff = [false, false, false, false];
     var channelResolution;
 
@@ -46,7 +54,7 @@ var view = ( function () {
 
     var vs = { w:1, h:1, l:0, x:0 , y:0};
 
-    var isPostEffect = false, renderScene, effectFXAA, bloomPass, copyShader, composer = null;
+    //var isPostEffect = false, renderScene, effectFXAA, bloomPass, copyShader, composer = null;
 
 
     var gputmp = null;
@@ -110,8 +118,9 @@ var view = ( function () {
                 //uniforms.mouse.value = mouse;
             }
             
-            if( isPostEffect ) composer.render();
-            else renderer.render( scene, camera );
+            //if( isPostEffect ) composer.render();
+            //else 
+            renderer.render( scene, camera );
             
         },
 
@@ -135,10 +144,10 @@ var view = ( function () {
 
             editor.resizeMenu( vsize.x );
 
-            if( isPostEffect ){
+            /*if( isPostEffect ){
                 composer.setSize( vsize.x, vsize.y );
                 effectFXAA.uniforms['resolution'].value.set(1 / vsize.x, 1 / vsize.y );
-            }
+            }*/
 
         },
 
@@ -146,12 +155,6 @@ var view = ( function () {
 
             //console.clear();
             //time.x = 0;
-        },
-
-        getGlVersion : function () {
-
-            return isWebGL2
-
         },
 
         init: function () {
@@ -250,7 +253,10 @@ var view = ( function () {
             renderer.domElement.addEventListener( 'mouseup', view.up, false );
 
             //renderer.domElement.addEventListener( 'drop', function(e){ e.preventDefault(); return false; }, false );  
-            renderer.domElement.addEventListener( 'dragover', function(e){ e.preventDefault(); return false; }, false );  
+            renderer.domElement.addEventListener( 'dragover', function(e){ e.preventDefault(); return false; }, false );
+
+
+            
 
 
             gputmp = new view.GpuSide( renderer );
@@ -364,7 +370,7 @@ var view = ( function () {
 
         },
 
-        initPostEffect: function () {
+        /*initPostEffect: function () {
 
             renderScene = new THREE.RenderPass( scene, camera );
             //renderScene.clearAlpha = true;
@@ -396,7 +402,7 @@ var view = ( function () {
             bloomPass.strength = params.strength;
             bloomPass.radius = params.radius;
 
-        },
+        },*/
 
         initCubeCamera: function () {
 
@@ -487,7 +493,7 @@ var view = ( function () {
         },
 
 
-        ///////////////////
+        /////////////////// CHANNEL
 
         createShaderMaterial : function ( frag, Uni ) {
 
@@ -518,19 +524,19 @@ var view = ( function () {
 
         },
 
-        load : function ( url ) {
+        
 
-            var xhr = new XMLHttpRequest();
-            xhr.overrideMimeType('text/plain; charset=x-user-defined'); 
-            xhr.open('GET', url, true);
+        setChannel : function( frag, n ){
 
-            xhr.onload = function(){ 
+        },
 
-                //code.setValue( xhr.responseText ); 
+        applyChannel : function ( frag, n, w, h ) {
 
-            }
-            
-            xhr.send();
+            C_uniforms[n] = THREE.UniformsUtils.clone( uniforms ),
+            C_materials[n] = view.createShaderMaterial( frag, C_uniforms[n] );
+            C_textures[n] = view.createRenderTexture( w, h );
+
+            isBuff[n] = true;
 
         },
 
@@ -548,15 +554,13 @@ var view = ( function () {
                 frame = 0;
             }
 
-            // reset old
-
-            material.dispose();
+            
 
             var Uni = [];//'precision highp float;'];
 
             isBuff = [ false, false, false, false ];
 
-            var i = 4, pre, type, name, n, s, f;
+            var i = 4, pre, type, name, n, size, file;
             while(i--){
 
                 pre = Fragment.search( i + '_#' );
@@ -564,16 +568,18 @@ var view = ( function () {
                 type = cube_name.indexOf( name ) !== -1 ? 'samplerCube' : 'sampler2D';
 
                 if(name !== null){
-                    if(name.substring(0,6) === 'buffer'){ 
+                    if( name.substring(0,6) === 'buffer' ){ 
                         var s, n;
-                        if( ! isNaN(name.substring(6,10)) ) n = 10;
+                        if( name.substring(6,10) === 'FULL' ) n = 10;
+                        else if( ! isNaN(name.substring(6,10)) ) n = 10;
                         else if( ! isNaN(name.substring(6,9)) ) n = 9;
                         else if( ! isNaN(name.substring(6,8)) ) n = 8;
-                        isBuff[i] = true;
-                        s = name.substring(6,n);
-                        f = name.substring(n+1);
+                        else if( ! isNaN(name.substring(6,7)) ) n = 7;
 
-                        console.log(s, f);
+                        size = name.substring(6,n);
+                        file = name.substring(n+1);
+
+                        console.log( size, file );
                     }
                     
                 }
@@ -607,18 +613,6 @@ var view = ( function () {
 
             );
 
-            /*Uni.push(
-                '#define saturate(a) clamp( a, 0.0, 1.0 )',
-                'uniform float exposure;',
-                'uniform float whitePoint;',
-
-                '#define Uncharted2Helper( x ) max( ( ( x * ( 0.15 * x + 0.10 * 0.50 ) + 0.20 * 0.02 ) / ( x * ( 0.15 * x + 0.50 ) + 0.20 * 0.30 ) ) - 0.02 / 0.30, vec3( 0.0 ) )',
-                'vec3 toneMap( vec3 color ) {',
-                '    color *= exposure;',
-                '    return saturate( Uncharted2Helper( color ) / Uncharted2Helper( vec3( whitePoint ) ) );',
-                '}'
-            );*/
-
             uniforms.iGlobalTime.value = time;
             uniforms.iFrame.value = frame;
 
@@ -626,36 +620,19 @@ var view = ( function () {
 
             view.validate( fragment );
 
-            //
-
-            /*material = new THREE.ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: vertex,
-                fragmentShader: fragment,
-                transparent:true,
-            }); 
-
-
-            //view.validate( fragment );
-
-
-
-
-            var derive = Fragment.search("#extension GL_OES_standard_derivatives");
-            material.extensions.derivatives = derive !== -1 ? true : false;
-
-            mesh.material = material;
-            editor.setTitle();*/
-
         },
 
         applyMaterial : function () {
 
+            // reset old
+
+            material.dispose();
+
             material = new THREE.ShaderMaterial({
-                uniforms: uniforms,
+                uniforms: uniforms,//THREE.UniformsUtils.clone( uniforms ),//uniforms,
                 vertexShader: vertex,
                 fragmentShader: fragment,
-                transparent:true,
+                transparent: true,
             });
 
             //console.log(material.fragmentShader)

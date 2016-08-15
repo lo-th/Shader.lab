@@ -1,7 +1,6 @@
 
 // ------------------ channel define
 // 0_# basic #_0
-// 1_# buffer128_phyA #_1
 // ------------------
 
 void main() {

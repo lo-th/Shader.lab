@@ -98,7 +98,7 @@ float nse3d(in vec3 x)
     vec3 f = fract(x);
     f = f * f * (3.0 - 2.0 * f);
     vec2 uv = (p.xy + vec2(37.0, 17.0) * p.z) + f.xy;
-    vec2 rg = texture2D(iChannel0, (uv + 0.5) / 256.0, -100.0).yx;
+    vec2 rg = texture2D(iChannel0, (uv + 0.5) / 256.0, -16.0).yx;
     return mix(rg.x, rg.y, f.z);
 }
 
@@ -339,9 +339,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     dacc /= float(STP);
     ITSC itsc = raycylh(ro, rd, vec3(0.0), 4.0);
     vec3 sky = vec3(0.6, 0.3, 0.2);
-    sky *= 0.9 * pow(fbmHQ(itsc.p), 2.0);
+    sky *= 0.9 * pow(abs(fbmHQ(itsc.p)), 2.0);
     lacc = max(lacc * 0.3 + 0.3, 0.0);
-    vec3 cloud = pow(vec3(lacc), vec3(0.7, 1.0, 1.0) * 1.0);
+    vec3 cloud = pow(abs(vec3(lacc)), vec3(0.7, 1.0, 1.0) * 1.0);
     col = mix(sky, cloud, dacc);
     col *= exp(tunRef.dist * -0.1);
     col += drh.y;
@@ -377,8 +377,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec3 arccol = vec3(0.9, 0.7, 0.7);
     col += arclight * arccol * 0.5;
     col = mix(col, arccol, clamp(arcv, 0.0, 1.0));
-    col = pow(col, vec3(1.0, 0.8, 0.5) * 1.5) * 1.5;
-    col = pow(col, vec3(1.0 / 2.2));
+    col = pow(abs(col), vec3(1.0, 0.8, 0.5) * 1.5) * 1.5;
+    col = pow(abs(col), vec3(1.0 / 2.2));
     fragColor = vec4(col, 1.0);
 }
 

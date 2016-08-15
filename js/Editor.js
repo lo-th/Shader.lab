@@ -12,6 +12,8 @@ var editor = ( function () {
 
     var rl = 250;
 
+    var channels = [];
+
     var content, codeContent, code, separator, menuCode, version, bigmenu2;//, debug, title; 
     var callback = function(){};
     var isSelfDrag = false;
@@ -79,21 +81,6 @@ var editor = ( function () {
 
             octo = document.getElementById('octo');
             octoArm = document.getElementById('octo-arm');
-
-            // debug
-
-           /* debug = document.createElement( 'div' );
-            debug.className = 'debug';
-            document.body.appendChild( debug );
-
-            // title
-
-            title = document.createElement( 'div' );
-            title.className = 'title';
-            document.body.appendChild( title );*/
-
-            
-
             
 
             // editor
@@ -503,12 +490,12 @@ var editor = ( function () {
 
         // code
 
-        load : function ( name ) {
+        load : function ( name, n ) {
 
             var prev = 'glsl/';
-            var end = '.glsl'
+            var end = '.glsl';
 
-            //fileName_old = fileName;
+            n = n || 0;
 
             fileName = name;//url.substring(url.indexOf("/")+1, url.indexOf("."));
 
@@ -523,11 +510,18 @@ var editor = ( function () {
 
             xhr.onload = function(){ 
 
-                code.setValue( xhr.responseText ); 
+                channels[n] = xhr.responseText;
+                if( n === 0 ) code.setValue( xhr.responseText );
 
             }
             
             xhr.send();
+
+        },
+
+        clear : function () {
+
+            channels = [];
 
         },
 
