@@ -121,10 +121,13 @@ void main() {
     vec2 xy = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
     
     float t = iGlobalTime;
-    vec3 campos = vec3(10.0*sin(t*0.3),2.5*sin(t*0.5),-10.0*cos(t*0.3));
+    // camera position from three js
+    vec3 campos = cameraPosition;
+    //vec3 campos = vec3(10.0*sin(t*0.3),2.5*sin(t*0.5),-10.0*cos(t*0.3));
     vec3 camtar = vec3(0.0,0.0,0.0);
     
     mat3 camMat = calcLookAtMatrix( campos, camtar, 0.0 );
+
     vec3 camdir = normalize( camMat * vec3(xy,1.0) );
     
     vec3 col = vec3(0.0,0.0,0.0);

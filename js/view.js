@@ -671,9 +671,16 @@ var view = ( function () {
             var details, error, i, line, lines, log, message, shader, status, _i, _len;
             var data = [];//{lineNumber:0, message:''};
 
+            var baseVar = [
+                'precision '+precision+' float;',
+                'precision '+precision+' int;',
+                'uniform mat4 viewMatrix;',
+                'uniform vec3 cameraPosition;',
+            ].join('\n');
+
             try {
                 shader = gl.createShader( gl.FRAGMENT_SHADER );
-                gl.shaderSource( shader, 'precision '+precision+' float; precision '+precision+' int;'+ value );
+                gl.shaderSource( shader, baseVar + value );
                 gl.compileShader( shader );
                 status = gl.getShaderParameter( shader, gl.COMPILE_STATUS );
                 if (!status) {

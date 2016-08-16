@@ -209,6 +209,10 @@ void main(){
             break;
         }
     }
+
+    #if defined( TONE_MAPPING ) 
+    color = toneMapping( color ); 
+    #endif
     
     color = color*vec3(1.5,1.5,1.5);
     color -= length(uv.xy-0.5)*0.3;
@@ -218,9 +222,7 @@ void main(){
     float w=color.x+color.y+color.z;
     color = mix(color,vec3(w,w,w)*0.3,w*0.35);
 
-    #if defined( TONE_MAPPING ) 
-    color = toneMapping( color ); 
-    #endif
+    
     
     gl_FragColor = vec4(color,1.0);
 }
