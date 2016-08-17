@@ -252,7 +252,7 @@ var view = ( function () {
             scene = new THREE.Scene();
             scene.matrixAutoUpdate = false;
 
-            camera = new THREE.PerspectiveCamera( 50, vsize.z, 0.1, 1000 );
+            camera = new THREE.PerspectiveCamera( 45, vsize.z, 0.1, 5000 );
             camera.position.set(0,0,10);
             scene.add(camera)
 
@@ -430,7 +430,6 @@ var view = ( function () {
 
             cubeCamera = new THREE.CubeCamera( 0.1, 1000, 512 );
             scene.add( cubeCamera );
-
             textureCubeCamera = cubeCamera.renderTarget.texture;
 
         },
@@ -623,15 +622,15 @@ var view = ( function () {
 
             Uni.push(
 
-                'uniform vec4 iMouse;',
                 'uniform int iFrame;',
+                'uniform vec4 iMouse;',
                 'uniform vec3 iResolution;',
                 'uniform float iGlobalTime;',
-                'uniform float iDate;',
                 'uniform vec2 iChannelResolution[4];',
+                'uniform float key[20];',
+                'uniform float iDate;',
 
-                'varying vec2 vUv;',
-                'varying vec3 vEye;'
+                'varying vec2 vUv;'
 
             );
 

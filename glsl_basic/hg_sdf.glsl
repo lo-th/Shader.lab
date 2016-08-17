@@ -1,132 +1,31 @@
+// https://www.shadertoy.com/view/Xs3GRB
+
+//-----------------------------------------------------------------------------
+// Simple test/port of Mercury's SDF GLSL library: http://mercury.sexy/hg_sdf/
+// by Tom '2015
+// Disclaimer:
+//   The library is done by Mercury team for OpenGL 4+ (look below),
+//   not me, and this is just an unofficial port.
+//-----------------------------------------------------------------------------
+
 ////////////////////////////////////////////////////////////////
 //
 //                           HG_SDF
 //
 //     GLSL LIBRARY FOR BUILDING SIGNED DISTANCE BOUNDS
 //
-//     version 2016-01-10
+//     version 2015-12-15 (initial release)
 //
 //     Check http://mercury.sexy/hg_sdf for updates
 //     and usage examples. Send feedback to spheretracing@mercury.sexy.
 //
 //     Brought to you by MERCURY http://mercury.sexy
-//     http://mercury.sexy/hg_sdf/
 //
 //
 //
 // Released as Creative Commons Attribution-NonCommercial (CC BY-NC)
 //
 ////////////////////////////////////////////////////////////////
-//
-// How to use this:
-//
-// 1. Build some system to #include glsl files in each other.
-//   Include this one at the very start. Or just paste everywhere.
-// 2. Build a sphere tracer. See those papers:
-//   * "Sphere Tracing" http://graphics.cs.illinois.edu/sites/default/files/zeno.pdf
-//   * "Enhanced Sphere Tracing" http://lgdv.cs.fau.de/get/2234
-//   The Raymnarching Toolbox Thread on pouet can be helpful as well
-//   http://www.pouet.net/topic.php?which=7931&page=1
-//   and contains links to many more resources.
-// 3. Use the tools in this library to build your distance bound f().
-// 4. ???
-// 5. Win a compo.
-// 
-// (6. Buy us a beer or a good vodka or something, if you like.)
-//
-////////////////////////////////////////////////////////////////
-//
-// Table of Contents:
-//
-// * Helper functions and macros
-// * Collection of some primitive objects
-// * Domain Manipulation operators
-// * Object combination operators
-//
-////////////////////////////////////////////////////////////////
-//
-// Why use this?
-//
-// The point of this lib is that everything is structured according
-// to patterns that we ended up using when building geometry.
-// It makes it more easy to write code that is reusable and that somebody
-// else can actually understand. Especially code on Shadertoy (which seems
-// to be what everybody else is looking at for "inspiration") tends to be
-// really ugly. So we were forced to do something about the situation and
-// release this lib ;)
-//
-// Everything in here can probably be done in some better way.
-// Please experiment. We'd love some feedback, especially if you
-// use it in a scene production.
-//
-// The main patterns for building geometry this way are:
-// * Stay Lipschitz continuous. That means: don't have any distance
-//   gradient larger than 1. Try to be as close to 1 as possible -
-//   Distances are euclidean distances, don't fudge around.
-//   Underestimating distances will happen. That's why calling
-//   it a "distance bound" is more correct. Don't ever multiply
-//   distances by some value to "fix" a Lipschitz continuity
-//   violation. The invariant is: each fSomething() function returns
-//   a correct distance bound.
-// * Use very few primitives and combine them as building blocks
-//   using combine opertors that preserve the invariant.
-// * Multiply objects by repeating the domain (space).
-//   If you are using a loop inside your distance function, you are
-//   probably doing it wrong (or you are building boring fractals).
-// * At right-angle intersections between objects, build a new local
-//   coordinate system from the two distances to combine them in
-//   interesting ways.
-// * As usual, there are always times when it is best to not follow
-//   specific patterns.
-//
-////////////////////////////////////////////////////////////////
-//
-// FAQ
-//
-// Q: Why is there no sphere tracing code in this lib?
-// A: Because our system is way too complex and always changing.
-//    This is the constant part. Also we'd like everyone to
-//    explore for themselves.
-//
-// Q: This does not work when I paste it into Shadertoy!!!!
-// A: Yes. It is GLSL, not GLSL ES. We like real OpenGL
-//    because it has way more features and is more likely
-//    to work compared to browser-based WebGL. We recommend
-//    you consider using OpenGL for your productions. Most
-//    of this can be ported easily though.
-//
-// Q: How do I material?
-// A: We recommend something like this:
-//    Write a material ID, the distance and the local coordinate
-//    p into some global variables whenever an object's distance is
-//    smaller than the stored distance. Then, at the end, evaluate
-//    the material to get color, roughness, etc., and do the shading.
-//
-// Q: I found an error. Or I made some function that would fit in
-//    in this lib. Or I have some suggestion.
-// A: Awesome! Drop us a mail at spheretracing@mercury.sexy.
-//
-// Q: Why is this not on github?
-// A: Because we were too lazy. If we get bugged about it enough,
-//    we'll do it.
-//
-// Q: Your license sucks for me.
-// A: Oh. What should we change it to?
-//
-// Q: I have trouble understanding what is going on with my distances.
-// A: Some visualization of the distance field helps. Try drawing a
-//    plane that you can sweep through your scene with some color
-//    representation of the distance field at each point and/or iso
-//    lines at regular intervals. Visualizing the length of the
-//    gradient (or better: how much it deviates from being equal to 1)
-//    is immensely helpful for understanding which parts of the
-//    distance field are broken.
-//
-////////////////////////////////////////////////////////////////
-
-
-
-
 
 
 ////////////////////////////////////////////////////////////////
@@ -136,64 +35,61 @@
 ////////////////////////////////////////////////////////////////
 
 #define PI 3.14159265
-#define TAU (2.0*PI)
-#define PHI (sqrt(5.0)*0.5 + 0.5)
+#define TAU (2*PI)
+#define PHI (1.618033988749895)
+     // PHI (sqrt(5)*0.5 + 0.5)
 
 // Clamp to [0,1] - this operation is free under certain circumstances.
 // For further information see
 // http://www.humus.name/Articles/Persson_LowLevelThinking.pdf and
 // http://www.humus.name/Articles/Persson_LowlevelShaderOptimization.pdf
-#define saturated(x) clamp(x, 0.0, 1.0)
+#define saturated(x) clamp(x, 0., 1.)
 
 // Sign function that doesn't return 0
 float sgn(float x) {
-	return (x<0.0)?-1.0:1.0;
-}
-
-vec2 sgn(vec2 v) {
-	return vec2((v.x<0.0)?-1.0:1.0, (v.y<0.0)?-1.0:1.0);
+    return (x<0.)?-1.:1.;
 }
 
 float square (float x) {
-	return x*x;
+    return x*x;
 }
 
 vec2 square (vec2 x) {
-	return x*x;
+    return x*x;
 }
 
 vec3 square (vec3 x) {
-	return x*x;
+    return x*x;
 }
 
 float lengthSqr(vec3 x) {
-	return dot(x, x);
+    return dot(x, x);
 }
 
 
 // Maximum/minumum elements of a vector
 float vmax(vec2 v) {
-	return max(v.x, v.y);
+    return max(v.x, v.y);
 }
 
 float vmax(vec3 v) {
-	return max(max(v.x, v.y), v.z);
+    return max(max(v.x, v.y), v.z);
 }
 
 float vmax(vec4 v) {
-	return max(max(v.x, v.y), max(v.z, v.w));
+    return max(max(v.x, v.y), max(v.z, v.w));
 }
 
 float vmin(vec2 v) {
-	return min(v.x, v.y);
+    return min(v.x, v.y);
 }
 
 float vmin(vec3 v) {
-	return min(min(v.x, v.y), v.z);
+    return min(min(v.x, v.y), v.z);
 }
 
 float vmin(vec4 v) {
-	return min(min(v.x, v.y), min(v.z, v.w));
+    return min(min(v.x, v.y), min(v.z, v.w));
 }
 
 
@@ -216,129 +112,129 @@ float vmin(vec4 v) {
 ////////////////////////////////////////////////////////////////
 
 float fSphere(vec3 p, float r) {
-	return length(p) - r;
+    return length(p) - r;
 }
 
 // Plane with normal n (n is normalized) at some distance from the origin
 float fPlane(vec3 p, vec3 n, float distanceFromOrigin) {
-	return dot(p, n) + distanceFromOrigin;
+    return dot(p, n) + distanceFromOrigin;
 }
 
 // Cheap Box: distance to corners is overestimated
 float fBoxCheap(vec3 p, vec3 b) { //cheap box
-	return vmax(abs(p) - b);
+    return vmax(abs(p) - b);
 }
 
 // Box: correct distance to corners
 float fBox(vec3 p, vec3 b) {
-	vec3 d = abs(p) - b;
-	return length(max(d, vec3(0))) + vmax(min(d, vec3(0)));
+    vec3 d = abs(p) - b;
+    return length(max(d, vec3(0))) + vmax(min(d, vec3(0)));
 }
 
 // Same as above, but in two dimensions (an endless box)
 float fBox2Cheap(vec2 p, vec2 b) {
-	return vmax(abs(p)-b);
+    return vmax(abs(p)-b);
 }
 
 float fBox2(vec2 p, vec2 b) {
-	vec2 d = abs(p) - b;
-	return length(max(d, vec2(0))) + vmax(min(d, vec2(0)));
+    vec2 d = abs(p) - b;
+    return length(max(d, vec2(0))) + vmax(min(d, vec2(0)));
 }
 
 
 // Endless "corner"
 float fCorner (vec2 p) {
-	return length(max(p, vec2(0))) + vmax(min(p, vec2(0)));
+    return length(max(p, vec2(0))) + vmax(min(p, vec2(0)));
 }
 
 // Blobby ball object. You've probably seen it somewhere. This is not a correct distance bound, beware.
 float fBlob(vec3 p) {
-	p = abs(p);
-	if (p.x < max(p.y, p.z)) p = p.yzx;
-	if (p.x < max(p.y, p.z)) p = p.yzx;
-	float b = max(max(max(
-		dot(p, normalize(vec3(1.0, 1.0, 1.0))),
-		dot(p.xz, normalize(vec2(PHI+1.0, 1.0)))),
-		dot(p.yx, normalize(vec2(1.0, PHI)))),
-		dot(p.xz, normalize(vec2(1.0, PHI))));
-	float l = length(p);
-	return l - 1.5 - 0.2 * (1.5 / 2.0)* cos(min(sqrt(1.01 - b / l)*(PI / 0.25), PI));
+    p = abs(p);
+    if (p.x < max(p.y, p.z)) p = p.yzx;
+    if (p.x < max(p.y, p.z)) p = p.yzx;
+    float b = max(max(max(
+        dot(p, normalize(vec3(1, 1, 1))),
+        dot(p.xz, normalize(vec2(PHI+1., 1)))),
+        dot(p.yx, normalize(vec2(1, PHI)))),
+        dot(p.xz, normalize(vec2(1, PHI))));
+    float l = length(p);
+    return l - 1.5 - 0.2 * (1.5 / 2.)* cos(min(sqrt(1.01 - b / l)*(PI / 0.25), PI));
 }
 
 // Cylinder standing upright on the xz plane
 float fCylinder(vec3 p, float r, float height) {
-	float d = length(p.xz) - r;
-	d = max(d, abs(p.y) - height);
-	return d;
+    float d = length(p.xz) - r;
+    d = max(d, abs(p.y) - height);
+    return d;
 }
 
 // Capsule: A Cylinder with round caps on both sides
 float fCapsule(vec3 p, float r, float c) {
-	return mix(length(p.xz) - r, length(vec3(p.x, abs(p.y) - c, p.z)) - r, step(c, abs(p.y)));
+    return mix(length(p.xz) - r, length(vec3(p.x, abs(p.y) - c, p.z)) - r, step(c, abs(p.y)));
 }
 
 // Distance to line segment between <a> and <b>, used for fCapsule() version 2below
 float fLineSegment(vec3 p, vec3 a, vec3 b) {
-	vec3 ab = b - a;
-	float t = saturated(dot(p - a, ab) / dot(ab, ab));
-	return length((ab*t + a) - p);
+    vec3 ab = b - a;
+    float t = saturated(dot(p - a, ab) / dot(ab, ab));
+    return length((ab*t + a) - p);
 }
 
 // Capsule version 2: between two end points <a> and <b> with radius r 
 float fCapsule(vec3 p, vec3 a, vec3 b, float r) {
-	return fLineSegment(p, a, b) - r;
+    return fLineSegment(p, a, b) - r;
 }
 
 // Torus in the XZ-plane
 float fTorus(vec3 p, float smallRadius, float largeRadius) {
-	return length(vec2(length(p.xz) - largeRadius, p.y)) - smallRadius;
+    return length(vec2(length(p.xz) - largeRadius, p.y)) - smallRadius;
 }
 
 // A circle line. Can also be used to make a torus by subtracting the smaller radius of the torus.
 float fCircle(vec3 p, float r) {
-	float l = length(p.xz) - r;
-	return length(vec2(p.y, l));
+    float l = length(p.xz) - r;
+    return length(vec2(p.y, l));
 }
 
 // A circular disc with no thickness (i.e. a cylinder with no height).
 // Subtract some value to make a flat disc with rounded edge.
 float fDisc(vec3 p, float r) {
-	float l = length(p.xz) - r;
-	return l < 0 ? abs(p.y) : length(vec2(p.y, l));
+ float l = length(p.xz) - r;
+    return l < 0. ? abs(p.y) : length(vec2(p.y, l));
 }
 
 // Hexagonal prism, circumcircle variant
 float fHexagonCircumcircle(vec3 p, vec2 h) {
-	vec3 q = abs(p);
-	return max(q.y - h.y, max(q.x*sqrt(3.0)*0.5 + q.z*0.5, q.z) - h.x);
-	//this is mathematically equivalent to this line, but less efficient:
-	//return max(q.y - h.y, max(dot(vec2(cos(PI/3), sin(PI/3)), q.zx), q.z) - h.x);
+    vec3 q = abs(p);
+    return max(q.y - h.y, max(q.x*sqrt(3.)*0.5 + q.z*0.5, q.z) - h.x);
+    //this is mathematically equivalent to this line, but less efficient:
+    //return max(q.y - h.y, max(dot(vec2(cos(PI/3), sin(PI/3)), q.zx), q.z) - h.x);
 }
 
 // Hexagonal prism, incircle variant
 float fHexagonIncircle(vec3 p, vec2 h) {
-	return fHexagonCircumcircle(p, vec2(h.x*sqrt(3.0)*0.5, h.y));
+    return fHexagonCircumcircle(p, vec2(h.x*sqrt(3.)*0.5, h.y));
 }
 
 // Cone with correct distances to tip and base circle. Y is up, 0 is in the middle of the base.
 float fCone(vec3 p, float radius, float height) {
-	vec2 q = vec2(length(p.xz), p.y);
-	vec2 tip = q - vec2(0.0, height);
-	vec2 mantleDir = normalize(vec2(height, radius));
-	float mantle = dot(tip, mantleDir);
-	float d = max(mantle, -q.y);
-	float projected = dot(tip, vec2(mantleDir.y, -mantleDir.x));
-	
-	// distance to tip
-	if ((q.y > height) && (projected < 0.0)) {
-		d = max(d, length(tip));
-	}
-	
-	// distance to base ring
-	if ((q.x > radius) && (projected > length(vec2(height, radius)))) {
-		d = max(d, length(q - vec2(radius, 0.0)));
-	}
-	return d;
+    vec2 q = vec2(length(p.xz), p.y);
+    vec2 tip = q - vec2(0, height);
+    vec2 mantleDir = normalize(vec2(height, radius));
+    float mantle = dot(tip, mantleDir);
+    float d = max(mantle, -q.y);
+    float projected = dot(tip, vec2(mantleDir.y, -mantleDir.x));
+    
+    // distance to tip
+    if ((q.y > height) && (projected < 0.)) {
+        d = max(d, length(tip));
+    }
+    
+    // distance to base ring
+    if ((q.x > radius) && (projected > length(vec2(height, radius)))) {
+        d = max(d, length(q - vec2(radius, 0)));
+    }
+    return d;
 }
 
 //
@@ -351,6 +247,8 @@ float fCone(vec3 p, float radius, float height) {
 // which seems to happen for fIcosahedron und fTruncatedIcosahedron on nvidia 350.12 at least.
 // Specialized implementations can well be faster in all cases.
 //
+
+// Macro based version for GLSL 1.2 / ES 2.0 by Tom
 
 #define GDFVector0 vec3(1, 0, 0)
 #define GDFVector1 vec3(0, 1, 0)
@@ -463,6 +361,7 @@ float fTruncatedIcosahedron(vec3 p, float r) {
     fGDFEnd
 }
 
+
 ////////////////////////////////////////////////////////////////
 //
 //                DOMAIN MANIPULATION OPERATORS
@@ -496,131 +395,131 @@ float fTruncatedIcosahedron(vec3 p, float r) {
 // Read like this: R(p.xz, a) rotates "x towards z".
 // This is fast if <a> is a compile-time constant and slower (but still practical) if not.
 void pR(inout vec2 p, float a) {
-	p = cos(a)*p + sin(a)*vec2(p.y, -p.x);
+    p = cos(a)*p + sin(a)*vec2(p.y, -p.x);
 }
 
 // Shortcut for 45-degrees rotation
 void pR45(inout vec2 p) {
-	p = (p + vec2(p.y, -p.x))*sqrt(0.5);
+    p = (p + vec2(p.y, -p.x))*sqrt(0.5);
 }
 
 // Repeat space along one axis. Use like this to repeat along the x axis:
 // <float cell = pMod1(p.x,5);> - using the return value is optional.
 float pMod1(inout float p, float size) {
-	float halfsize = size*0.5;
-	float c = floor((p + halfsize)/size);
-	p = mod(p + halfsize, size) - halfsize;
-	return c;
+    float halfsize = size*0.5;
+    float c = floor((p + halfsize)/size);
+    p = mod(p + halfsize, size) - halfsize;
+    return c;
 }
 
 // Same, but mirror every second cell so they match at the boundaries
 float pModMirror1(inout float p, float size) {
-	float halfsize = size*0.5;
-	float c = floor((p + halfsize)/size);
-	p = mod(p + halfsize,size) - halfsize;
-	p *= mod(c, 2.0)*2.0 - 1.0;
-	return c;
+    float halfsize = size*0.5;
+    float c = floor((p + halfsize)/size);
+    p = mod(p + halfsize,size) - halfsize;
+    p *= mod(c, 2.0)*2. - 1.;
+    return c;
 }
 
 // Repeat the domain only in positive direction. Everything in the negative half-space is unchanged.
 float pModSingle1(inout float p, float size) {
-	float halfsize = size*0.5;
-	float c = floor((p + halfsize)/size);
-	if (p >= 0.0)
-		p = mod(p + halfsize, size) - halfsize;
-	return c;
+    float halfsize = size*0.5;
+    float c = floor((p + halfsize)/size);
+    if (p >= 0.)
+        p = mod(p + halfsize, size) - halfsize;
+    return c;
 }
 
 // Repeat only a few times: from indices <start> to <stop> (similar to above, but more flexible)
 float pModInterval1(inout float p, float size, float start, float stop) {
-	float halfsize = size*0.5;
-	float c = floor((p + halfsize)/size);
-	p = mod(p+halfsize, size) - halfsize;
-	if (c > stop) { //yes, this might not be the best thing numerically.
-		p += size*(c - stop);
-		c = stop;
-	}
-	if (c <start) {
-		p += size*(c - start);
-		c = start;
-	}
-	return c;
+    float halfsize = size*0.5;
+    float c = floor((p + halfsize)/size);
+    p = mod(p+halfsize, size) - halfsize;
+    if (c > stop) { //yes, this might not be the best thing numerically.
+        p += size*(c - stop);
+        c = stop;
+    }
+    if (c <start) {
+        p += size*(c - start);
+        c = start;
+    }
+    return c;
 }
 
 
 // Repeat around the origin by a fixed angle.
 // For easier use, num of repetitions is use to specify the angle.
 float pModPolar(inout vec2 p, float repetitions) {
-	float angle = 2.0*PI/repetitions;
-	float a = atan(p.y, p.x) + angle/2.0;
-	float r = length(p);
-	float c = floor(a/angle);
-	a = mod(a,angle) - angle/2.0;
-	p = vec2(cos(a), sin(a))*r;
-	// For an odd number of repetitions, fix cell index of the cell in -x direction
-	// (cell index would be e.g. -5 and 5 in the two halves of the cell):
-	if (abs(c) >= (repetitions/2.0)) c = abs(c);
-	return c;
+    float angle = 2.*PI/repetitions;
+    float a = atan(p.y, p.x) + angle/2.;
+    float r = length(p);
+    float c = floor(a/angle);
+    a = mod(a,angle) - angle/2.;
+    p = vec2(cos(a), sin(a))*r;
+    // For an odd number of repetitions, fix cell index of the cell in -x direction
+    // (cell index would be e.g. -5 and 5 in the two halves of the cell):
+    if (abs(c) >= (repetitions/2.)) c = abs(c);
+    return c;
 }
 
 // Repeat in two dimensions
 vec2 pMod2(inout vec2 p, vec2 size) {
-	vec2 c = floor((p + size*0.5)/size);
-	p = mod(p + size*0.5,size) - size*0.5;
-	return c;
+    vec2 c = floor((p + size*0.5)/size);
+    p = mod(p + size*0.5,size) - size*0.5;
+    return c;
 }
 
 // Same, but mirror every second cell so all boundaries match
 vec2 pModMirror2(inout vec2 p, vec2 size) {
-	vec2 halfsize = size*0.5;
-	vec2 c = floor((p + halfsize)/size);
-	p = mod(p + halfsize, size) - halfsize;
-	p *= mod(c,vec2(2.0))*2.0 - vec2(1.0);
-	return c;
+    vec2 halfsize = size*0.5;
+    vec2 c = floor((p + halfsize)/size);
+    p = mod(p + halfsize, size) - halfsize;
+    p *= mod(c,vec2(2))*2. - vec2(1);
+    return c;
 }
 
 // Same, but mirror every second cell at the diagonal as well
 vec2 pModGrid2(inout vec2 p, vec2 size) {
-	vec2 c = floor((p + size*0.5)/size);
-	p = mod(p + size*0.5, size) - size*0.5;
-	p *= mod(c,vec2(2.0))*2.0 - vec2(1.0);
-	p -= size/2.0;
-	if (p.x > p.y) p.xy = p.yx;
-	return floor(c/2.0);
+    vec2 c = floor((p + size*0.5)/size);
+    p = mod(p + size*0.5, size) - size*0.5;
+    p *= mod(c,vec2(2))*2. - vec2(1);
+    p -= size/2.;
+    if (p.x > p.y) p.xy = p.yx;
+    return floor(c/2.);
 }
 
 // Repeat in three dimensions
 vec3 pMod3(inout vec3 p, vec3 size) {
-	vec3 c = floor((p + size*0.5)/size);
-	p = mod(p + size*0.5, size) - size*0.5;
-	return c;
+    vec3 c = floor((p + size*0.5)/size);
+    p = mod(p + size*0.5, size) - size*0.5;
+    return c;
 }
 
 // Mirror at an axis-aligned plane which is at a specified distance <dist> from the origin.
 float pMirror (inout float p, float dist) {
-	float s = sgn(p);
-	p = abs(p)-dist;
-	return s;
+    float s = sign(p);
+    p = abs(p)-dist;
+    return s;
 }
 
 // Mirror in both dimensions and at the diagonal, yielding one eighth of the space.
 // translate by dist before mirroring.
 vec2 pMirrorOctant (inout vec2 p, vec2 dist) {
-	vec2 s = sgn(p);
-	pMirror(p.x, dist.x);
-	pMirror(p.y, dist.y);
-	if (p.y > p.x)
-		p.xy = p.yx;
-	return s;
+    vec2 s = sign(p);
+    pMirror(p.x, dist.x);
+    pMirror(p.y, dist.y);
+    if (p.y > p.x)
+        p.xy = p.yx;
+    return s;
 }
 
 // Reflect space at a plane
 float pReflect(inout vec3 p, vec3 planeNormal, float offset) {
-	float t = dot(p, planeNormal)+offset;
-	if (t < 0.0) {
-		p = p - (2.0*t)*planeNormal;
-	}
-	return sgn(t);
+    float t = dot(p, planeNormal)+offset;
+    if (t < 0.) {
+        p = p - (2.*t)*planeNormal;
+    }
+    return sign(t);
 }
 
 
@@ -682,137 +581,405 @@ float pReflect(inout vec3 p, vec3 planeNormal, float offset) {
 
 // The "Chamfer" flavour makes a 45-degree chamfered edge (the diagonal of a square of size <r>):
 float fOpUnionChamfer(float a, float b, float r) {
-	return min(min(a, b), (a - r + b)*sqrt(0.5));
+    float m = min(a, b);
+    //if ((a < r) && (b < r)) {
+        return min(m, (a - r + b)*sqrt(0.5));
+    //} else {
+        return m;
+    //}
 }
 
 // Intersection has to deal with what is normally the inside of the resulting object
 // when using union, which we normally don't care about too much. Thus, intersection
 // implementations sometimes differ from union implementations.
 float fOpIntersectionChamfer(float a, float b, float r) {
-	return max(max(a, b), (a + r + b)*sqrt(0.5));
+    float m = max(a, b);
+    if (r <= 0.) return m;
+    if (((-a < r) && (-b < r)) || (m < 0.)) {
+        return max(m, (a + r + b)*sqrt(0.5));
+    } else {
+        return m;
+    }
 }
 
 // Difference can be built from Intersection or Union:
 float fOpDifferenceChamfer (float a, float b, float r) {
-	return fOpIntersectionChamfer(a, -b, r);
+    return fOpIntersectionChamfer(a, -b, r);
 }
 
 // The "Round" variant uses a quarter-circle to join the two objects smoothly:
 float fOpUnionRound(float a, float b, float r) {
-	vec2 u = max(vec2(r - a,r - b), vec2(0.0));
-	return max(r, min (a, b)) - length(u);
+    float m = min(a, b);
+    if ((a < r) && (b < r) ) {
+        return min(m, r - sqrt((r-a)*(r-a) + (r-b)*(r-b)));
+    } else {
+     return m;
+    }
 }
 
 float fOpIntersectionRound(float a, float b, float r) {
-	vec2 u = max(vec2(r + a,r + b), vec2(0.0));
-	return min(-r, max (a, b)) + length(u);
+    float m = max(a, b);
+    if ((-a < r) && (-b < r)) {
+        return max(m, -(r - sqrt((r+a)*(r+a) + (r+b)*(r+b))));
+    } else {
+        return m;
+    }
 }
 
 float fOpDifferenceRound (float a, float b, float r) {
-	return fOpIntersectionRound(a, -b, r);
+    return fOpIntersectionRound(a, -b, r);
 }
 
 
 // The "Columns" flavour makes n-1 circular columns at a 45 degree angle:
 float fOpUnionColumns(float a, float b, float r, float n) {
-	if ((a < r) && (b < r)) {
-		vec2 p = vec2(a, b);
-		float columnradius = r*sqrt(2.0)/((n-1.0)*2.0+sqrt(2.0));
-		pR45(p);
-		p.x -= sqrt(2.0)/2.0*r;
-		p.x += columnradius*sqrt(2.0);
-		if (mod(n,2.0) == 1.0) {
-			p.y += columnradius;
-		}
-		// At this point, we have turned 45 degrees and moved at a point on the
-		// diagonal that we want to place the columns on.
-		// Now, repeat the domain along this direction and place a circle.
-		pMod1(p.y, columnradius*2.0);
-		float result = length(p) - columnradius;
-		result = min(result, p.x);
-		result = min(result, a);
-		return min(result, b);
-	} else {
-		return min(a, b);
-	}
+    if ((a < r) && (b < r)) {
+        vec2 p = vec2(a, b);
+        float columnradius = r*sqrt(2.)/((n-1.)*2.+sqrt(2.));
+        pR45(p);
+        p.x -= sqrt(2.)/2.*r;
+        p.x += columnradius*sqrt(2.);
+        if (mod(n,2.) == 1.) {
+            p.y += columnradius;
+        }
+        // At this point, we have turned 45 degrees and moved at a point on the
+        // diagonal that we want to place the columns on.
+        // Now, repeat the domain along this direction and place a circle.
+        pMod1(p.y, columnradius*2.);
+        float result = length(p) - columnradius;
+        result = min(result, p.x);
+        result = min(result, a);
+        return min(result, b);
+    } else {
+        return min(a, b);
+    }
 }
 
 float fOpDifferenceColumns(float a, float b, float r, float n) {
-	a = -a;
-	float m = min(a, b);
-	//avoid the expensive computation where not needed (produces discontinuity though)
-	if ((a < r) && (b < r)) {
-		vec2 p = vec2(a, b);
-		float columnradius = r*sqrt(2.0)/n/2.0;
-		columnradius = r*sqrt(2.0)/((n-1.0)*2.0+sqrt(2.0));
+    a = -a;
+    float m = min(a, b);
+    //avoid the expensive computation where not needed (produces discontinuity though)
+    if ((a < r) && (b < r)) {
+        vec2 p = vec2(a, b);
+        float columnradius = r*sqrt(2.)/n/2.0;
+        columnradius = r*sqrt(2.)/((n-1.)*2.+sqrt(2.));
 
-		pR45(p);
-		p.y += columnradius;
-		p.x -= sqrt(2.0)/2.0*r;
-		p.x += -columnradius*sqrt(2.0)/2.0;
+        pR45(p);
+        p.y += columnradius;
+        p.x -= sqrt(2.)/2.*r;
+        p.x += -columnradius*sqrt(2.)/2.;
 
-		if (mod(n,2.0) == 1.0) {
-			p.y += columnradius;
-		}
-		pMod1(p.y,columnradius*2.0);
+        if (mod(n,2.) == 1.) {
+            p.y += columnradius;
+        }
+        pMod1(p.y,columnradius*2.);
 
-		float result = -length(p) + columnradius;
-		result = max(result, p.x);
-		result = min(result, a);
-		return -min(result, b);
-	} else {
-		return -m;
-	}
+        float result = -length(p) + columnradius;
+        result = max(result, p.x);
+        result = min(result, a);
+        return -min(result, b);
+    } else {
+        return -m;
+    }
 }
 
 float fOpIntersectionColumns(float a, float b, float r, float n) {
-	return fOpDifferenceColumns(a,-b,r, n);
+    return fOpDifferenceColumns(a,-b,r, n);
 }
 
 // The "Stairs" flavour produces n-1 steps of a staircase:
-// much less stupid version by paniq
 float fOpUnionStairs(float a, float b, float r, float n) {
-	float s = r/n;
-	float u = b-r;
-	return min(min(a,b), 0.5 * (u + a + abs ((mod (u - a + s, 2.0 * s)) - s)));
+    float d = min(a, b);
+    vec2 p = vec2(a, b);
+    pR45(p);
+    p = p.yx - vec2((r-r/n)*0.5*sqrt(2.));
+    p.x += 0.5*sqrt(2.)*r/n;
+    float x = r*sqrt(2.)/n;
+    pMod1(p.x, x);
+    d = min(d, p.y);
+    pR45(p);
+    return min(d, vmax(p -vec2(0.5*r/n)));
 }
 
 // We can just call Union since stairs are symmetric.
 float fOpIntersectionStairs(float a, float b, float r, float n) {
-	return -fOpUnionStairs(-a, -b, r, n);
+    return -fOpUnionStairs(-a, -b, r, n);
 }
 
 float fOpDifferenceStairs(float a, float b, float r, float n) {
-	return -fOpUnionStairs(-a, b, r, n);
+    return -fOpUnionStairs(-a, b, r, n);
 }
-
 
 // Similar to fOpUnionRound, but more lipschitz-y at acute angles
 // (and less so at 90 degrees). Useful when fudging around too much
 // by MediaMolecule, from Alex Evans' siggraph slides
 float fOpUnionSoft(float a, float b, float r) {
-	float e = max(r - abs(a - b), 0.0);
-	return min(a, b) - e*e*0.25/r;
+    float e = max(r - abs(a - b), 0.);
+    return min(a, b) - e*e*0.25/r;
 }
 
 
-// produces a cylindical pipe that runs along the intersection.
+// This produces a cylindical pipe that runs along the intersection.
 // No objects remain, only the pipe. This is not a boolean operator.
 float fOpPipe(float a, float b, float r) {
-	return length(vec2(a, b)) - r;
+    return length(vec2(a, b)) - r;
 }
 
 // first object gets a v-shaped engraving where it intersect the second
 float fOpEngrave(float a, float b, float r) {
-	return max(a, (a + r - abs(b))*sqrt(0.5));
+    return max(a, (a + r - abs(b))*sqrt(0.5));
 }
 
 // first object gets a capenter-style groove cut out
 float fOpGroove(float a, float b, float ra, float rb) {
-	return max(a, min(a + ra, rb - abs(b)));
+    return max(a, min(a + ra, rb - abs(b)));
 }
 
 // first object gets a capenter-style tongue attached
 float fOpTongue(float a, float b, float ra, float rb) {
-	return min(a, max(a - ra, abs(b) - rb));
+    return min(a, max(a - ra, abs(b) - rb));
+}
+
+////////////////////////////////////////////////////////////////
+// The end of HG_SDF library
+////////////////////////////////////////////////////////////////
+
+
+
+
+//------------------------------------------------------------------------
+// Here rather hacky and very basic sphere tracer, feel free to replace.
+//------------------------------------------------------------------------
+
+// fField(p) is the final SDF definition, declared at the very bottom
+
+const int iterations = 160;
+const float dist_eps = .001;
+const float ray_max = 200.0;
+const float fog_density = .02;
+
+
+
+float fField(vec3 p);
+
+vec3 dNormal(vec3 p){
+
+   const vec2 e = vec2(.005,0);
+   return normalize(vec3(
+        fField(p + e.xyy) - fField(p - e.xyy),
+        fField(p + e.yxy) - fField(p - e.yxy),
+        fField(p + e.yyx) - fField(p - e.yyx) ));
+}
+
+vec4 trace(vec3 ray_start, vec3 ray_dir){
+
+   float ray_len = 0.0;
+   vec3 p = ray_start;
+   for(int i=0; i<iterations; ++i) {
+      float dist = fField(p);
+      if (dist < dist_eps) break;
+      if (ray_len > ray_max) return vec4(0.0);
+      p += dist*ray_dir;
+      ray_len += dist;
+   }
+   return vec4(p, 1.0);
+
+}
+
+// abs(0+0-1)=1
+// abs(1+0-1)=0
+// abs(0+1-1)=0
+// abs(1+1-1)=1
+float xnor(float x, in float y) { return abs(x+y-1.0); }
+
+vec4 texture(vec3 pos, float sample_size){
+
+   pos = pos*8.0 + .5;
+   vec3 cell = step(1.0,mod(pos,2.0));
+   float checker = xnor(xnor(cell.x,cell.y),cell.z);
+   vec4 col = mix(vec4(.4),vec4(.5),checker);
+   float fade = 1.-min(1.,sample_size*24.); // very fake "AA"
+   col = mix(vec4(.5),col,fade);
+   pos = abs(fract(pos)-.5);
+   float d = max(max(pos.x,pos.y),pos.z);
+   d = smoothstep(.45,.5,d)*fade;
+   return mix(col,vec4(0.0),d);
+
+}
+
+vec3 sky_color(vec3 ray_dir, vec3 light_dir){
+
+   float d = max(0.,dot(ray_dir,light_dir));
+   float d2 = light_dir.y*.7+.3;
+   vec3 base_col;
+   base_col = mix(vec3(.3),vec3((ray_dir.y<0.)?0.:1.),abs(ray_dir.y));
+   return base_col*d2;
+
+}
+
+vec4 debug_plane(vec3 ray_start, vec3 ray_dir, float cut_plane, inout float ray_len){
+
+    // Fancy lighty debug plane
+    if (ray_start.y > cut_plane && ray_dir.y < 0.) {
+       float d = (ray_start.y - cut_plane) / -ray_dir.y;
+       if (d < ray_len) {
+           vec3 hit = ray_start + ray_dir*d;
+           float hit_dist = fField(hit);
+           float iso = fract(hit_dist*5.0);
+           vec3 dist_color = mix(vec3(.2,.4,.6),vec3(.2,.2,.4),iso);
+           dist_color *= 1.0/(max(0.0,hit_dist)+.001);
+           ray_len = d;
+           return vec4(dist_color,.1);
+      }
+   }
+   return vec4(0);
+}
+
+vec3 shade(vec3 ray_start, vec3 ray_dir, vec3 light_dir, vec4 hit){
+
+   vec3 fog_color = sky_color(ray_dir, light_dir);
+   
+   float ray_len;
+   vec3 color;
+   if (hit.w == 0.0) {
+      ray_len = 1e16;
+      color = fog_color;
+   } else {
+      vec3 dir = hit.xyz - ray_start;
+      vec3 norm = dNormal(hit.xyz);
+      float diffuse = max(0.0, dot(norm, light_dir));
+      float spec = max(0.0,dot(reflect(light_dir,norm),normalize(dir)));
+      spec = pow(spec, 16.0)*.5;
+       
+      ray_len = length(dir);
+   
+      vec3 base_color = texture(hit.xyz,ray_len/iResolution.y).xyz;
+      color = mix(vec3(0.,.1,.3),vec3(1.,1.,.9),diffuse)*base_color + spec*vec3(1.,1.,.9);
+
+      float fog_dist = ray_len;
+      float fog = 1.0 - 1.0/exp(fog_dist*fog_density);
+      color = mix(color, fog_color, fog);
+   }
+   
+   
+    
+   float cut_plane0 = sin(iGlobalTime)*.15 - .8;
+   for(int k=0; k<4; ++k) {
+      vec4 dpcol = debug_plane(ray_start, ray_dir, cut_plane0+float(k)*.75, ray_len);
+      //if (dpcol.w == 0.) continue;
+      float fog_dist = ray_len;
+      dpcol.w *= 1.0/exp(fog_dist*.05);
+      color = mix(color,dpcol.xyz,dpcol.w);
+   }
+
+   return color;
+}
+
+mat3 calcLookAtMatrix( in vec3 ro, in vec3 ta, in float roll ){
+
+    vec3 ww = normalize( ta - ro );
+    vec3 uu = normalize( cross(ww,vec3(sin(roll),cos(roll),0.0) ) );
+    vec3 vv = normalize( cross(uu,ww));
+    return mat3( uu, vv, ww );
+
+}
+
+float distanceBetween( vec3 v1, vec3 v2 ){
+    vec3 a = v2-v1;
+    return sqrt( a.x*a.x + a.y*a.y + a.z*a.z );
+}
+
+void main(){
+
+    //vec2 uv = (fragCoord.xy - iResolution.xy*0.5) / iResolution.y;
+    vec2 uv = ((vUv * 2.0) - 1.0) * vec2( iResolution.z, 1.0 );
+    
+    vec3 light_dir = normalize(vec3(.5, 1.0, -.25));
+
+
+    vec3 pos = cameraPosition;
+    vec3 camtar = vec3(0.0,0.0,0.0);
+
+    mat3 camMat = calcLookAtMatrix( pos, camtar, 0.0 );
+
+    vec3 dir = normalize( camMat * vec3(uv,1.0) );
+   
+    vec3 color = shade( pos, dir, light_dir, trace(pos, dir) );
+
+    color = pow(color,vec3(.44));
+
+    // tone mapping
+    #if defined( TONE_MAPPING )
+    color.rgb = toneMapping( color.rgb ); 
+    #endif
+
+    gl_FragColor = vec4(color, 1.);
+
+}
+
+//------------------------------------------------------------------------
+// Your custom SDF
+//------------------------------------------------------------------------
+
+float fField(vec3 p){
+
+    float size = 5.0;
+    float c = 0.0;
+
+    int i = 4;
+    int j = 9;
+
+    // Do some domain repetition
+
+    if(i==1) c = pMod1(p.x,size); 
+    if(i==2) c = pModSingle1(p.x,size); 
+    if(i==3) c = pModInterval1(p.x,size,1.0,3.0); 
+    if(i==4) {c = pModPolar(p.xz,7.0); p -= vec3(10,0,0);} 
+    if(i==5) pMod2(p.xz,vec2(size)); 
+    if(i==6) pModMirror2(p.xz,vec2(size)); 
+    if(i==7) pMod3(p,vec3(size));
+
+    //float dodec = fDodecahedron(p-vec3(-2.25,.5,-1.),.7);
+    float box = fBox(p-vec3(0,-.1,0),vec3(1.0+cos(iGlobalTime*.5)*.2));
+    float sphere = fSphere(p-vec3(1.+sin(iGlobalTime*.5)*.2) ,1.0+sin(iGlobalTime*.5)*.2 );//length(p-vec3(1.+sin(iGlobalTime*.5)*.2,.8,1))-1.;
+    float d;
+    float r = 0.3;
+    float n = 4.0;
+
+    if(j==0) d = min(box,sphere);
+    if(j==1) d = max(box,sphere);
+    if(j==2) d = max(box,-sphere);
+    
+    if(j==3) d = fOpUnionRound(box,sphere,r);
+    if(j==4) d = fOpIntersectionRound(box,sphere,r);
+    if(j==5) d = fOpDifferenceRound(box,sphere,r);
+    
+    if(j==6) d = fOpUnionChamfer(box,sphere,r);
+    if(j==7) d = fOpIntersectionChamfer(box,sphere,r);
+    if(j==8) d = fOpDifferenceChamfer(box,sphere,r);
+    
+    if(j==9) d = fOpUnionColumns(box,sphere,r,n);
+    if(j==10) d = fOpIntersectionColumns(box,sphere,r,n);
+    if(j==11) d = fOpDifferenceColumns(box,sphere,r,n);
+    
+    if(j==12) d = fOpUnionStairs(box,sphere,r,n);
+    if(j==13) d = fOpIntersectionStairs(box,sphere,r,n);
+    if(j==14) d = fOpDifferenceStairs(box,sphere,r,n);
+    
+    if(j==15) d = fOpPipe(box,sphere,r*0.3);
+    if(j==16) d = fOpEngrave(box,sphere,r*0.3);
+    if(j==17) d = fOpGroove(box,sphere,r*0.3, r*0.3);
+    if(j==18) d = fOpTongue(box,sphere,r*0.3, r*0.3);
+
+
+    float guard = -fBoxCheap(p, vec3(size*0.5));
+    // only positive values, but gets small near the box surface:
+    guard = abs(guard) + size*0.1;
+
+
+
+   //d = fOpUnionStairs(box,sphere,r,n);
+    //return d;//min(d,dodec);
+    return min(d,guard);
+
 }
