@@ -1,3 +1,11 @@
+
+// ------------------ channel define
+// 0_# basic #_0
+// ------------------
+
+
+
+
 // https://www.shadertoy.com/view/Xs3GRB
 
 //-----------------------------------------------------------------------------
@@ -14,7 +22,7 @@
 //
 //     GLSL LIBRARY FOR BUILDING SIGNED DISTANCE BOUNDS
 //
-//     version 2015-12-15 (initial release)
+//     version 2016-01-10
 //
 //     Check http://mercury.sexy/hg_sdf for updates
 //     and usage examples. Send feedback to spheretracing@mercury.sexy.
@@ -35,9 +43,9 @@
 ////////////////////////////////////////////////////////////////
 
 #define PI 3.14159265
-#define TAU (2*PI)
+#define TAU (2.0*PI)
 #define PHI (1.618033988749895)
-     // PHI (sqrt(5)*0.5 + 0.5)
+// #define PHI (sqrt(5.0)*0.5 + 0.5)
 
 // Clamp to [0,1] - this operation is free under certain circumstances.
 // For further information see
@@ -47,7 +55,11 @@
 
 // Sign function that doesn't return 0
 float sgn(float x) {
-    return (x<0.)?-1.:1.;
+    return (x<0.0)?-1.0:1.0;
+}
+
+vec2 sgn(vec2 v) {
+    return vec2((v.x<0.0)?-1.0:1.0, (v.y<0.0)?-1.0:1.0);
 }
 
 float square (float x) {
@@ -153,12 +165,12 @@ float fBlob(vec3 p) {
     if (p.x < max(p.y, p.z)) p = p.yzx;
     if (p.x < max(p.y, p.z)) p = p.yzx;
     float b = max(max(max(
-        dot(p, normalize(vec3(1, 1, 1))),
-        dot(p.xz, normalize(vec2(PHI+1., 1)))),
-        dot(p.yx, normalize(vec2(1, PHI)))),
-        dot(p.xz, normalize(vec2(1, PHI))));
+        dot(p, normalize(vec3(1.0, 1.0, 1.0))),
+        dot(p.xz, normalize(vec2(PHI+1.0, 1.0)))),
+        dot(p.yx, normalize(vec2(1.0, PHI)))),
+        dot(p.xz, normalize(vec2(1.0, PHI))));
     float l = length(p);
-    return l - 1.5 - 0.2 * (1.5 / 2.)* cos(min(sqrt(1.01 - b / l)*(PI / 0.25), PI));
+    return l - 1.5 - 0.2 * (1.5 / 2.0)* cos(min(sqrt(1.01 - b / l)*(PI / 0.25), PI));
 }
 
 // Cylinder standing upright on the xz plane
@@ -199,40 +211,40 @@ float fCircle(vec3 p, float r) {
 // A circular disc with no thickness (i.e. a cylinder with no height).
 // Subtract some value to make a flat disc with rounded edge.
 float fDisc(vec3 p, float r) {
- float l = length(p.xz) - r;
-    return l < 0. ? abs(p.y) : length(vec2(p.y, l));
+    float l = length(p.xz) - r;
+    return l < 0.0 ? abs(p.y) : length(vec2(p.y, l));
 }
 
 // Hexagonal prism, circumcircle variant
 float fHexagonCircumcircle(vec3 p, vec2 h) {
     vec3 q = abs(p);
-    return max(q.y - h.y, max(q.x*sqrt(3.)*0.5 + q.z*0.5, q.z) - h.x);
+    return max(q.y - h.y, max(q.x*sqrt(3.0)*0.5 + q.z*0.5, q.z) - h.x);
     //this is mathematically equivalent to this line, but less efficient:
     //return max(q.y - h.y, max(dot(vec2(cos(PI/3), sin(PI/3)), q.zx), q.z) - h.x);
 }
 
 // Hexagonal prism, incircle variant
 float fHexagonIncircle(vec3 p, vec2 h) {
-    return fHexagonCircumcircle(p, vec2(h.x*sqrt(3.)*0.5, h.y));
+    return fHexagonCircumcircle(p, vec2(h.x*sqrt(3.0)*0.5, h.y));
 }
 
 // Cone with correct distances to tip and base circle. Y is up, 0 is in the middle of the base.
 float fCone(vec3 p, float radius, float height) {
     vec2 q = vec2(length(p.xz), p.y);
-    vec2 tip = q - vec2(0, height);
+    vec2 tip = q - vec2(0.0, height);
     vec2 mantleDir = normalize(vec2(height, radius));
     float mantle = dot(tip, mantleDir);
     float d = max(mantle, -q.y);
     float projected = dot(tip, vec2(mantleDir.y, -mantleDir.x));
     
     // distance to tip
-    if ((q.y > height) && (projected < 0.)) {
+    if ((q.y > height) && (projected < 0.0)) {
         d = max(d, length(tip));
     }
     
     // distance to base ring
     if ((q.x > radius) && (projected > length(vec2(height, radius)))) {
-        d = max(d, length(q - vec2(radius, 0)));
+        d = max(d, length(q - vec2(radius, 0.0)));
     }
     return d;
 }
@@ -417,7 +429,7 @@ float pModMirror1(inout float p, float size) {
     float halfsize = size*0.5;
     float c = floor((p + halfsize)/size);
     p = mod(p + halfsize,size) - halfsize;
-    p *= mod(c, 2.0)*2. - 1.;
+    p *= mod(c, 2.0)*2.0 - 1.0;
     return c;
 }
 
@@ -425,7 +437,7 @@ float pModMirror1(inout float p, float size) {
 float pModSingle1(inout float p, float size) {
     float halfsize = size*0.5;
     float c = floor((p + halfsize)/size);
-    if (p >= 0.)
+    if (p >= 0.0)
         p = mod(p + halfsize, size) - halfsize;
     return c;
 }
@@ -450,15 +462,15 @@ float pModInterval1(inout float p, float size, float start, float stop) {
 // Repeat around the origin by a fixed angle.
 // For easier use, num of repetitions is use to specify the angle.
 float pModPolar(inout vec2 p, float repetitions) {
-    float angle = 2.*PI/repetitions;
-    float a = atan(p.y, p.x) + angle/2.;
+    float angle = 2.0*PI/repetitions;
+    float a = atan(p.y, p.x) + angle/2.0;
     float r = length(p);
     float c = floor(a/angle);
-    a = mod(a,angle) - angle/2.;
+    a = mod(a,angle) - angle/2.0;
     p = vec2(cos(a), sin(a))*r;
     // For an odd number of repetitions, fix cell index of the cell in -x direction
     // (cell index would be e.g. -5 and 5 in the two halves of the cell):
-    if (abs(c) >= (repetitions/2.)) c = abs(c);
+    if (abs(c) >= (repetitions/2.0)) c = abs(c);
     return c;
 }
 
@@ -474,7 +486,7 @@ vec2 pModMirror2(inout vec2 p, vec2 size) {
     vec2 halfsize = size*0.5;
     vec2 c = floor((p + halfsize)/size);
     p = mod(p + halfsize, size) - halfsize;
-    p *= mod(c,vec2(2))*2. - vec2(1);
+    p *= mod(c,vec2(2.0))*2.0 - vec2(1.0);
     return c;
 }
 
@@ -482,10 +494,10 @@ vec2 pModMirror2(inout vec2 p, vec2 size) {
 vec2 pModGrid2(inout vec2 p, vec2 size) {
     vec2 c = floor((p + size*0.5)/size);
     p = mod(p + size*0.5, size) - size*0.5;
-    p *= mod(c,vec2(2))*2. - vec2(1);
-    p -= size/2.;
+    p *= mod(c,vec2(2.0))*2.0 - vec2(1.0);
+    p -= size/2.0;
     if (p.x > p.y) p.xy = p.yx;
-    return floor(c/2.);
+    return floor(c/2.0);
 }
 
 // Repeat in three dimensions
@@ -497,7 +509,7 @@ vec3 pMod3(inout vec3 p, vec3 size) {
 
 // Mirror at an axis-aligned plane which is at a specified distance <dist> from the origin.
 float pMirror (inout float p, float dist) {
-    float s = sign(p);
+    float s = sgn(p);
     p = abs(p)-dist;
     return s;
 }
@@ -505,7 +517,7 @@ float pMirror (inout float p, float dist) {
 // Mirror in both dimensions and at the diagonal, yielding one eighth of the space.
 // translate by dist before mirroring.
 vec2 pMirrorOctant (inout vec2 p, vec2 dist) {
-    vec2 s = sign(p);
+    vec2 s = sgn(p);
     pMirror(p.x, dist.x);
     pMirror(p.y, dist.y);
     if (p.y > p.x)
@@ -516,10 +528,10 @@ vec2 pMirrorOctant (inout vec2 p, vec2 dist) {
 // Reflect space at a plane
 float pReflect(inout vec3 p, vec3 planeNormal, float offset) {
     float t = dot(p, planeNormal)+offset;
-    if (t < 0.) {
-        p = p - (2.*t)*planeNormal;
+    if (t < 0.0) {
+        p = p - (2.0*t)*planeNormal;
     }
-    return sign(t);
+    return sgn(t);
 }
 
 
@@ -581,25 +593,14 @@ float pReflect(inout vec3 p, vec3 planeNormal, float offset) {
 
 // The "Chamfer" flavour makes a 45-degree chamfered edge (the diagonal of a square of size <r>):
 float fOpUnionChamfer(float a, float b, float r) {
-    float m = min(a, b);
-    //if ((a < r) && (b < r)) {
-        return min(m, (a - r + b)*sqrt(0.5));
-    //} else {
-        return m;
-    //}
+    return min(min(a, b), (a - r + b)*sqrt(0.5));
 }
 
 // Intersection has to deal with what is normally the inside of the resulting object
 // when using union, which we normally don't care about too much. Thus, intersection
 // implementations sometimes differ from union implementations.
 float fOpIntersectionChamfer(float a, float b, float r) {
-    float m = max(a, b);
-    if (r <= 0.) return m;
-    if (((-a < r) && (-b < r)) || (m < 0.)) {
-        return max(m, (a + r + b)*sqrt(0.5));
-    } else {
-        return m;
-    }
+    return max(max(a, b), (a + r + b)*sqrt(0.5));
 }
 
 // Difference can be built from Intersection or Union:
@@ -609,21 +610,13 @@ float fOpDifferenceChamfer (float a, float b, float r) {
 
 // The "Round" variant uses a quarter-circle to join the two objects smoothly:
 float fOpUnionRound(float a, float b, float r) {
-    float m = min(a, b);
-    if ((a < r) && (b < r) ) {
-        return min(m, r - sqrt((r-a)*(r-a) + (r-b)*(r-b)));
-    } else {
-     return m;
-    }
+    vec2 u = max(vec2(r - a,r - b), vec2(0.0));
+    return max(r, min (a, b)) - length(u);
 }
 
 float fOpIntersectionRound(float a, float b, float r) {
-    float m = max(a, b);
-    if ((-a < r) && (-b < r)) {
-        return max(m, -(r - sqrt((r+a)*(r+a) + (r+b)*(r+b))));
-    } else {
-        return m;
-    }
+    vec2 u = max(vec2(r + a,r + b), vec2(0.0));
+    return min(-r, max (a, b)) + length(u);
 }
 
 float fOpDifferenceRound (float a, float b, float r) {
@@ -635,17 +628,17 @@ float fOpDifferenceRound (float a, float b, float r) {
 float fOpUnionColumns(float a, float b, float r, float n) {
     if ((a < r) && (b < r)) {
         vec2 p = vec2(a, b);
-        float columnradius = r*sqrt(2.)/((n-1.)*2.+sqrt(2.));
+        float columnradius = r*sqrt(2.0)/((n-1.0)*2.0+sqrt(2.0));
         pR45(p);
-        p.x -= sqrt(2.)/2.*r;
-        p.x += columnradius*sqrt(2.);
-        if (mod(n,2.) == 1.) {
+        p.x -= sqrt(2.0)/2.0*r;
+        p.x += columnradius*sqrt(2.0);
+        if (mod(n,2.0) == 1.0) {
             p.y += columnradius;
         }
         // At this point, we have turned 45 degrees and moved at a point on the
         // diagonal that we want to place the columns on.
         // Now, repeat the domain along this direction and place a circle.
-        pMod1(p.y, columnradius*2.);
+        pMod1(p.y, columnradius*2.0);
         float result = length(p) - columnradius;
         result = min(result, p.x);
         result = min(result, a);
@@ -661,18 +654,18 @@ float fOpDifferenceColumns(float a, float b, float r, float n) {
     //avoid the expensive computation where not needed (produces discontinuity though)
     if ((a < r) && (b < r)) {
         vec2 p = vec2(a, b);
-        float columnradius = r*sqrt(2.)/n/2.0;
-        columnradius = r*sqrt(2.)/((n-1.)*2.+sqrt(2.));
+        float columnradius = r*sqrt(2.0)/n/2.0;
+        columnradius = r*sqrt(2.0)/((n-1.0)*2.0+sqrt(2.0));
 
         pR45(p);
         p.y += columnradius;
-        p.x -= sqrt(2.)/2.*r;
-        p.x += -columnradius*sqrt(2.)/2.;
+        p.x -= sqrt(2.0)/2.0*r;
+        p.x += -columnradius*sqrt(2.0)/2.0;
 
-        if (mod(n,2.) == 1.) {
+        if (mod(n,2.0) == 1.0) {
             p.y += columnradius;
         }
-        pMod1(p.y,columnradius*2.);
+        pMod1(p.y,columnradius*2.0);
 
         float result = -length(p) + columnradius;
         result = max(result, p.x);
@@ -688,17 +681,11 @@ float fOpIntersectionColumns(float a, float b, float r, float n) {
 }
 
 // The "Stairs" flavour produces n-1 steps of a staircase:
+// much less stupid version by paniq
 float fOpUnionStairs(float a, float b, float r, float n) {
-    float d = min(a, b);
-    vec2 p = vec2(a, b);
-    pR45(p);
-    p = p.yx - vec2((r-r/n)*0.5*sqrt(2.));
-    p.x += 0.5*sqrt(2.)*r/n;
-    float x = r*sqrt(2.)/n;
-    pMod1(p.x, x);
-    d = min(d, p.y);
-    pR45(p);
-    return min(d, vmax(p -vec2(0.5*r/n)));
+    float s = r/n;
+    float u = b-r;
+    return min(min(a,b), 0.5 * (u + a + abs ((mod (u - a + s, 2.0 * s)) - s)));
 }
 
 // We can just call Union since stairs are symmetric.
@@ -710,16 +697,17 @@ float fOpDifferenceStairs(float a, float b, float r, float n) {
     return -fOpUnionStairs(-a, b, r, n);
 }
 
+
 // Similar to fOpUnionRound, but more lipschitz-y at acute angles
 // (and less so at 90 degrees). Useful when fudging around too much
 // by MediaMolecule, from Alex Evans' siggraph slides
 float fOpUnionSoft(float a, float b, float r) {
-    float e = max(r - abs(a - b), 0.);
+    float e = max(r - abs(a - b), 0.0);
     return min(a, b) - e*e*0.25/r;
 }
 
 
-// This produces a cylindical pipe that runs along the intersection.
+// produces a cylindical pipe that runs along the intersection.
 // No objects remain, only the pipe. This is not a boolean operator.
 float fOpPipe(float a, float b, float r) {
     return length(vec2(a, b)) - r;
@@ -792,7 +780,8 @@ vec4 trace(vec3 ray_start, vec3 ray_dir){
 // abs(1+1-1)=1
 float xnor(float x, in float y) { return abs(x+y-1.0); }
 
-vec4 texture(vec3 pos, float sample_size){
+vec4 texture(vec3 pos, float sample_size, vec3 norm ){
+
 
    pos = pos*8.0 + .5;
    vec3 cell = step(1.0,mod(pos,2.0));
@@ -800,11 +789,36 @@ vec4 texture(vec3 pos, float sample_size){
    vec4 col = mix(vec4(.4),vec4(.5),checker);
    float fade = 1.-min(1.,sample_size*24.); // very fake "AA"
    col = mix(vec4(.5),col,fade);
+
+   //vec4 cc = texture2D(iChannel0, pos.xy*0.1);
+   vec3 n = max((abs(norm) - 0.2)*7., 0.001); // n = max(abs(n), 0.001), etc.
+   n /= (n.x + n.y + n.z );
+   vec4 cc = (texture2D(iChannel0, pos.yz*0.25)*n.x + texture2D(iChannel0, pos.zx*0.25)*n.y + texture2D(iChannel0, pos.xy*0.25)*n.z);
+
+   col *= cc;
+
+
    pos = abs(fract(pos)-.5);
    float d = max(max(pos.x,pos.y),pos.z);
    d = smoothstep(.45,.5,d)*fade;
+
+   
+
    return mix(col,vec4(0.0),d);
 
+}
+
+// uv for sphere
+vec2 uxZ( vec3 normal ){
+    float u = - atan(normal.z, normal.x) / TAU;// + iGlobalTime / 5.0;
+    float v = asin(normal.y) / TAU ;
+    return vec2(u,v);
+}
+
+vec2 uxX( vec3 normal, vec3 pos ){
+    float u = - atan(normal.z, normal.x) / TAU;// + iGlobalTime / 5.0;
+    float v = asin(normal.y) / TAU ;
+    return vec2(u,v);
 }
 
 vec3 sky_color(vec3 ray_dir, vec3 light_dir){
@@ -835,7 +849,10 @@ vec4 debug_plane(vec3 ray_start, vec3 ray_dir, float cut_plane, inout float ray_
    return vec4(0);
 }
 
-vec3 shade(vec3 ray_start, vec3 ray_dir, vec3 light_dir, vec4 hit){
+vec3 shade(vec3 ray_start, vec3 ray_dir, vec3 light_dir){
+
+
+   vec4 hit = trace(ray_start, ray_dir);
 
    vec3 fog_color = sky_color(ray_dir, light_dir);
    
@@ -853,7 +870,18 @@ vec3 shade(vec3 ray_start, vec3 ray_dir, vec3 light_dir, vec4 hit){
        
       ray_len = length(dir);
    
-      vec3 base_color = texture(hit.xyz,ray_len/iResolution.y).xyz;
+      vec3 base_color = texture(hit.xyz,ray_len/iResolution.y, norm ).xyz;
+
+      // sphere uv
+      //vec3 base_color = texture2D(iChannel0,uxX(norm, hit.xyz)*4.0).xyz;
+
+      // cube uv
+      ///vec3 p = hit.xyz;
+      //vec3 n = max((abs(norm) - 0.2)*7., 0.001); // n = max(abs(n), 0.001), etc.
+      //n /= (n.x + n.y + n.z );
+      //vec3 base_color = (texture2D(iChannel0, p.yz)*n.x + texture2D(iChannel0, p.zx)*n.y + texture2D(iChannel0, p.xy)*n.z).xyz;
+   
+
       color = mix(vec3(0.,.1,.3),vec3(1.,1.,.9),diffuse)*base_color + spec*vec3(1.,1.,.9);
 
       float fog_dist = ray_len;
@@ -904,7 +932,7 @@ void main(){
 
     vec3 dir = normalize( camMat * vec3(uv,1.0) );
    
-    vec3 color = shade( pos, dir, light_dir, trace(pos, dir) );
+    vec3 color = shade( pos, dir, light_dir );
 
     color = pow(color,vec3(.44));
 

@@ -490,28 +490,38 @@ var editor = ( function () {
 
         // code
 
-        load : function ( name, n ) {
+        load : function ( name, n, fun, c ) {
 
             var prev = 'glsl/';
             var end = '.glsl';
 
             n = n || 0;
 
-            fileName = name;//url.substring(url.indexOf("/")+1, url.indexOf("."));
+            //fileName = name;
 
             //if( demos.indexOf( fileName ) !== -1 ) prev = 'glsl/';
-            if( demos_basic.indexOf( fileName ) !== -1 ) prev = 'glsl_basic/';
-            if( demos_advanced.indexOf( fileName ) !== -1 ) prev = 'glsl_advanced/';
-            if( demos_texture.indexOf( fileName ) !== -1 ) prev = 'glsl_texture/';
+            if( demos_basic.indexOf( name ) !== -1 ) prev = 'glsl_basic/';
+            if( demos_texture.indexOf( name ) !== -1 ) prev = 'glsl_texture/';
+            if( demos_advanced.indexOf( name ) !== -1 ) prev = 'glsl_advanced/';
+            if( demos_advanced.indexOf( name.substring( 0, name.length-1 ) ) !== -1 ) prev = 'glsl_advanced/';
+            
 
             var xhr = new XMLHttpRequest();
-            xhr.overrideMimeType('text/plain; charset=x-user-defined'); 
-            xhr.open( 'GET', prev + fileName + end, true );
+            xhr.overrideMimeType( 'text/plain; charset=x-user-defined' ); 
+            xhr.open( 'GET', prev + name + end, true );
 
-            xhr.onload = function(){ 
+            xhr.onload = function(){
 
-                channels[n] = xhr.responseText;
-                if( n === 0 ) code.setValue( xhr.responseText );
+                if( fun !== undefined ) {
+                    fun( n, xhr.responseText, name, c );
+                    return;
+                } else {
+                    fileName = name;
+                    channels[n] = xhr.responseText;
+                    if( n === 0 ) code.setValue( xhr.responseText );
+                }
+
+                
 
             }
             

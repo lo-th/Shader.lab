@@ -111,8 +111,8 @@ vec3 shadeWater( in vec3 p, in vec3 n, in vec3 ro, in vec3 rd)
 
 
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
+void mainImage( out vec4 fragColor, in vec2 fragCoord ){
+
     //Screen coords
     vec2 q = fragCoord.xy/iResolution.xy;
     vec2 v = -1.0+2.0*q;
@@ -289,7 +289,7 @@ float noise(vec3 p) //Thx to Las^Mercury
 
 void main(){
 
-    vec4 color = vec4(0.0);
+    vec4 color = vec4(1.0);
 
     // screen space
     //vec2 coord = gl_FragCoord.xy;

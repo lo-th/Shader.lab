@@ -93,7 +93,28 @@ var view = ( function () {
     var tx, tx2;
     var vertex, fragment;
 
+    var tmp_txt = [];
+
     var precision = 'highp';
+
+    var base_uniforms = {
+
+        iChannel0: { type: 't', value: null },
+        iChannel1: { type: 't', value: null },
+        iChannel2: { type: 't', value: null },
+        iChannel3: { type: 't', value: null },
+
+        iChannelResolution: { type: 'v2v', value: null },
+
+        iGlobalTime: { type: 'f', value: time },
+        iResolution: { type: 'v3', value: vsize },
+        iMouse: { type: 'v4', value: null },
+        iFrame: { type: 'i', value: 0 },
+        iDate: { type: 'f', value: 0 },
+        //
+        key: { type:'fv', value:null },
+         
+    };
 
 
     view = {
@@ -123,10 +144,21 @@ var view = ( function () {
                // uniforms.key.value = key;
                 //uniforms.mouse.value = mouse;
             }
+
+            
+            for(i=0; i<4 ; i++){
+                if( isBuff[i] ){ 
+                    C_uniforms[i].iGlobalTime.value = time;
+                    C_uniforms[i].iFrame.value = frame;
+                    gputmp.render( C_materials[i], C_textures[i] );
+                }
+            }
             
             //if( isPostEffect ) composer.render();
             //else 
             renderer.render( scene, camera );
+
+            
             
         },
 
@@ -157,11 +189,7 @@ var view = ( function () {
 
         },
 
-        reset: function ( ) {
-
-            //console.clear();
-            //time.x = 0;
-        },
+        
 
         testMobile: function () {
             var nav = navigator.userAgent;
@@ -171,6 +199,8 @@ var view = ( function () {
         },
 
         init: function () {
+
+            
 
             isMobile = view.testMobile();
 
@@ -184,12 +214,25 @@ var view = ( function () {
                 Cineon: THREE.CineonToneMapping
             };
 
+            vsize = new THREE.Vector3( window.innerWidth, window.innerHeight, 0);
+            vsize.z = vsize.x / vsize.y;
+
             channelResolution = [
                 new THREE.Vector2(),
                 new THREE.Vector2(),
                 new THREE.Vector2(),
                 new THREE.Vector2()
             ];
+
+            mouse = new THREE.Vector4();
+
+
+            base_uniforms.iChannelResolution.value = channelResolution;
+            base_uniforms.iResolution.value = vsize;
+            base_uniforms.iMouse.value = mouse;
+            base_uniforms.key.value = key;
+
+            ///////////
 
             canvas = document.createElement("canvas");
             canvas.className = 'canvas3d';
@@ -199,7 +242,7 @@ var view = ( function () {
 
             isWebGL2 = false;
 
-             var options = { antialias: false, alpha:false, stencil:false, depth:false, precision:precision }
+            var options = { antialias: false, alpha:false, stencil:false, depth:false, precision:precision }
 
             // Try creating a WebGL 2 context first
             gl = canvas.getContext( 'webgl2', options );
@@ -215,18 +258,6 @@ var view = ( function () {
 
             console.log('Webgl 2 is ' + isWebGL2 );
 
-            //gl.getExtension("OES_standard_derivatives");
-
-            //time = 0;
-            //clock = new THREE.Clock();
-
-            //container = document.createElement( 'div' );
-            //document.body.appendChild( container );
-
-            vsize = new THREE.Vector3( window.innerWidth, window.innerHeight, 0);
-            vsize.z = vsize.x / vsize.y;
-
-            mouse = new THREE.Vector4();
 
             renderer = new THREE.WebGLRenderer({ canvas:canvas, context:gl, antialias:false, alpha:false, precision:precision });
             //renderer.setPixelRatio( window.devicePixelRatio );
@@ -234,27 +265,17 @@ var view = ( function () {
             renderer.setSize( vsize.x, vsize.y );
             renderer.setClearColor( 0x252525, 1 );
 
-
-            //gl = renderer.getContext();
-
-            //canvas.addEventListener("webglcontextlost", function(event) {
-                //event.preventDefault();
-            //    editor.setTitle('Error');
-            //}, false);
-
             renderer.gammaInput = true;
             renderer.gammaOutput = true;
 
             //
-
-            //container.appendChild( renderer.domElement );
 
             scene = new THREE.Scene();
             scene.matrixAutoUpdate = false;
 
             camera = new THREE.PerspectiveCamera( 45, vsize.z, 0.1, 5000 );
             camera.position.set(0,0,10);
-            scene.add(camera)
+            scene.add(camera);
 
             controls = new THREE.OrbitControls( camera, canvas );
             controls.target.set(0,0,0);
@@ -282,9 +303,6 @@ var view = ( function () {
 
             this.setTone();
             this.render();
-
-
-            //console.log(renderer.getPrecision())
             
         },
 
@@ -350,7 +368,7 @@ var view = ( function () {
 
         
 
-        initLights: function ( shadow ) {
+        /*initLights: function ( shadow ) {
 
             //scene.add( new THREE.AmbientLight( 0x404040 ) );
 
@@ -390,7 +408,7 @@ var view = ( function () {
 
             scene.add( light2 );
 
-        },
+        },*/
 
         /*initPostEffect: function () {
 
@@ -513,18 +531,20 @@ var view = ( function () {
 
         },
 
+        
+
 
         /////////////////// CHANNEL
 
-        createShaderMaterial : function ( frag, Uni ) {
+        createShaderMaterial : function ( frag, uni ) {
 
-            var uni = Uni || {};
+            //var uni = Uni || {};
 
             var m = new THREE.ShaderMaterial( {
                 uniforms: uni,
-                vertexShader: [ 'void main(){', 'gl_Position = vec4( position, 1.0 );', '}'].join('\n'),
+                vertexShader: vertex,//[ 'void main(){', 'gl_Position = vec4( position, 1.0 );', '}'].join('\n'),
                 fragmentShader: frag
-            } );
+            });
 
             return m;
 
@@ -532,65 +552,95 @@ var view = ( function () {
 
         createRenderTarget : function ( w, h ) {
 
-            return new THREE.WebGLRenderTarget( w, h, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType, stencilBuffer: false });
+            return new THREE.WebGLRenderTarget( w, h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType, stencilBuffer: false, format: THREE.RGBAFormat });
+
+             //THREE.NearestFilter
 
         },
 
-        createRenderTexture : function ( w, h ) {
+        /*createRenderTexture : function ( w, h ) {
 
             var a = new Float32Array( w * h * 4 );
             var texture = new THREE.DataTexture( a, w, h, THREE.RGBAFormat, THREE.FloatType );
             texture.needsUpdate = true;
             return texture;
 
+        },*/
+
+        createChannel : function( i, size, file, c ){
+
+            //if(tmp_txt.indexOf(file) !== -1) return;
+
+            var w = vsize.x; 
+            var h = vsize.y;
+
+            if(size !== "FULL") w = h = Number( size );
+
+            console.log(w, h)
+
+            channelResolution[i].x = w; 
+            channelResolution[i].y = h;
+
+            C_uniforms[i] = THREE.UniformsUtils.clone( base_uniforms );
+            C_uniforms[i].iChannelResolution.value = channelResolution;
+            C_uniforms[i].iResolution.value = new THREE.Vector3( w, h, w/h );
+            C_uniforms[i].iMouse.value = mouse;
+            C_uniforms[i].key.value = key;
+
+            C_uniforms[i].iGlobalTime.value = time;
+            C_uniforms[i].iFrame.value = frame;
+
+            C_textures[i] = view.createRenderTarget( w, h );
+
+            
+
+            //console.log( i, w, h, file );
+            editor.load( file, i, view.applyChannel, c );
+
         },
 
-        
+        applyChannel : function ( i, frag, name, c ) {
 
-        setChannel : function( frag, n ){
+            var f = view.makeFragment( frag, i+1 );
 
-        },
+            //console.log( f );
 
-        applyChannel : function ( frag, n, w, h ) {
+            C_materials[i] = view.createShaderMaterial( f, C_uniforms[i] );
+            isBuff[i] = true;
 
-            C_uniforms[n] = THREE.UniformsUtils.clone( uniforms ),
-            C_materials[n] = view.createShaderMaterial( frag, C_uniforms[n] );
-            C_textures[n] = view.createRenderTexture( w, h );
+            txt[ name ] = C_textures[i].texture;
 
-            isBuff[n] = true;
+            //tmp_txt.push( name );
+
+            console.log(tmp_txt);
+
+            if(c===0) uniforms['iChannel'+i].value = txt[ name ];
+            else C_uniforms[c-1]['iChannel' + i].value = txt[ name ];
 
         },
 
 
         ///////////////////
 
+        makeFragment : function ( frag, c ){
+
+            var isch = c === 0 ? false : true;
+            var Uni = [];
+            var i = 4, pre, type, name, n, size, file, n, j;
+
+            //if(!isch){
 
 
-        setMat : function( Fragment, isNew ) {
-
-            //console.log('yooch')
-
-            if(isNew){
-                time = 0;
-                frame = 0;
-            }
-
-            
-
-            var Uni = [];//'precision highp float;'];
-
-            isBuff = [ false, false, false, false ];
-
-            var i = 4, pre, type, name, n, size, file;
             while(i--){
 
-                pre = Fragment.search( i + '_#' );
-                name = pre !== -1 ? Fragment.substring( pre + 4, Fragment.lastIndexOf( '#_' + i ) - 1 ) : null;
+                pre = frag.search( i + '_#' );
+                name = pre !== -1 ? frag.substring( pre + 4, frag.lastIndexOf( '#_' + i ) - 1 ) : null;
                 type = cube_name.indexOf( name ) !== -1 ? 'samplerCube' : 'sampler2D';
 
                 if(name !== null){
-                    if( name.substring(0,6) === 'buffer' ){ 
-                        var s, n;
+                    if( name.substring(0,6) === 'buffer'){ 
+
+                        //var s, n;
                         if( name.substring(6,10) === 'FULL' ) n = 10;
                         else if( ! isNaN(name.substring(6,10)) ) n = 10;
                         else if( ! isNaN(name.substring(6,9)) ) n = 9;
@@ -600,23 +650,31 @@ var view = ( function () {
                         size = name.substring(6,n);
                         file = name.substring(n+1);
 
-                        console.log( size, file );
+                        
+
+                        if( tmp_txt.indexOf(file) === -1 ){ 
+                            view.createChannel( i, size, file, c );
+                            tmp_txt.push( file );
+                        }
                     }
                     
                 }
-                
 
                 Uni.push( 'uniform '+ type +' iChannel' + i + ';' );
 
+                j = c*4;
+
                 if( txt[ name ] ){ 
-                    uniforms['iChannel' + i].value = txt[ name ];
+                    if(c===0) uniforms['iChannel' + i].value = txt[ name ];
+                    else C_uniforms[c-1]['iChannel' + i].value = txt[ name ];
+
                     if( type !== 'samplerCube' ) {
                         channelResolution[i].x = txt[ name ].image.width; 
                         channelResolution[i].y = txt[ name ].image.height;
                     }
                 }
 
-                channels[i] = name; 
+                channels[j] = name; 
 
             }
 
@@ -634,10 +692,59 @@ var view = ( function () {
 
             );
 
-            uniforms.iGlobalTime.value = time;
-            uniforms.iFrame.value = frame;
+            return Uni.join('\n') + frag;
 
-            fragment = Uni.join('\n') + Fragment;
+        },
+
+        reset: function ( ) {
+
+            var i;
+
+            console.clear();
+            console.log('reset');
+
+            i = tmp_txt.length;
+            while(i--){ 
+                txt[tmp_txt[i]].dispose();
+                txt[tmp_txt[i]] = null;
+            }
+
+            tmp_txt = [];
+
+            for(var i=0; i<4 ; i++){
+                if( isBuff[i] ){ 
+
+                    isBuff[i] = false;
+                    C_materials[i].dispose();
+                    C_textures[i].dispose();
+                    C_uniforms[i] = null;
+                    
+                }
+            }
+
+            time = 0;
+            frame = 0;
+
+        },
+
+
+
+        setMat : function( frag, isNew ) {
+
+            //console.log('yooch')
+
+            if(isNew) view.reset();
+
+            
+
+            //var Uni = [];//'precision highp float;'];
+
+            isBuff = [ false, false, false, false ];
+
+            fragment = view.makeFragment( frag, 0 );
+
+            //uniforms.iGlobalTime.value = time;
+            //uniforms.iFrame.value = frame;
 
             view.validate( fragment );
 
@@ -650,18 +757,15 @@ var view = ( function () {
             material.dispose();
 
             material = new THREE.ShaderMaterial({
-                uniforms: uniforms,//THREE.UniformsUtils.clone( uniforms ),//uniforms,
+                uniforms: uniforms,
                 vertexShader: vertex,
                 fragmentShader: fragment,
-                transparent: true,
+                //transparent: false,
             });
 
-            
 
             mesh.material = material;
             editor.setTitle();
-
-            //console.log(material)
 
         },
 
@@ -764,51 +868,23 @@ var view = ( function () {
             vertex = p['basic_vs'];
             fragment = p['basic_fs'];
 
-            uniforms = {
+            // init main uniforms
 
-                iChannel0: { type: 't', value: null },
-                iChannel1: { type: 't', value: null },
-                iChannel2: { type: 't', value: null },
-                iChannel3: { type: 't', value: null },
+            uniforms = THREE.UniformsUtils.clone( base_uniforms );
 
-                iDate: { type: 'f', value: 0 },
-
-                iChannelResolution: { type: 'v2v', value: channelResolution },
-
-                iGlobalTime: { type: 'f', value: time },
-                iResolution: { type: 'v3', value: vsize },
-                iFrame: { type: 'i', value: 0 },
-                iMouse: { type: 'v4', value: mouse },
-
-                //exposure: { type: 'f', value: params.exposure },
-                //whitePoint: { type: 'f', value: params.whitePoint },
-
-                //
-                key: { type:'fv', value:key },
-                 
-            };
+            uniforms.iChannelResolution.value = channelResolution;
+            uniforms.iResolution.value = vsize;
+            uniforms.iMouse.value = mouse;
+            uniforms.key.value = key;
+            
 
             material = new THREE.ShaderMaterial({
                 uniforms: uniforms,
                 vertexShader: vertex,
                 fragmentShader: fragment,
-                transparent:true,
-            }); 
+                transparent:false,
+            });
 
-            /*var g2 = new THREE.SphereBufferGeometry(3, 30, 26, 30*degtorad, 120*degtorad, 45*degtorad, 90*degtorad );
-            mesh2 = new THREE.Mesh( g2, material);
-            scene.add( mesh2 );
-
-
-
-            var geom = new THREE.PlaneBufferGeometry( 1, 1, 1, 1 );
-            mesh = new THREE.Mesh( geom, material );
- 
-            var mh = 2 * Math.tan( (camera.fov * degtorad) * 0.5 ) * 1;
-            mesh.scale.set(mh*vsize.z, mh, 1);
-            mesh.position.set(0,0,-1);
-
-            camera.add( mesh );*/
 
             view.setScene(0);
 
@@ -997,17 +1073,23 @@ var view = ( function () {
         this.scene = new THREE.Scene();
         this.camera = new THREE.Camera();
         this.camera.position.z = 1;
-        this.mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2 ) );
+
+        this.baseMat = new THREE.MeshBasicMaterial({color:0x00FFFF});
+        this.mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2 ) , this.baseMat );
+        
         this.scene.add( this.mesh );
 
     };
 
     view.GpuSide.prototype = {
 
-        render: function( material, output ){
+        render: function( mat, output ){
 
-            this.mesh.material = material;
-            this.renderer.render( this.scene, this.camera, output, false );
+            //console.log(output)
+
+            this.mesh.material = mat;
+            this.renderer.render( this.scene, this.camera, output );
+            //this.mesh.material = this.baseMat;
 
         }
     }

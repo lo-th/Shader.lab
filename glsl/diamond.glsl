@@ -147,7 +147,7 @@ void main() {
     //vec3 direction = normalize(vec3(frag, 2.0));
 
     // Set the camera
-    vec3 origin = vEye; //7.0 * vec3(cos(iGlobalTime * 0.1), sin(iGlobalTime * 0.2), sin(iGlobalTime * 0.1));
+    vec3 origin = cameraPosition; //7.0 * vec3(cos(iGlobalTime * 0.1), sin(iGlobalTime * 0.2), sin(iGlobalTime * 0.1));
     vec3 forward = -origin;
     vec3 up = vec3(0.0, 1.0, 0.0);//vec3(sin(iGlobalTime * 0.3), 2.0, 0.0);
     

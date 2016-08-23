@@ -209,7 +209,11 @@ void main(){
     col=mix(col, 0.15*vec3(0.4,0.75,1.0), 1.0-exp(-0.002*tdist*tdist) );
 
     // tone mapping
-    col = toneMap( col );
+    #if defined( TONE_MAPPING ) 
+    col = toneMapping( col ); 
+    #endif
 
     gl_FragColor = vec4(col, tdist);
 }
+
+

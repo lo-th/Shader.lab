@@ -304,7 +304,7 @@ float fCircle(vec3 p, float r) {
 // Subtract some value to make a flat disc with rounded edge.
 float fDisc(vec3 p, float r) {
 	float l = length(p.xz) - r;
-	return l < 0 ? abs(p.y) : length(vec2(p.y, l));
+	return l < 0.0 ? abs(p.y) : length(vec2(p.y, l));
 }
 
 // Hexagonal prism, circumcircle variant

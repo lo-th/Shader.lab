@@ -1,7 +1,6 @@
 
 // ------------------ channel define
-// 0_# buffer128_phyA #_0
-// 1_# buffer128_phyB #_1
+// 0_# bufferFULL_phyA #_0
 // ------------------
 
 // https://www.shadertoy.com/view/4sG3Wt
@@ -270,5 +269,6 @@ void main() {
     sunDir = normalize(vec3(cos(0.007 * tCur), 3., sin(0.007 * tCur)));
     col = ShowScene(ro, rd);
     gl_FragColor = vec4(col, 1.);
+    //gl_FragColor = texture2D(iChannel0,uv);
     
 }

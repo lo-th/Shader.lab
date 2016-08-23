@@ -1,6 +1,6 @@
 // ------------------ channel define
 // 0_# noise #_0
-// 2_# buffer128_roadA #_2
+// 2_# bufferFULL_roadA #_2
 // ------------------
 // https://www.shadertoy.com/view/4lcGWr
 
@@ -45,4 +45,24 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     col=mix(col, vec3(dot(col, vec3(0.33))), -0.5);
     
     fragColor = vec4(col, 1.0);
+}
+
+void main(){
+
+    vec4 color = vec4(1.0);
+
+    // screen space
+    //vec2 coord = gl_FragCoord.xy;
+    // object space
+    vec2 coord = vUv * iResolution.xy;
+
+    mainImage( color, coord );
+
+    // tone mapping
+    #if defined( TONE_MAPPING ) 
+    color.rgb = toneMapping( color.rgb ); 
+    #endif
+
+    gl_FragColor = color;
+
 }

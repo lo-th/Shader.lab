@@ -1,6 +1,6 @@
 
 // ------------------ channel define
-// 0_# buffer128_phyA #_0
+// 0_# bufferFULL_phyA #_0
 // ------------------
 
 // "Leaping Balls Return" by dr2 - 2016
@@ -121,7 +121,8 @@ vec4 Loadv4(int idVar) {
 
     float fi;
     fi = float(idVar);
-    return texture2D(iChannel0, (vec2(mod(fi, txRow), floor(fi / txRow)) + 0.5) / iChannelResolution[0].xy);
+    //return texture2D(iChannel0, (vec2(mod(fi, txRow), floor(fi / txRow)) + 0.5) / iChannelResolution[0].xy);
+    return texture2D(iChannel0, (vec2(mod(fi, txRow), floor(fi / txRow)) + 0.5) / iResolution.xy);
 
 }
 
@@ -248,15 +249,16 @@ void Init(int mId, out vec3 rm, out vec3 vm, out vec4 qm, out vec3 wm, out float
 
 void main() {
 
-    vec2 uv = gl_FragCoord.xy / iChannelResolution[0].xy;
+    //vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;//iChannelResolution[0].xy;
 
     vec4 stDat, p, qm;
     vec3 rm, vm, wm, rMid;
-    vec2 iFrag;
     float sz;
     int mId, pxId;
     bool doInit;
-    iFrag = floor(uv);
+    //iFrag = floor(uv);
+    vec2 iFrag = floor ( gl_FragCoord.xy );
     pxId = int(iFrag.x + txRow * iFrag.y);
     if (iFrag.x >= txRow || pxId >= 4 * nBall + 4) discard;
      tCur = iGlobalTime;
@@ -294,6 +296,13 @@ void main() {
     else if (pxId == 4 + 4 * mId + 1) p = vec4(vm, 0.);
     else if (pxId == 4 + 4 * mId + 2) p = qm;
     else if (pxId == 4 + 4 * mId + 3) p = vec4(wm, 0.);
-    Savev4(pxId, ((pxId >= 4) ? p : stDat), gl_FragColor, uv);
+    //Savev4(pxId, ((pxId >= 4) ? p : stDat), gl_FragColor, gl_FragCoord.xy );
+
+    vec2 d;
+    vec4 val = ((pxId >= 4) ? p : stDat);
+    float fi = float(pxId);
+
+    d = abs(gl_FragCoord.xy - vec2(mod(fi, txRow), floor(fi / txRow)) - 0.5);
+    if (max(d.x, d.y) < 0.5) gl_FragColor = val;
 
 }
