@@ -17,6 +17,6 @@ note: uniform value is added in view.setMat <br><br>
     <a href="https://www.shadertoy.com/user/reinder">reinder</a> - <a href="https://www.shadertoy.com/user/TekF">TekF</a> - <a href="https://www.shadertoy.com/user/Antonalog">Antonalog</a> - <a href="https://www.shadertoy.com/user/Kali">Kali</a><br>
     <a href="https://www.shadertoy.com/user/mu6k">mu6k</a> - <a href="https://www.shadertoy.com/user/nimitz">nimitz</a> - <a href="https://www.shadertoy.com/user/dr2">dr2</a><br><br>
 
-    and a good link to start deep learning<br>
+    one good link to start glsl<br>
     <a href="http://www.iquilezles.org/www/index.htm">iquilezles</a><br>
 </p>
