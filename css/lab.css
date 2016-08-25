@@ -35,7 +35,7 @@ body{
 @keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}
 #octo-arm{pointer-events:none;}
 #octo-body{pointer-events:none;}
-#octo{cursor:pointer;pointer-events:auto;}
+#octo{ cursor:pointer; pointer-events:auto; }
 
 .canvas3d { 
     position: absolute; top:0; left:0; pointer-events:auto; width:100%; height:100%; 
@@ -151,7 +151,7 @@ body{
     border:1px solid rgba(255, 255, 255, 0.2);
     border-bottom:1px solid #252525;
     background-color: #252525;
-    display: inline-block;
+    display:inline-block;
 }
 
 /* */
@@ -180,7 +180,7 @@ body{
 
 
 .separator {
-    position:absolute; background-color:none; pointer-events:auto; display:block; 
+    position:absolute; background-color:none; pointer-events:auto; display:none; 
     border-left:1px solid rgba(255, 255, 255, 0.2); 
     border-right:1px solid rgba(255, 255, 255, 0.2);
     left:calc(50% - 5px); top:0px; width:10px; height:100%;
@@ -204,6 +204,7 @@ body{
     left:0;
     width:50%;
     height:100%;
+    display:none;
 }
 
 .codeContent {

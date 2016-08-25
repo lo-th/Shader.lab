@@ -10,11 +10,11 @@ var editor = ( function () {
 
     'use strict';
 
-    var rl = 250;
+    //var rl = 250;
 
     var channels = [];
 
-    var content, codeContent, code, separator, menuCode, version, bigmenu2;//, debug, title; 
+    var content, codeContent, code, separator_l, separator_r, menuCode, version, bigmenu2;//, debug, title; 
     //var callback = function(){};
     var isSelfDrag = false;
     var isFocus = false;
@@ -23,7 +23,8 @@ var editor = ( function () {
     var interval = null;
     var left = 0;
     var right = 0;
-    var oldleft = 0;
+    var old_l = ~~ (window.innerWidth*0.4);
+    var old_r = 250;
     var fileName = '';
     var fileName_old = '';
     var nextDemo = null;
@@ -37,8 +38,12 @@ var editor = ( function () {
     var bigContent;
 
     var isMenu = false;
+
     var isWithCode = true;
-    var separator2;
+    var isSepDown = false;
+
+    var is_l_down = false;
+    var is_r_down = false;
 
     var context = null;
 
@@ -81,7 +86,24 @@ var editor = ( function () {
 
             octo = document.getElementById('octo');
             octoArm = document.getElementById('octo-arm');
-            
+
+            // separator
+
+            separator_l = document.createElement('div');
+            separator_l.className = 'separator';
+            document.body.appendChild( separator_l );
+
+
+
+            separator_r = document.createElement('div');
+            separator_r.className = 'separator';
+            document.body.appendChild( separator_r );
+
+            separator_r.style.left = 'auto';
+            separator_r.style.right = right + 'px';
+
+            separator_l.name = 'l';
+            separator_r.name = 'r';
 
             // editor
 
@@ -91,7 +113,6 @@ var editor = ( function () {
 
             codeContent = document.createElement('div');
             codeContent.className = 'codeContent';
-            //document.body.appendChild( codeContent );
             content.appendChild( codeContent );
 
             code = CodeMirror( codeContent, {
@@ -100,31 +121,13 @@ var editor = ( function () {
                 tabSize: 4, indentUnit: 4, highlightSelectionMatches: {showToken: /\w/}
             });
 
-            separator = document.createElement('div');
-            separator.className = 'separator';
-            document.body.appendChild( separator );
-
-            separator2 = document.createElement('div');
-            separator2.className = 'separator';
-            document.body.appendChild( separator2 );
-
-            separator2.style.left = 'auto';
-            separator2.style.right = right + 'px';
-
             menuCode = document.createElement('div');
             menuCode.className = 'menuCode';
             content.appendChild( menuCode );
 
-
             version = document.createElement( 'div' );
             version.className = 'version';
             content.appendChild( version );
-
-            
-
-
-            content.style.display = 'none';
-            separator.style.display = 'none';
 
             code.on('change', function () { editor.onChange() } );
             code.on('focus', function () { isFocus = true; view.needFocus(); } );
@@ -132,26 +135,11 @@ var editor = ( function () {
             code.on('drop', function () { if ( !isSelfDrag ) code.setValue(''); else isSelfDrag = false; } );
             code.on('dragstart', function () { isSelfDrag = true; } );
 
-            if(isWithCode){
-                right = rl;
-                left = ~~ (window.innerWidth*0.4);
-                content.style.display = 'block';
-                separator.style.display = 'block';
-                this.addSeparatorEvent();
-                this.resize();
-            }
 
-            bigmenu.style.width =  window.innerWidth - left - right +'px';
-            bigmenu2.style.width =  window.innerWidth - left - right +'px';
+            if(isWithCode)  editor.show();
 
-
-            //title.addEventListener( 'drop', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, false );  
-            //document.body.addEventListener( 'dragover', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, false ); 
-
-
-            
-
-            //content.addEventListener( 'mousewheel', editor.wheel, false );
+            //bigmenu.style.width =  window.innerWidth - left - right +'px';
+            //bigmenu2.style.width =  window.innerWidth - left - right +'px';
 
         },
 
@@ -159,7 +147,8 @@ var editor = ( function () {
 
             if(t === 'v1') { version.style.background = 'rgba(0,255,255,0.3)'; version.style.width='40px'; }
             else if(t === 'v2') { version.style.background = 'rgba(0,255,0,0.3)'; version.style.width='40px'; }
-            else { version.style.background = 'rgba(255,0,0,0.3)'; version.style.width='130px';}
+            else if(t === 'error') { t = '/!&#92; error'; version.style.background = 'rgba(255,0,0,0.3)'; version.style.width='100px'; }
+            else if(t === 'load'){ t = '/?&#92; loading'; version.style.background = 'rgba(0,50,255,0.3)'; version.style.width='130px';}
             version.innerHTML = t;
 
         },
@@ -179,21 +168,7 @@ var editor = ( function () {
 
         },
 
-        addSeparatorEvent : function(){
-
-            separator.addEventListener('mouseover', editor.mid_over, false );
-            separator.addEventListener('mouseout', editor.mid_out, false );
-            separator.addEventListener('mousedown', editor.mid_down, false );
-            
-        },
-
-        removeSeparatorEvent : function(){
-
-            separator.removeEventListener('mouseover', editor.mid_over, false );
-            separator.removeEventListener('mouseout', editor.mid_out, false );
-            separator.removeEventListener('mousedown', editor.mid_down, false );
-            
-        },
+        
 
         selectCode : function (){
 
@@ -206,8 +181,10 @@ var editor = ( function () {
 
             isWithCode = false;
             content.style.display = 'none';
-            separator.style.display = 'none';
-            oldleft = left;
+            separator_l.style.display = 'none';
+
+            old_l = left;
+            old_r = right;
             left = 0;
             right = 0;
 
@@ -224,31 +201,34 @@ var editor = ( function () {
 
             isWithCode = true;
             content.style.display = 'block';
-            separator.style.display = 'block';
-            if( oldleft ) left = oldleft;
-            else left = ~~ (window.innerWidth*0.4);
-            right = rl;
+            separator_l.style.display = 'block';
+            separator_r.style.display = 'block';
+
+            left = old_l;
+            right = old_r;
+ 
+            this.addSeparatorEvent();
+            editor.resize();
 
             gui.hide(false);
-
-            this.addSeparatorEvent();
-
-            editor.resize();
 
         },
 
         resizeMenu : function ( w ) {
 
             if( bigmenu ){
-             bigmenu.style.width = w +'px';
-             bigmenu2.style.width = w +'px';
-         }
+                bigmenu.style.width = w +'px';
+                bigmenu2.style.width = w +'px';
+            }
 
         },
 
         resize : function ( e ) {
 
-            if( e ) left = e.clientX + 10;
+            if( e ){
+                if( is_l_down ) left = e.clientX + 5;
+                if( is_r_down ) {right = window.innerWidth - e.clientX + 5; gui.resize(right);}
+            }
 
             if(view){
                 view.setLeft( left, right );
@@ -260,9 +240,10 @@ var editor = ( function () {
             bigmenu2.style.left = left +'px';
             //title.style.left = left +'px';
             //debug.style.left = left +'px';
-            separator.style.left = left - 10 + 'px';
-            separator2.style.right = right - 10 + 'px';
+            separator_l.style.left = left - 10 + 'px';
+            separator_r.style.right = right - 10 + 'px';
             content.style.width = left - 10 + 'px';
+
             code.refresh();
 
         },
@@ -487,35 +468,82 @@ var editor = ( function () {
 
         // separator
 
-        mid_over : function () { 
+        addSeparatorEvent : function () {
 
-            separator.style.background = 'rgba(255, 255, 255, 0.2)';
-            separator.style.borderLeft = '1px solid rgba(255, 255, 255, 0)';
-            separator.style.borderRight = '1px solid rgba(255, 255, 255, 0)';
-            separator.style.color = '#000000';
+            separator_l.addEventListener('mouseover', editor.mid_over, false );
+            separator_l.addEventListener('mouseout', editor.mid_out, false );
+            separator_l.addEventListener('mousedown', editor.mid_down, false );
+
+            separator_r.addEventListener('mouseover', editor.mid_over, false );
+            separator_r.addEventListener('mouseout', editor.mid_out, false );
+            separator_r.addEventListener('mousedown', editor.mid_down, false );
+            
+        },
+
+        removeSeparatorEvent : function () {
+
+            separator_l.removeEventListener('mouseover', editor.mid_over, false );
+            separator_l.removeEventListener('mouseout', editor.mid_out, false );
+            separator_l.removeEventListener('mousedown', editor.mid_down, false );
+
+            separator_r.removeEventListener('mouseover', editor.mid_over, false );
+            separator_r.removeEventListener('mouseout', editor.mid_out, false );
+            separator_r.removeEventListener('mousedown', editor.mid_down, false );
+            
+        },
+
+        sep_out : function ( s ) {
+
+            s.style.background = 'none';
+            s.style.borderLeft = '1px solid rgba(255, 255, 255, 0.2)';
+            s.style.borderRight = '1px solid rgba(255, 255, 255, 0.2)';
+        
+        },
+
+        mid_over : function ( e ) { 
+
+            var n = e.target.name;
+            var t = n === 'l' ? separator_l : separator_r;
+
+            t.style.background = 'rgba(255, 255, 255, 0.2)';
+            t.style.borderLeft = '1px solid rgba(255, 255, 255, 0)';
+            t.style.borderRight = '1px solid rgba(255, 255, 255, 0)';
 
         },
 
-        mid_out : function () { 
+        mid_out : function ( e ) { 
 
-            separator.style.background = 'none';
-            separator.style.borderLeft = '1px solid rgba(255, 255, 255, 0.2)';
-            separator.style.borderRight = '1px solid rgba(255, 255, 255, 0.2)';
-            separator.style.color = 'rgba(255, 255, 255, 0.2)';
+            var n = e.target.name;
+
+            if( is_l_down && n==='l' ) return;
+            if( is_r_down && n==='r' ) return;
+
+            editor.sep_out( n === 'l' ? separator_l : separator_r );
 
         },
 
-        mid_down : function () {
+        mid_down : function ( e ) {
+
+            var n = e.target.name;
+            if( n === 'l' ) is_l_down = true;
+            if( n === 'r' ) is_r_down = true;
 
             document.addEventListener('mouseup', editor.mid_up, false );
             document.addEventListener('mousemove', editor.resize, false );
 
         },
 
-        mid_up : function () {
+        mid_up : function ( e ) {
+
+            is_l_down = false;
+            is_r_down = false;
 
             document.removeEventListener('mouseup', editor.mid_up, false );
             document.removeEventListener('mousemove', editor.resize, false );
+
+            editor.sep_out(separator_l);
+            editor.sep_out(separator_r);
+            //editor.mid_out();
 
         },
 
@@ -657,6 +685,10 @@ var editor = ( function () {
             //callback( fileName );
 
         //},
+
+        setError : function ( value ) {
+            menuCode.innerHTML = '<font color="red">' + value + '</font>';
+        },
 
         setTitle : function ( value ) {
 

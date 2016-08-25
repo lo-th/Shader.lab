@@ -83,6 +83,8 @@ var view = ( function () {
     var isWebGL2 = false;
     var isMobile = false;
 
+    var isLoaded = false;
+    var isError = false;
 
     var mesh, mesh2;
     var material = null;
@@ -91,6 +93,8 @@ var view = ( function () {
     var vertex, fragment;
 
     var tmp_txt = [];
+
+    
 
     var precision = 'highp';
 
@@ -115,8 +119,6 @@ var view = ( function () {
 
 
     view = {
-
-
 
         render: function () {
 
@@ -479,7 +481,7 @@ var view = ( function () {
 
             var urls = [];
 
-            editor.setMessage( '/!&#92; Loading' );
+            editor.setMessage( 'load' );
             
             var i = txt_name.length;
             while(i--) urls.push('textures/'+txt_name[i]+'.png');
@@ -493,7 +495,10 @@ var view = ( function () {
 
         endLoading: function() {
 
-            editor.setMessage( 'v' + (isWebGL2 ? '2' : '1'));
+            isLoaded = true;
+
+            if(!isError) editor.setMessage( 'v' + (isWebGL2 ? '2' : '1'));
+            else editor.setMessage('error');
 
             var p = pool.getResult();
 
@@ -803,6 +808,10 @@ var view = ( function () {
 
                 view.applyMaterial();
 
+                isError = false;
+
+                if( isLoaded ) editor.setMessage( 'v' + (isWebGL2 ? '2' : '1'));
+
                 //clearTimeout( interval );
                 //interval = setTimeout( function() { view.applyMaterial(); }, 10 );
                 //view.applyMaterial();
@@ -830,7 +839,9 @@ var view = ( function () {
                 message = details.splice(3).join(':');
                 data.push( {lineNumber:parseInt(line)-11, message:message } );
 
-                editor.setTitle('/!&#92; ERROR');
+                //editor.setTitle('/!&#92; ERROR');
+                isError = true;
+                if( isLoaded ) editor.setMessage( 'error' );
             }
 
             editor.validate( data );
