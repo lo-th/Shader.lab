@@ -479,7 +479,7 @@ var view = ( function () {
 
             var urls = [];
 
-            editor.setT2( '/!&#92; Loading Map' );
+            editor.setMessage( '/!&#92; Loading' );
             
             var i = txt_name.length;
             while(i--) urls.push('textures/'+txt_name[i]+'.png');
@@ -493,7 +493,7 @@ var view = ( function () {
 
         endLoading: function() {
 
-            editor.setT2( 'webgl' + (isWebGL2 ? '2' : '1'));
+            editor.setMessage( 'v' + (isWebGL2 ? '2' : '1'));
 
             var p = pool.getResult();
 

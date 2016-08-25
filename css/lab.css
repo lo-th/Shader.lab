@@ -43,7 +43,7 @@ body{
 
 .bigmenu {
     position: absolute;
-    padding-top:40px;
+    padding-top:20px;
     background: rgba(0,0,0,0);
     transition:background 0.3s ease;
     border-bottom:  1px solid rgba(255, 255, 255, 0);
@@ -52,91 +52,97 @@ body{
 
 .bigContent {
     padding: 10px 20px;
+    padding-top:48px;
     width:100%;
     display: block;
 }
 
-.bigRubric {
+.mRubric {
     pointer-events:none;
     font-size: 11px;
-    height: 18px;
+    height: 16px;
     padding: 2px 0px;
+    margin : 2px 0px;
     width:100%;
     display: block;
-    text-align: right;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: left;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
     color:rgba(255, 255, 255, 0.2);
 }
 
-.menuButtonBig{
+.mButton{
 
     font-size: 11px;
-    /*font-weight: 500;*/
-    height: 18px;
-    padding: 2px 2px;
-    /*padding-top: 10px;*/
+    height: 11px;
+    margin: 2px 2px;
     background: none;
     pointer-events:auto;
     cursor: pointer;
-    /*background:#0d0d0d;*/
     text-align: left;
     display: inline-block;
-    width:100px;
-    transition:color 0.3s ease;
+    width:95px;
+    transition:color 0.2s ease;
 
 }
 
-.menuButtonBig:hover{
+.mButton:hover{
     color:#308AFF;
 }
 
 .bigButton {
+    border-radius:6px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     width:70px;
-    height:18px;
+    height:30px;
     font-size: 16px;
     font-weight: 500;
     text-align: center;
     pointer-events:auto;
     cursor:pointer;
     display: inline-block;
-    margin-left: 40px;
-    margin-right: -20px;
+    padding-top: 6px;
+    margin-left: 20px;
     transition:all 0.3s ease;
 }
 
-/*.debug {
-    font-size: 9px;
-    position:absolute;
-    padding-left: 40px;
-    bottom: 40px;
-}
-.title {
-    position:absolute;
-    font-size: 16px;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: 500;
-
-    bottom: 55px;
-    padding-left: 40px;
-}*/
+/* */
 
 .version {
+    pointer-events:none;
+    position:absolute;
+    top : 0px;
+    right: 0px;
+    width: 130px;
+    padding-top: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    height: 39px;
+    background: none;
+    text-align: center;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    transition:all 0.3s ease; 
+}
+
+.menuCode {
     position:absolute;
     top : 0px;
     left: 0px;
     width: 100%;
     padding-left: 10px;
-    padding-top: 9px;
-    font-size: 11px;
+    padding-top: 12px;
+    font-size: 16px;
     font-weight: 500;
-    line-height: 23px;
     height: 40px;
     background: none;
-    text-align: right;
-    padding-right: 20px;
+    border-bottom:1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
 }
+
+.rubrique{
+
+}
+
+/* */
 
 .subtitle {
     position:absolute;
@@ -159,44 +165,6 @@ body{
     pointer-events:auto;
     opacity:0.7;
 }
-
-.menuCode {
-    position:absolute;
-    top : 0px;
-    left: 0px;
-    width: 100%;
-    padding-left: 10px;
-    padding-top: 9px;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 23px;
-    height: 40px;
-    background: none;
-    border-bottom:1px solid rgba(255, 255, 255, 0.2);
-    overflow: hidden;
-}
-
-
-
-
-.info {
-    pointer-events:none; position:absolute;
-    left:10px;
-    top:40px;
-    width:200px;
-    height:200px;
-}
-
-.error {
-    pointer-events:none; position:absolute;
-    right:10px;
-    bottom:30px;
-    width:300px;
-    height:200px;
-    color:#FF6600;
-    text-align:right;
-}
-
 
 
 .separator {
