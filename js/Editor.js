@@ -271,6 +271,33 @@ var editor = ( function () {
             //debug.innerHTML = str; 
         },
 
+        // MENUCODE
+
+        clearMenuCode : function () {
+
+            var i = menuCode.childNodes.length, b;
+            while(i--){
+                b = menuCode.childNodes[i];
+                b.removeEventListener('mousedown', editor.codeDown );
+                menuCode.removeChild( b );
+            }
+
+        },
+
+        addCode : function ( name ) {
+
+            var b = document.createElement('div');
+            b.className = 'code';
+            b.innerHTML = name;
+            b.addEventListener('mousedown', editor.codeDown );
+            menuCode.appendChild( b );
+
+        },
+
+        codeDown : function ( e ) {
+
+        },
+
         // bigmenu
 
         makeBigMenu : function() {
@@ -634,7 +661,10 @@ var editor = ( function () {
         setTitle : function ( value ) {
 
             if( value === undefined ){ 
-                menuCode.innerHTML = '&bull; ' + fileName;
+
+                editor.clearMenuCode();
+                editor.addCode( fileName );
+                //menuCode.innerHTML = '&bull; ' + fileName;
                 location.hash = fileName;
                 //callback( fileName );
             }

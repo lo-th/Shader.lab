@@ -90,6 +90,8 @@ body{
 }
 
 .bigButton {
+    pointer-events:auto;
+    cursor:pointer;
     border-radius:6px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     width:70px;
@@ -97,8 +99,7 @@ body{
     font-size: 16px;
     font-weight: 500;
     text-align: center;
-    pointer-events:auto;
-    cursor:pointer;
+    
     display: inline-block;
     padding-top: 6px;
     margin-left: 20px;
@@ -128,18 +129,29 @@ body{
     top : 0px;
     left: 0px;
     width: 100%;
-    padding-left: 10px;
-    padding-top: 12px;
-    font-size: 16px;
-    font-weight: 500;
     height: 40px;
     background: none;
     border-bottom:1px solid rgba(255, 255, 255, 0.2);
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 
-.rubrique{
-
+.code{
+    pointer-events:auto;
+    cursor:pointer;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    height: 35px;
+    width: 140px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    padding:10px 0px;
+    margin-left: 5px;
+    margin-top: 5px;
+    border:1px solid rgba(255, 255, 255, 0.2);
+    border-bottom:1px solid #252525;
+    background-color: #252525;
+    display: inline-block;
 }
 
 /* */
@@ -203,8 +215,8 @@ body{
     top:40px;
     width:100%;
     background:none;
-    padding-top:10px;
-    padding-left:10px;
+    padding-top:2px;
+    padding-left:2px;
     height:calc(100% - 40px);
 }
 
