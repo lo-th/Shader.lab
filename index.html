@@ -41,11 +41,11 @@ var demos = [
 ];
 
 var demos_basic = [ 
-    'basic', 'follow', 'spline', 'occ', 'noise', 'ao','raymatch', 'cube', 'metashape', 'shapes', 'hg_sdf', 'icecube', 'test'
+    'basic', 'follow', 'spline', 'tech-occ', 'tech-noise', 'tech-ao','raymatch', 'cube', 'metashape', 'shapes', 'hg_sdf', 'icecube', 'test'
 ];
 
 var demos_advanced = [
-   'calanque', 'phy', 'road', 'terra'
+   'calanque', 'phy', 'road', 'terra', 'raytrace'
 ];
 
 var demos_texture = [
@@ -65,23 +65,14 @@ view.init();
 user.init();
 gui.init();
 view.loadAssets();
-editor.init( launch, true );
+editor.init( true );
 
 
 function ready () {
 
     var hash = location.hash.substr( 1 );
-
     if(hash !=='') demoName = hash;
-
     editor.load( demoName );
-
-};
-
-function launch ( name ) {
-
-    var hash = location.hash.substr( 1 );
-    location.hash = name;
 
 };
 

@@ -3,10 +3,14 @@
 // 0_# noise #_0
 // ------------------
 
+//#define USE_PROCEDURAL
+
 #ifdef USE_PROCEDURAL
+
 float hash( float n ) { return fract(sin(n)*753.5453123); }
-float noise( in vec3 x )
-{
+
+float noise( in vec3 x ){
+
     vec3 p = floor(x);
     vec3 f = fract(x);
     f = f*f*(3.0-2.0*f);
@@ -17,30 +21,31 @@ float noise( in vec3 x )
                mix(mix( hash(n+113.0), hash(n+114.0),f.x),
                    mix( hash(n+270.0), hash(n+271.0),f.x),f.y),f.z);
 }
+
 #else
-float noise( in vec3 x )
-{
+
+float noise( in vec3 x ){
+
     vec3 p = floor(x);
     vec3 f = fract(x);
     f = f*f*(3.0-2.0*f);
     
     vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-    vec2 rg = texture2D( iChannel0, (uv+0.5)/256.0, -100.0 ).yx;
+    vec2 rg = texture2D( iChannel0, (uv+0.5)/256.0, -16.0 ).yx;
     return mix( rg.x, rg.y, f.z );
 }
+
 #endif
 
 
 const mat3 m = mat3(0.00, 0.80, 0.60, -0.80, 0.36, -0.48, -0.60, -0.48, 0.64);
 
-void main() {
+void main(){
 
-    //vec2 uv = (1.0 - vUv * 2.0) * vec2(iResolution.x / iResolution.y, -1.0);
-    //vec2 uv = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
+    vec2 p = ( 2.0 * vUv - 1.0 ) * vec2( iResolution.z, 1.0 );
 
-    vec2 uv = ( ( vUv * 2.0 ) - 1.0 ) * vec2(iResolution.z, 1.0);
-    
-    vec2 p = uv;
+    float s = ( 2.0 * iMouse.x - iResolution.x ) / iResolution.y;
+    if( iMouse.z < 0.001 ) s = 0.0;
 
     float an = 0.5 * iGlobalTime;
     vec3 ro = vec3(2.5 * cos(an), 1.0, 2.5 * sin(an));
@@ -55,8 +60,8 @@ void main() {
     float occ = 1.0;
     vec3 pos = vec3(0.0);
     float h = (0.0 - ro.y) / rd.y;
-    if (h > 0.0) 
-    {
+
+    if (h > 0.0) {
         tmin = h;
         nor = vec3(0.0, 1.0, 0.0);
         pos = ro + h * rd;
@@ -64,31 +69,28 @@ void main() {
         float l = length(di);
         occ = 1.0 - dot(nor, di / l) * 1.0 * 1.0 / (l * l);
     }
-     vec3 ce = ro - sc;
+
+    vec3 ce = ro - sc;
     float b = dot(rd, ce);
     float c = dot(ce, ce) - 1.0;
     h = b * b - c;
-    if (h > 0.0) 
-    {
+    if (h > 0.0) {
         h = -b - sqrt(h);
-        if (h < tmin) 
-        {
+        if (h < tmin) {
             tmin = h;
             nor = normalize(ro + h * rd - sc);
             occ = 0.5 + 0.5 * nor.y;
         }
-     }
-     vec3 col = vec3(0.9);
-    if (tmin < 100.0) 
-    {
+    }
+
+    vec3 col = vec3(0.9);
+    if (tmin < 100.0) {
+
         pos = ro + tmin * rd;
         float f = 0.0;
-        if (p.x < 0.0) 
-        {
+        if ( p.x < s ) {
             f = noise(16.0 * pos);
-        }
- else 
-        {
+        } else {
             vec3 q = 8.0 * pos;
             f = 0.5000 * noise(q);
             q = m * q * 2.01;
@@ -103,7 +105,12 @@ void main() {
         col = vec3(f * 1.2);
         col = mix(col, vec3(0.9), 1.0 - exp(-0.003 * tmin * tmin));
     }
-     col = sqrt(col);
-    col *= smoothstep(0.006, 0.008, abs(p.x));
-    gl_FragColor = vec4(col, 1.0);
+    
+    col = sqrt( col );
+
+    // black line
+    col *= smoothstep( 0.0, 2.0 * ( 2.0 / iResolution.y ), abs(p.x-s) );
+
+    gl_FragColor = vec4( col, 1.0 );
+
 }

@@ -15,7 +15,7 @@ var editor = ( function () {
     var channels = [];
 
     var content, codeContent, code, separator, menuCode, version, bigmenu2;//, debug, title; 
-    var callback = function(){};
+    //var callback = function(){};
     var isSelfDrag = false;
     var isFocus = false;
     var errorLines = [];
@@ -53,9 +53,9 @@ var editor = ( function () {
 
     editor = {
 
-        init : function ( Callback, withCode ) {
+        init : function ( withCode ) {
 
-            if( Callback ) callback = Callback;
+            //if( Callback ) callback = Callback;
 
             isWithCode = withCode || false;
 
@@ -631,7 +631,8 @@ var editor = ( function () {
 
             if( value === undefined ){ 
                 menuCode.innerHTML = '&bull; ' + fileName;
-                callback( fileName );
+                location.hash = fileName;
+                //callback( fileName );
             }
             else menuCode.innerHTML = '<font color="red">' + value + '</font>';
 

@@ -10,14 +10,11 @@ var view = ( function () {
 
         background: false,
         sphere: false,
+        
         // toneMapping
         exposure: 3.0,
         whitePoint: 5.0,
         tone: "Uncharted2",
-        // bloom
-        strength: 1.5,
-        threshold: 0.9,
-        radius: 1.0,
 
         pixelRatio : 1,
 
@@ -265,6 +262,8 @@ var view = ( function () {
             renderer.setSize( vsize.x, vsize.y );
             renderer.setClearColor( 0x252525, 1 );
 
+            //
+
             renderer.gammaInput = true;
             renderer.gammaOutput = true;
 
@@ -299,12 +298,14 @@ var view = ( function () {
             
 
 
-            gputmp = new view.GpuSide( renderer );
+            gputmp = new view.GpuSide();
 
             this.setTone();
             this.render();
             
         },
+
+
 
         setTone : function(v) {
 
@@ -459,7 +460,7 @@ var view = ( function () {
         },
 
         // -----------------------
-        //  RING SIDE
+        //  LOADING SIDE
         // -----------------------
 
         loadAssets : function ( EnvName ) {
@@ -468,9 +469,9 @@ var view = ( function () {
 
             cube_name = [ 'grey1' ];
 
-            txt_name = [ 'noise', 'stone', 'bump', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02', 'tex12', 'tex10', 'tex17' ];
+            txt_name = [ 'stone', 'bump', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02', 'tex12', 'tex10', 'tex17' ];
 
-            pool.load( ['glsl_basic/basic_vs.glsl', 'glsl_basic/basic_fs.glsl', 'textures/basic.png'], view.initModel );
+            pool.load( ['glsl_basic/basic_vs.glsl', 'glsl_basic/basic_fs.glsl', 'textures/basic.png', 'textures/noise.png'], view.initModel );
 
         },
 
@@ -503,7 +504,7 @@ var view = ( function () {
                 name = txt_name[i];
                 tx = new THREE.Texture( p[name] );
                 tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
-                if(name === 'noise' || name === 'tex10'|| name === 'tex12') tx.flipY = false;
+                if( name === 'tex10'|| name === 'tex12') tx.flipY = false;
                 else tx.flipY = true;
                 tx.needsUpdate = true;
                 txt[name] = tx;
@@ -576,14 +577,14 @@ var view = ( function () {
 
             if(size !== "FULL") w = h = Number( size );
 
-            console.log(w, h)
+            console.log( w, h );
 
             channelResolution[i].x = w; 
             channelResolution[i].y = h;
 
             C_uniforms[i] = THREE.UniformsUtils.clone( base_uniforms );
             C_uniforms[i].iChannelResolution.value = channelResolution;
-            C_uniforms[i].iResolution.value = new THREE.Vector3( w, h, w/h );
+            C_uniforms[i].iResolution.value = new THREE.Vector3( w, h, w / h );
             C_uniforms[i].iMouse.value = mouse;
             C_uniforms[i].key.value = key;
 
@@ -839,29 +840,25 @@ var view = ( function () {
 
             var p = pool.getResult();
         
-            // init empty textures
+            // init base textures
 
-            var i = txt_name.length, tx;
-            while(i--){
-                tx = new THREE.Texture( p['basic'] );
-                tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
-                if(name === 'noise' || name === 'tex10'|| name === 'tex12') tx.flipY = false;
-                else tx.flipY = true;
-                tx.needsUpdate = true;
-                txt[txt_name[i]] = tx;
-            }
-
+            var tx = new THREE.Texture( p['basic'] );
+            tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
+            tx.needsUpdate = true;
             txt['basic'] = tx;
+
+            var tx2 = new THREE.Texture( p['noise'] );
+            tx2.wrapS = tx2.wrapT = THREE.RepeatWrapping;
+            tx2.flipY = false;
+            tx2.needsUpdate = true;
+            txt['noise'] = tx2;
 
             // init empty cube textures
 
             var imgs = [];
-            i=6;
+            var i=6;
             while(i--) imgs.push(p['basic']);
             txt[envName] = new THREE.CubeTexture( imgs );
-
-
-           
 
             // init basic shader
 
@@ -886,7 +883,7 @@ var view = ( function () {
             });
 
 
-            view.setScene(0);
+            view.setScene( 0 );
 
             ready();
 
@@ -948,6 +945,12 @@ var view = ( function () {
         //  GET FUNCTION
         // -----------------------
 
+        getMouse: function () { return mouse; },
+
+        getKey: function () { return key; },
+
+        getUniforms : function () { return THREE.UniformsUtils.clone( base_uniforms ); },
+
         getContext: function () { return gl; },
 
         getParams: function () { return params; },
@@ -997,7 +1000,7 @@ var view = ( function () {
             controls.update();
         },
 
-        setCubeEnv: function( imgs ){
+        /*setCubeEnv: function( imgs ){
 
             env = new THREE.CubeTexture( imgs );
             env.format = THREE.RGBFormat;
@@ -1008,7 +1011,7 @@ var view = ( function () {
 
         },
 
-        setEnv: function( img ){
+        /*setEnv: function( img ){
 
             env = new THREE.Texture( img );
             env.mapping = THREE.SphericalReflectionMapping;
@@ -1022,7 +1025,7 @@ var view = ( function () {
 
             return env; 
 
-        },
+        },*/
 
         initGeometry: function(){
 
@@ -1043,9 +1046,9 @@ var view = ( function () {
 
         },
 
-     
 
-       
+        
+
 
         // MATH
 
@@ -1067,9 +1070,9 @@ var view = ( function () {
     //   GPU RENDER
     // ------------------------------
 
-    view.GpuSide = function( renderer ){
+    view.GpuSide = function(){
 
-        this.renderer = renderer;
+        this.renderer = view.getRenderer();
         this.scene = new THREE.Scene();
         this.camera = new THREE.Camera();
         this.camera.position.z = 1;
@@ -1083,7 +1086,7 @@ var view = ( function () {
 
     view.GpuSide.prototype = {
 
-        render: function( mat, output ){
+        render : function ( mat, output ) {
 
             //console.log(output)
 
@@ -1092,6 +1095,50 @@ var view = ( function () {
             //this.mesh.material = this.baseMat;
 
         }
+    }
+
+    // ------------------------------
+    //   CHANNEL
+    // ------------------------------
+
+    view.Channel = function(){
+        
+        this.size = new THREE.Vector3();
+        this.renderTarget = null;
+        this.texture = null;
+        this.material = null;
+        this.uniforms = null;
+
+    }
+
+    view.Channel.prototype = {
+
+        dispose : function () {
+
+        },
+
+        load : function ( file ) {
+
+            editor.load( file, i, view.applyChannel, c );
+
+        },
+
+        init : function ( w, h ) {
+
+            this.size.set( w, h, w / h );
+
+            this.uniforms = view.getUniforms();
+            this.uniforms.iResolution.value = this.size;
+            this.uniforms.iMouse.value = view.getMouse();
+            this.uniforms.key.value = view.getKey();
+
+        },
+
+        resize : function () {
+
+        }
+
+
     }
 
     return view;
