@@ -343,7 +343,7 @@ void main(){
     // render   
     vec3 col = render( ro, rd );
 
-    col = pow( col, vec3(0.4545) );
+    //col = pow( col, vec3(0.4545) );
 
     // tone mapping
     #if defined( TONE_MAPPING ) 
