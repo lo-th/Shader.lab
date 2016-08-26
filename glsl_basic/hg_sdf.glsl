@@ -104,8 +104,14 @@ float vmin(vec4 v) {
     return min(min(v.x, v.y), min(v.z, v.w));
 }
 
+float length8( vec2 p ){
+    p = p*p; p = p*p; p = p*p;
+    return pow( p.x + p.y, 1.0/8.0 );
+}
 
-
+float length2( vec2 p ){
+    return sqrt( p.x*p.x + p.y*p.y );
+}
 
 ////////////////////////////////////////////////////////////////
 //
@@ -141,6 +147,11 @@ float fBoxCheap(vec3 p, vec3 b) { //cheap box
 float fBox(vec3 p, vec3 b) {
     vec3 d = abs(p) - b;
     return length(max(d, vec3(0))) + vmax(min(d, vec3(0)));
+}
+
+float fRoundBox(vec3 p, vec3 b, float r) {
+    vec3 d = abs(p) - b;
+    return length(max(d, vec3(0))) + vmax(min(d, vec3(0)))-r;
 }
 
 // Same as above, but in two dimensions (an endless box)
@@ -202,11 +213,23 @@ float fTorus(vec3 p, float smallRadius, float largeRadius) {
     return length(vec2(length(p.xz) - largeRadius, p.y)) - smallRadius;
 }
 
+float fTorus82( vec3 p, float smallRadius, float largeRadius ){
+  vec2 q = vec2(length2(p.xz)-smallRadius,p.y);
+  return length8(q)-largeRadius;
+}
+
+float fTorus88( vec3 p, float smallRadius, float largeRadius ){
+  vec2 q = vec2(length8(p.xz)-smallRadius,p.y);
+  return length8(q)-largeRadius;
+}
+
 // A circle line. Can also be used to make a torus by subtracting the smaller radius of the torus.
 float fCircle(vec3 p, float r) {
     float l = length(p.xz) - r;
     return length(vec2(p.y, l));
 }
+
+
 
 // A circular disc with no thickness (i.e. a cylinder with no height).
 // Subtract some value to make a flat disc with rounded edge.
@@ -968,7 +991,8 @@ float fField(vec3 p){
     if(i==7) pMod3(p,vec3(size));
 
     //float dodec = fDodecahedron(p-vec3(-2.25,.5,-1.),.7);
-    float box = fBox(p-vec3(0,-.1,0),vec3(1.0+cos(iGlobalTime*.5)*.2));
+    //float box = fBox(p-vec3(0,-.1,0),vec3(1.0+cos(iGlobalTime*.5)*.2));
+    float box = fRoundBox(p-vec3(0,-.1,0),vec3(1.0+cos(iGlobalTime*.5)*.2), 0.2);
     float sphere = fSphere(p-vec3(1.+sin(iGlobalTime*.5)*.2) ,1.0+sin(iGlobalTime*.5)*.2 );//length(p-vec3(1.+sin(iGlobalTime*.5)*.2,.8,1))-1.;
     float d;
     float r = 0.3;
