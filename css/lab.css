@@ -11,16 +11,16 @@
 }
 
 html, body {
-	font-family: "Lucida Console", Monaco, monospace;
-	font-size: 11px;
+	font-family: "Consolas", "Lucida Console", Monaco, monospace;
+	font-size: 12px;
     font-style: normal;
     font-variant: normal;
     font-weight: 400;
     /*line-height: 23px;*/
     height:100%;
-    background:#252525;
-    color:#dedede;
-    /*color:#d2cec8;text-shadow: 1px 1px 1px rgba(0,0,0,0.3);*/
+    background:#1e1e1e;
+    color:#d0d0d0;
+    /*color:#bebebe;text-shadow: 1px 1px 1px rgba(0,0,0,0.3);*/
     overflow:hidden;
     font-smooth: never;
     -webkit-font-smoothing : none;
@@ -66,8 +66,8 @@ body{
     width:100%;
     display: block;
     text-align: left;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-    color:rgba(255, 255, 255, 0.2);
+    border-bottom: 1px dashed #626262;
+    color:#626262;
 }
 
 .mButton{
@@ -92,8 +92,8 @@ body{
 .bigButton {
     pointer-events:auto;
     cursor:pointer;
-    border-radius:6px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    /*border-radius:4px;*/
+    border: 1px solid #626262;
     width:70px;
     height:30px;
     font-size: 16px;
@@ -101,7 +101,7 @@ body{
     text-align: center;
     
     display: inline-block;
-    padding-top: 6px;
+    padding-top: 4px;
     margin-left: 20px;
     transition:all 0.3s ease;
 }
@@ -120,7 +120,7 @@ body{
     height: 39px;
     background: none;
     text-align: center;
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid #626262;
     transition:all 0.3s ease; 
 }
 
@@ -131,7 +131,7 @@ body{
     width: 100%;
     height: 40px;
     background: none;
-    border-bottom:1px solid rgba(255, 255, 255, 0.2);
+    border-bottom:1px solid #626262;
     /*overflow: hidden;*/
 }
 
@@ -148,9 +148,9 @@ body{
     padding:10px 0px;
     margin-left: 5px;
     margin-top: 5px;
-    border:1px solid rgba(255, 255, 255, 0.2);
-    border-bottom:1px solid #252525;
-    background-color: #252525;
+    border:1px solid #626262;
+    border-bottom:1px solid #1e1e1e;
+    background-color: none;
     display:inline-block;
 }
 
@@ -169,7 +169,7 @@ body{
     bottom:10px; 
     right:10px;
     padding: 2px 2px;
-    border:1px dashed rgba(255, 255, 255, 0.2); 
+    border:1px dashed #626262; 
     width:70px; 
     height:70px; 
     background:#0d0d0d;
@@ -181,10 +181,10 @@ body{
 
 .separator {
     position:absolute; background-color:none; pointer-events:auto; display:none; 
-    border-left:1px solid rgba(255, 255, 255, 0.2); 
-    border-right:1px solid rgba(255, 255, 255, 0.2);
+    border-left:1px solid #626262; 
+    border-right:1px solid #626262;
     left:calc(50% - 5px); top:0px; width:10px; height:100%;
-    color: rgba(255, 255, 255, 0.2);
+    color: #626262;
     cursor: e-resize;
 }
 
@@ -231,10 +231,10 @@ body{
     pointer-events: auto;
    /*  overflow: scroll;*/
     height: 100%;
-    font-family: "Consolas", Monaco, monospace;
-    font-smooth: never;
-    -webkit-font-smoothing : none;
-    font-size: 11px;
+    font-family: "Consolas", "Lucida Console", Monaco, monospace;
+    /*font-smooth: never;
+    -webkit-font-smoothing : none;*/
+    font-size: 12px;
     /*line-height: 123%;
     letter-spacing:-1px;
     padding-right: 20px;*/
@@ -476,7 +476,7 @@ span.CodeMirror-selectedtext { background: none; }
 
 /* Based on Sublime Text's Monokai theme */
 
-.cm-s-monokai.CodeMirror {background: none; color: #D0D0D0;}
+.cm-s-monokai.CodeMirror {background: none; color: #d0d0d0;}
 /*.cm-s-monokai .cm-punctuation {color:#D0D0D0;}*/
 .cm-s-monokai div.CodeMirror-selected {background: rgba(100,100,100,0.3) !important;}
 .cm-s-monokai .CodeMirror-gutters {background:none; color:#ffffff; border-right: 0px;}
@@ -538,7 +538,7 @@ span.CodeMirror-selectedtext { background: none; }
 }*/
 
 .cm-s-monokai ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);/*#333;*/
+    background-color: #626262;/*#333;*/
     border:5px solid rgba(0,0,0,0);
     /*border-radius: 25px;*/
     -webkit-background-clip: padding-box;

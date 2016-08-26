@@ -136,7 +136,7 @@ var editor = ( function () {
             code.on('dragstart', function () { isSelfDrag = true; } );
 
 
-            if(isWithCode)  editor.show();
+            if(isWithCode) editor.show();
 
             //bigmenu.style.width =  window.innerWidth - left - right +'px';
             //bigmenu2.style.width =  window.innerWidth - left - right +'px';
@@ -200,6 +200,7 @@ var editor = ( function () {
         show : function (){
 
             isWithCode = true;
+            editor.Bselect( bigButton[1] );
             content.style.display = 'block';
             separator_l.style.display = 'block';
             separator_r.style.display = 'block';
@@ -299,6 +300,8 @@ var editor = ( function () {
             bigButton[1].addEventListener('mousedown', editor.selectCode, false );
             bigButton[1].name = 'code';
 
+            //editor.Bselect( bigButton[1] );
+
 
             bigContent = document.createElement( 'div' );
             bigContent.className = 'bigContent';
@@ -333,7 +336,7 @@ var editor = ( function () {
 
             //bigContent.style.display = "block";
             bigmenu2.style.background = "rgba(37,37,37,0.9)";
-            bigmenu2.style.borderBottom = "1px solid rgba(255, 255, 255, 0.2)";
+            bigmenu2.style.borderBottom = "1px solid #626262";
             bigmenu2.style.height = 'auto';
             bigmenu2.style.display = 'block';
             //bigmenu.addEventListener('mouseout', editor.selectBigMenu, false );
@@ -427,23 +430,29 @@ var editor = ( function () {
 
         Bout : function ( e ) {
 
-            var style = 0;
-            if(e.target.name == 'code' && isWithCode) style = 1;
-            if(e.target.name == 'demo' && isMenu) style = 1;
+            var s = 0;
+            if(e.target.name == 'code' && isWithCode) s = 1;
+            if(e.target.name == 'demo' && isMenu) s = 1;
 
-            if(!style){
-                editor.Bdefault(e.target);
+            if(s===0){
+                editor.Bdefault( e.target );
             } else {
-                e.target.style.border = "1px solid rgba(255, 255, 255, 0)";
-                e.target.style.background = "rgba(255, 255, 255, 0.2)";
-                e.target.style.color = "#2A2A2A";
+                editor.Bselect( e.target );
             }
             
         },
 
+        Bselect : function ( b ) {
+
+            b.style.border = "1px solid rgba(255, 255, 255, 0)";
+            b.style.background = "rgba(255, 255, 255, 0.2)";
+            b.style.color = "#000000";
+
+        },
+
         Bdefault : function ( b ) {
 
-            b.style.border = "1px solid rgba(255, 255, 255, 0.2)";
+            b.style.border = "1px solid #626262";
             b.style.background = "none";
             b.style.color = "#dedede";
 
@@ -495,8 +504,8 @@ var editor = ( function () {
         sep_out : function ( s ) {
 
             s.style.background = 'none';
-            s.style.borderLeft = '1px solid rgba(255, 255, 255, 0.2)';
-            s.style.borderRight = '1px solid rgba(255, 255, 255, 0.2)';
+            s.style.borderLeft = '1px solid #626262';
+            s.style.borderRight = '1px solid #626262';
         
         },
 

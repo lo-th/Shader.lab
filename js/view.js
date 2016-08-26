@@ -262,7 +262,7 @@ var view = ( function () {
             //renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setPixelRatio( params.pixelRatio );
             renderer.setSize( vsize.x, vsize.y );
-            renderer.setClearColor( 0x252525, 1 );
+            renderer.setClearColor( 0x1e1e1e, 1 );
 
             //
 
