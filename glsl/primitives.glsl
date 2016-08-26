@@ -324,12 +324,8 @@ mat3 setCamera( in vec3 ro, in vec3 ta, float cr )
 
 void main(){
 
-    //vec2 q = fragCoord.xy/iResolution.xy;
-    //vec2 p = -1.0+2.0*q;
-    vec2 q = vUv;
     vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
 
-    p.x *= iResolution.x/iResolution.y;
     vec2 mo = iMouse.xy/iResolution.xy;
          
     float time = 15.0 + iGlobalTime;
