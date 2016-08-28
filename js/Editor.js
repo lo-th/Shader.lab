@@ -14,7 +14,9 @@ var editor = ( function () {
 
     var channels = [];
 
-    var content, codeContent, code, separator_l, separator_r, menuCode, version, bigmenu2;//, debug, title; 
+    var content, codeContent, code, separator_l, separator_r, menuCode, version, bigmenu2, channelPad;//, debug, title; 
+
+    var ch = [];
     //var callback = function(){};
     var isSelfDrag = false;
     var isFocus = false;
@@ -136,11 +138,30 @@ var editor = ( function () {
             code.on('dragstart', function () { isSelfDrag = true; } );
 
 
+            // channel pad
+
+            channelPad = document.createElement( 'div' );
+            channelPad.className = 'channelPad';
+            document.body.appendChild( channelPad );
+
+            this.initChannelPad();
+
+
             if(isWithCode) editor.show();
 
             //bigmenu.style.width =  window.innerWidth - left - right +'px';
             //bigmenu2.style.width =  window.innerWidth - left - right +'px';
 
+        },
+
+        initChannelPad : function () {
+            var i = 4;
+            while(i--){
+
+                ch[i] = document.createElement( 'div' );
+                ch[i].className = 'ch';
+                channelPad.appendChild( ch[i] );
+            }
         },
 
         setMessage : function( t ) {
@@ -162,7 +183,7 @@ var editor = ( function () {
             var delta = 0;
             if(e.wheelDeltaY) delta = -e.wheelDeltaY*0.04;
             else if(e.wheelDelta) delta = -e.wheelDelta*0.2;
-            else if(e.detail) delta =e.detail*4.0;
+            else if(e.detail) delta = e.detail*4.0;
 
             console.log(delta)
 
@@ -183,6 +204,7 @@ var editor = ( function () {
             content.style.display = 'none';
             separator_l.style.display = 'none';
 
+
             old_l = left;
             old_r = right;
             left = 0;
@@ -193,6 +215,7 @@ var editor = ( function () {
             editor.Bdefault(bigButton[1]);
             editor.resize();
 
+            channelPad.style.display = 'none';
             gui.hide(true);
 
         },
@@ -211,6 +234,7 @@ var editor = ( function () {
             this.addSeparatorEvent();
             editor.resize();
 
+            channelPad.style.display = 'block';
             gui.hide(false);
 
         },
@@ -228,7 +252,11 @@ var editor = ( function () {
 
             if( e ){
                 if( is_l_down ) left = e.clientX + 5;
-                if( is_r_down ) {right = window.innerWidth - e.clientX + 5; gui.resize(right);}
+                if( is_r_down ) { 
+                    right = window.innerWidth - e.clientX + 5; 
+                    
+                    gui.resize(right);
+                }
             }
 
             if(view){
@@ -236,13 +264,13 @@ var editor = ( function () {
                 view.resize();
             }
 
+            separator_r.style.right = right - 10 + 'px';
             github.style.right = right + 'px';
+            channelPad.style.width = right - 10 + 'px';
+
+            separator_l.style.left = left - 10 + 'px';
             bigmenu.style.left = left +'px';
             bigmenu2.style.left = left +'px';
-            //title.style.left = left +'px';
-            //debug.style.left = left +'px';
-            separator_l.style.left = left - 10 + 'px';
-            separator_r.style.right = right - 10 + 'px';
             content.style.width = left - 10 + 'px';
 
             code.refresh();
