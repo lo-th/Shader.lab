@@ -4,6 +4,8 @@ var view = ( function () {
 
     'use strict';
 
+    var isReady = false;
+
     var params = {
 
         Speed: 1,
@@ -117,6 +119,45 @@ var view = ( function () {
          
     };
 
+    // THREE JS TRANSPHERE
+
+    var base_main = [
+        ' ',
+        'void main(){',
+        '    vec4 color = vec4(0.0);',
+        '    vec2 coord = vUv * iResolution.xy;',
+        '    mainImage( color, coord );',
+        '    #if defined( TONE_MAPPING )', 
+        '    color.rgb = toneMapping( color.rgb );',
+        '    #endif',
+        '    gl_FragColor = color;',
+        '}',
+        ' '
+    ];
+
+   /* var base_main = [
+        ' ',
+        'void main(){',
+
+        '    vec4 color = vec4(0.0);',
+
+        '    // screen space',
+        '    // vec2 coord = gl_FragCoord.xy;',
+        '    // object space',
+        '    vec2 coord = vUv * iResolution.xy;',
+
+        '    mainImage( color, coord );',
+
+        '    // tone mapping',
+        '    #if defined( TONE_MAPPING )', 
+        '    color.rgb = toneMapping( color.rgb );',
+        '    #endif',
+
+        '    gl_FragColor = color;',
+
+        '}'
+    ];*/
+
 
     view = {
 
@@ -162,6 +203,8 @@ var view = ( function () {
         },
 
         resize: function () {
+
+            if(!isReady) return;
 
             vsize.x = window.innerWidth - vs.x - vs.y;
             vsize.y = window.innerHeight;
@@ -237,7 +280,8 @@ var view = ( function () {
             canvas.className = 'canvas3d';
             canvas.oncontextmenu = function(e){ e.preventDefault(); };
             canvas.ondrop = function(e) { e.preventDefault(); };
-            document.body.appendChild( canvas );
+            //document.body.appendChild( canvas );
+            document.body.insertBefore( canvas, document.body.childNodes[0] );
 
             isWebGL2 = false;
 
@@ -304,6 +348,11 @@ var view = ( function () {
 
             this.setTone();
             this.render();
+
+            isReady = true;
+
+            this.resize();
+            this.loadAssets();
             
         },
 
@@ -445,7 +494,7 @@ var view = ( function () {
             bloomPass.strength = params.strength;
             bloomPass.radius = params.radius;
 
-        },*/
+        },
 
         initCubeCamera: function () {
 
@@ -459,7 +508,7 @@ var view = ( function () {
 
             return cubeCamera.renderTarget.texture;
 
-        },
+        },*/
 
         // -----------------------
         //  LOADING SIDE
@@ -632,7 +681,13 @@ var view = ( function () {
 
             var isch = c === 0 ? false : true;
             var Uni = [];
-            var i = 4, pre, type, name, n, size, file, n, j;
+            var i = 4, pre, type, name, size, file, n, j;
+
+            
+
+            
+
+            
 
             //if(!isch){
 
@@ -698,7 +753,10 @@ var view = ( function () {
 
             );
 
-            return Uni.join('\n') + frag;
+            // auto main for three js
+            var Main = frag.indexOf( 'void main()' ) !== -1 ? [''] : base_main;
+
+            return Uni.join('\n') + frag + Main.join('\n');
 
         },
 
@@ -706,8 +764,8 @@ var view = ( function () {
 
             var i;
 
-            console.clear();
-            console.log('reset');
+            //console.clear();
+            //console.log('reset');
 
             i = tmp_txt.length;
             while(i--){ 
@@ -752,6 +810,8 @@ var view = ( function () {
             //uniforms.iGlobalTime.value = time;
             //uniforms.iFrame.value = frame;
 
+            //console.log( fragment )
+
             view.validate( fragment );
 
         },
@@ -778,7 +838,7 @@ var view = ( function () {
         validate : function ( value ) {
 
             var details, error, i, line, lines, log, message, shader, status, _i, _len;
-            var data = [];//{lineNumber:0, message:''};
+            var data = [];//{lineNumber:0, message:''}];
 
             var baseVar = [
                 'precision '+precision+' float;',

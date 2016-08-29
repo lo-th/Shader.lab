@@ -64,7 +64,7 @@ var editor = ( function () {
 
             //if( Callback ) callback = Callback;
 
-            isWithCode = withCode || false;
+            isWithCode = withCode !== undefined ? withCode : true;
 
             // big menu
 
@@ -175,7 +175,7 @@ var editor = ( function () {
         },
 
 
-        wheel : function( e ){
+        /*wheel : function( e ){
 
             e.preventDefault();
             e.stopPropagation();
@@ -187,7 +187,7 @@ var editor = ( function () {
 
             console.log(delta)
 
-        },
+        },*/
 
         
 
@@ -255,14 +255,12 @@ var editor = ( function () {
                 if( is_r_down ) { 
                     right = window.innerWidth - e.clientX + 5; 
                     
-                    gui.resize(right);
+                    gui.resize( right );
                 }
             }
 
-            if(view){
-                view.setLeft( left, right );
-                view.resize();
-            }
+            view.setLeft( left, right );
+            view.resize();
 
             separator_r.style.right = right - 10 + 'px';
             github.style.right = right + 'px';

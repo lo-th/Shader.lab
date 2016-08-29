@@ -35,11 +35,11 @@ var demos = [
     'alien', 'clound', 'voxel', 'sea', 'volcanic', 'sculpture', 'lava', 'vines', 'metahexa', 'redsub',
     'building', 'corridor', 'hills', 'minecraft', 'ball', 'cloundy', 'primitives', 'antialias', 'foggy', 'frozen', 'metaball', 'wetsand', 'meditation',
     'glacius', 'cavegame', 'subterran', 'terrain', 'windplaine', 'mars', 'sponge', 'cosmic', 'mining', 'submarin',  'fluxcore', 'terra', 'shaderdough',
-    'elevated', 'jetstream', 'weather', 'mistylake', 'steel', 'cavern', 'boss', 'tokyo', 'storm', 'fish', 'warp', 'speed'
+    'elevated', 'jetstream', 'weather', 'mistylake', 'steel', 'cavern', 'boss', 'tokyo', 'storm', 'fish', 'warp', 'speed', 'greebles'
 ];
 
 var demos_basic = [ 
-    'basic', 'follow', 'spline', 'tech-occ', 'tech-noise', 'tech-ao','raymatch', 'cube', 'metashape', 'hg_sdf', 'icecube', 'test', 'analytic'
+    'basic', 'follow', 'spline', 'tech-occ', 'tech-noise', 'tech-ao','raymatch', 'cube', 'metashape', 'hg_sdf', 'icecube', 'test', 'analytic', 'sphere'
 ];
 
 var demos_advanced = [
@@ -59,11 +59,10 @@ var demoName = 'follow';
 
 //////////////////////////////
 
+gui.init();
+editor.init();
 view.init();
 user.init();
-gui.init();
-view.loadAssets();
-editor.init( true );
 
 //////////////////////////////
 

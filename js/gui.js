@@ -3,6 +3,7 @@ var gui = ( function () {
     var ui;
 
     gui = {
+        
         init: function(){
 
             ui = new UIL.Gui({css:'right:0px;' , size:240, color:'no', height:20, close:false });
