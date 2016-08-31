@@ -253,10 +253,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     col *= pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1)*0.9+0.1;
     
     vec4 past = texture2D(iChannel1, q);
-    float tOver = clamp(iTimeDelta-(1./60.),0.,1.);
+    float tOver = clamp(iGlobalTime-(1./60.),0.,1.);
     
     //if (count/pow(rz, 0.65) > 3.3) col = mix(col, past.rgb, clamp(1.0-iResolution.x*0.0003,0.,1.));
-    if (count/pow(rz, 0.65) > 3.3) col = mix(col, past.rgb, clamp(0.85-iTimeDelta*7.,0.,1.));
+    if (count/pow(rz, 0.65) > 3.3) col = mix(col, past.rgb, clamp(0.85-iGlobalTime*7.,0.,1.));
     
     fragColor = vec4(col, 1.0);
 }

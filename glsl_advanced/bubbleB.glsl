@@ -1,3 +1,7 @@
+// ------------------ channel define
+// 0_# buffer256_bubbleA #_0
+// ------------------
+
 // shared game state
 const int LEVEL_WIDTH = 28;
 const int LEVEL_HEIGHT = 25;
@@ -109,10 +113,10 @@ vec3 Sprite(vec2 coord, int n, vec3 color, bool mirror, int rotate, vec3 colorMu
 }
 
 
-vec3 PrintStr(vec2 gl_FragCoord, int x, int y, int str, vec3 color, vec3 inputColor)
+vec3 PrintStr(vec2 fragCoord, int x, int y, int str, vec3 color, vec3 inputColor)
 {
-    int lx = int(gl_FragCoord.x) - x;  
-    int ly = int(gl_FragCoord.y) - y;
+    int lx = int(fragCoord.x) - x;  
+    int ly = int(fragCoord.y) - y;
     if(lx < 0 || ly < 0 || ly >= FONT_HEIGHT) return inputColor;
     
     return texture2D(iChannel0, (vec2(lx, STRINGS_START_Y + str * FONT_HEIGHT + ly) + 0.5) / iChannelResolution[0].xy).x > 0.5 ? color : inputColor;
@@ -222,7 +226,7 @@ vec3 DrawMap(vec2 pixelCoord, float offset, vec3 color)
     {
         int ioffset = int(offset);
         
-        // vec3 PrintStr(vec2 gl_FragCoord, int x, int y, int str, vec3 color, vec3 inputColor)
+        // vec3 PrintStr(vec2 fragCoord, int x, int y, int str, vec3 color, vec3 inputColor)
         color = PrintStr(pixelCoord, 1*8, 25*8+ioffset, STR_BEGINNING0, vec3(1), color);
         color = PrintStr(pixelCoord, 2*8, 23*8+ioffset, STR_BEGINNING1, vec3(1), color);
         color = PrintStr(pixelCoord, 6*8, 21*8+ioffset, STR_BEGINNING2, vec3(1), color);
@@ -272,11 +276,11 @@ vec3 DrawMap(vec2 pixelCoord, float offset, vec3 color)
 
 
 
-void main(){
-    
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
     vec2 targetSize = vec2(32.,27.)*TILE_SIZE;
-    if(gl_FragCoord.x > targetSize.x || gl_FragCoord.y > targetSize.y) discard;
-    gl_FragColor = vec4(0);
+    if(fragCoord.x > targetSize.x || fragCoord.y > targetSize.y) discard;
+    fragColor = vec4(0);
     
     // load state
     vec4 gameState =    texture2D(iChannel0, (txGameState + 0.5) / iChannelResolution[0].xy);
@@ -285,7 +289,7 @@ void main(){
     vec4 playerSprite = texture2D(iChannel0, (txPlayerSprite + 0.5) / iChannelResolution[0].xy);
     vec4 playerFlags =  texture2D(iChannel0, (txPlayerFlags + 0.5) / iChannelResolution[0].xy);
     
-    vec2 playFieldCoord = gl_FragCoord - vec2(TILE_SIZE*2.0,0);
+    vec2 playFieldCoord = fragCoord - vec2(TILE_SIZE*2.0,0);
     vec2 tileCoord = floor((playFieldCoord + 0.5) / TILE_SIZE);
     vec2 tileOffset = (playFieldCoord - tileCoord*TILE_SIZE);
     tileOffset.y = (TILE_SIZE - 1.0) - tileOffset.y;
@@ -298,8 +302,8 @@ void main(){
     {
         // now is the beginning...
         
-        gl_FragColor.xyz = Sprite(playFieldCoord - playerPos.xy, 4, gl_FragColor.xyz, fract(time*2.0) > 0.5, 0);
-        gl_FragColor.xyz = LargeBubble(playFieldCoord - playerPos.xy - vec2(8.0, 8.0), time, gl_FragColor.xyz);
+        fragColor.xyz = Sprite(playFieldCoord - playerPos.xy, 4, fragColor.xyz, fract(time*2.0) > 0.5, 0);
+        fragColor.xyz = LargeBubble(playFieldCoord - playerPos.xy - vec2(8.0, 8.0), time, fragColor.xyz);
         
         
         
@@ -319,10 +323,10 @@ void main(){
             offset = 0.0;
         }
     
-        gl_FragColor.xyz = DrawMap(playFieldCoord, offset, gl_FragColor.xyz);
+        fragColor.xyz = DrawMap(playFieldCoord, offset, fragColor.xyz);
         
-        gl_FragColor.xyz = Sprite(playFieldCoord - pos.xy, 4, gl_FragColor.xyz, fract(time*2.0) > 0.5, 0, vec3(1));
-        gl_FragColor.xyz = LargeBubble(playFieldCoord - pos.xy - vec2(8.0, 8.0), time, gl_FragColor.xyz);
+        fragColor.xyz = Sprite(playFieldCoord - pos.xy, 4, fragColor.xyz, fract(time*2.0) > 0.5, 0, vec3(1));
+        fragColor.xyz = LargeBubble(playFieldCoord - pos.xy - vec2(8.0, 8.0), time, fragColor.xyz);
         
         return;
     }
@@ -331,29 +335,29 @@ void main(){
     if(tileCoord.y > 24.0)
     {
         int score = int(gameState.z);
-        gl_FragColor.xyz = vec3( Number(gl_FragCoord - vec2(0,25.*8.), score, 8) +
-                              Number(gl_FragCoord - vec2(10*8,25.*8.), 30000, 8));
+        fragColor.xyz = vec3( Number(fragCoord - vec2(0,25.*8.), score, 8) +
+                              Number(fragCoord - vec2(10*8,25.*8.), 30000, 8));
     
-        gl_FragColor.xyz = PrintStr(gl_FragCoord, 4*8, 26*8, STR_1UP, vec3(0,210,0)/255., gl_FragColor.xyz);
-        gl_FragColor.xyz = PrintStr(gl_FragCoord, 11*8, 26*8, STR_HIGH_SCORE, vec3(210,0,0)/255., gl_FragColor.xyz);
+        fragColor.xyz = PrintStr(fragCoord, 4*8, 26*8, STR_1UP, vec3(0,210,0)/255., fragColor.xyz);
+        fragColor.xyz = PrintStr(fragCoord, 11*8, 26*8, STR_HIGH_SCORE, vec3(210,0,0)/255., fragColor.xyz);
         
         float playTime = iGlobalTime;   //TODO: fix this
         if(gameState.x < 4.0)
         {
-            gl_FragColor.xyz = PrintStr(gl_FragCoord, 25*8, 26*8, STR_1UP, vec3(0,190,255)/255., gl_FragColor.xyz);
-            gl_FragColor.xyz = PrintStr(gl_FragCoord, 27*8, 25*8, STR_00, vec3(0,190,255)/255., gl_FragColor.xyz);
+            fragColor.xyz = PrintStr(fragCoord, 25*8, 26*8, STR_1UP, vec3(0,190,255)/255., fragColor.xyz);
+            fragColor.xyz = PrintStr(fragCoord, 27*8, 25*8, STR_00, vec3(0,190,255)/255., fragColor.xyz);
         }
         else
         {
             if(mod(iGlobalTime,3.0) < 1.5)
             {
-                gl_FragColor.xyz = PrintStr(gl_FragCoord, 24*8, 26*8, STR_INSERT, vec3(0,190,255)/255., gl_FragColor.xyz);
-                gl_FragColor.xyz = PrintStr(gl_FragCoord, 25*8, 25*8, STR_COIN, vec3(0,190,255)/255., gl_FragColor.xyz);
+                fragColor.xyz = PrintStr(fragCoord, 24*8, 26*8, STR_INSERT, vec3(0,190,255)/255., fragColor.xyz);
+                fragColor.xyz = PrintStr(fragCoord, 25*8, 25*8, STR_COIN, vec3(0,190,255)/255., fragColor.xyz);
             }
             else
             {
-                gl_FragColor.xyz = PrintStr(gl_FragCoord, 26*8, 26*8, STR_TO, vec3(0,190,255)/255., gl_FragColor.xyz);
-                gl_FragColor.xyz = PrintStr(gl_FragCoord, 23*8, 25*8, STR_CONTINUE, vec3(0,190,255)/255., gl_FragColor.xyz);
+                fragColor.xyz = PrintStr(fragCoord, 26*8, 26*8, STR_TO, vec3(0,190,255)/255., fragColor.xyz);
+                fragColor.xyz = PrintStr(fragCoord, 23*8, 25*8, STR_CONTINUE, vec3(0,190,255)/255., fragColor.xyz);
             }
         }
         
@@ -366,13 +370,13 @@ void main(){
     {
         // bubble bobble splash
         
-        gl_FragColor.xyz = PrintStr(gl_FragCoord, 3*8, 5*8, STR_COPYRIGHT, vec3(1), gl_FragColor.xyz);
-        gl_FragColor.xyz = PrintStr(gl_FragCoord, 7*8, 3*8, STR_ALL_RIGHTS, vec3(1), gl_FragColor.xyz);
+        fragColor.xyz = PrintStr(fragCoord, 3*8, 5*8, STR_COPYRIGHT, vec3(1), fragColor.xyz);
+        fragColor.xyz = PrintStr(fragCoord, 7*8, 3*8, STR_ALL_RIGHTS, vec3(1), fragColor.xyz);
         
         float c = sin(iGlobalTime*24.5)*.5+0.5;
         
         /*
-        vec2 coord = gl_FragCoord + vec2(0, min(0.0,-160.0+floor(iGlobalTime*120.0)));
+        vec2 coord = fragCoord + vec2(0, min(0.0,-160.0+floor(iGlobalTime*120.0)));
         float len = 1e10;
         for(int i = 0; i < 200; i++)
         {
@@ -386,13 +390,13 @@ void main(){
             color = mix(vec3(250,161,0)/255.0, color, smoothstep(9.5, 10.0, len));
             color = mix(vec3(0), color, smoothstep(6.5, 7.0, len));
             color = mix(vec3(255,240,32)/255.0, color, smoothstep(5.0, 5.5, len));
-            gl_FragColor.xyz = color;
+            fragColor.xyz = color;
         }
         
-        gl_FragColor.xyz = Logo(int(coord.x), int(coord.y), vec3(1), gl_FragColor.xyz);
+        fragColor.xyz = Logo(int(coord.x), int(coord.y), vec3(1), fragColor.xyz);
         */
         
-        vec2 coord = gl_FragCoord - vec2(0, 50) + vec2(0, min(0.0,-160.0+floor(iGlobalTime*120.0)));
+        vec2 coord = fragCoord - vec2(0, 50) + vec2(0, min(0.0,-160.0+floor(iGlobalTime*120.0)));
         int x = int(coord.x);
         int y = int(coord.y);
         
@@ -406,7 +410,7 @@ void main(){
             vec3 drawColor = mix(vec3(255, 88, 152), vec3(255, 255, 100), s)/255.0;
             
     
-            gl_FragColor.xyz = tmp.x < 0.0 ? drawColor : tmp;
+            fragColor.xyz = tmp.x < 0.0 ? drawColor : tmp;
         }
         
         return;
@@ -415,19 +419,19 @@ void main(){
     if(gameState.x == 2.0)
     {
         // insert coin
-        gl_FragColor.xyz = PrintStr(gl_FragCoord, 10*8, 13*8, STR_INSERT_COIN, vec3(1), gl_FragColor.xyz);
+        fragColor.xyz = PrintStr(fragCoord, 10*8, 13*8, STR_INSERT_COIN, vec3(1), fragColor.xyz);
         return;
     }
     
     if(gameState.x == 6.0)
     {
         // game over        
-        gl_FragColor.xyz = PrintStr(gl_FragCoord, 12*8, 13*8, STR_GAME_OVER, vec3(1), gl_FragColor.xyz);
-        gl_FragColor.xyz = PrintStr(gl_FragCoord, 11*8, 7*8, STR_PUSH_START, vec3(1), gl_FragColor.xyz);
+        fragColor.xyz = PrintStr(fragCoord, 12*8, 13*8, STR_GAME_OVER, vec3(1), fragColor.xyz);
+        fragColor.xyz = PrintStr(fragCoord, 11*8, 7*8, STR_PUSH_START, vec3(1), fragColor.xyz);
         return;
     }
     
-    gl_FragColor.xyz = DrawMap(playFieldCoord, float(level * LEVEL_HEIGHT_IN_PIXELS), gl_FragColor.xyz);
+    fragColor.xyz = DrawMap(playFieldCoord, float(level * LEVEL_HEIGHT_IN_PIXELS), fragColor.xyz);
     
     int lives = int(gameState.w);
     
@@ -453,14 +457,14 @@ void main(){
                     if(entity1.y >= 0.0)
                     {
                         // draw monster inside
-                        gl_FragColor.xyz = Sprite(delta*1.25 + vec2(8.,8.), MONSTER_SPRITE_START_IDX, gl_FragColor.xyz, false, 0, vec3(1));
+                        fragColor.xyz = Sprite(delta*1.25 + vec2(8.,8.), MONSTER_SPRITE_START_IDX, fragColor.xyz, false, 0, vec3(1));
                     }
                     
                     // bubble
                     float shake = max(0., entity0.z - (BUBBLE_LIFE_FRAMES - 120.0));
                     shake = sin(shake)*.3 + 1.0;
                     float alpha = max(0., 1.0 - abs(l - 7.5)*.75);
-                    gl_FragColor.xyz = ((gl_FragColor.xyz + c) * (mix(vec3(1), BUBBLE_COLOR, c)) + (alpha*.75*BUBBLE_COLOR + exp(-l2)))*shake;
+                    fragColor.xyz = ((fragColor.xyz + c) * (mix(vec3(1), BUBBLE_COLOR, c)) + (alpha*.75*BUBBLE_COLOR + exp(-l2)))*shake;
                 }
                 else
                 {
@@ -469,7 +473,7 @@ void main(){
                     float band = min(.4 - entity0.z*.05, 1.3);
                     float q = abs(0.5 - 2.0*fract(angle*16.0))*5.0/l * float(l > radius*(band-.1) && l < radius*band);
                     q = clamp(q, 0.0, 1.0);
-                    gl_FragColor.xyz = mix(gl_FragColor.xyz, vec3(1), vec3(q));
+                    fragColor.xyz = mix(fragColor.xyz, vec3(1), vec3(q));
                 }
             }
         }
@@ -483,18 +487,18 @@ void main(){
         if(entity0.w == ENTITY_TYPE_MONSTER)
         {
             int frame = int(mod(entity0.z*.1, 4.0));
-            gl_FragColor.xyz = Sprite(playFieldCoord - entity0.xy, MONSTER_SPRITE_START_IDX+frame, gl_FragColor.xyz, entity1.x > 0.0, 0, vec3(1));
+            fragColor.xyz = Sprite(playFieldCoord - entity0.xy, MONSTER_SPRITE_START_IDX+frame, fragColor.xyz, entity1.x > 0.0, 0, vec3(1));
         }
         else if(entity0.w == ENTITY_TYPE_TUMBLING_MONSTER)
         {
             int rot = int(mod(entity0.z*.1, 4.0));
             int frame = int(mod(entity0.z*.2, 4.0));
-            gl_FragColor.xyz = Sprite(playFieldCoord - entity0.xy, MONSTER_SPRITE_START_IDX+frame, gl_FragColor.xyz, entity1.x > 0.0, rot, vec3(0.5,0.7,1));
+            fragColor.xyz = Sprite(playFieldCoord - entity0.xy, MONSTER_SPRITE_START_IDX+frame, fragColor.xyz, entity1.x > 0.0, rot, vec3(0.5,0.7,1));
         }
         else if(entity0.w == ENTITY_TYPE_ITEM)
         {
             int frame = int(entity0.z);
-            gl_FragColor.xyz = Sprite(playFieldCoord - entity0.xy, ITEM_SPRITE_START_IDX+frame, gl_FragColor.xyz, false, 0, vec3(1));
+            fragColor.xyz = Sprite(playFieldCoord - entity0.xy, ITEM_SPRITE_START_IDX+frame, fragColor.xyz, false, 0, vec3(1));
         }
     }
 
@@ -502,33 +506,33 @@ void main(){
     {
         float intensity = 1.0 + 0.1*sin(playerFlags.y)*float(playerFlags.y < INVULNERABLE_FRAMES);
         // alive
-        gl_FragColor.xyz = Sprite(playFieldCoord - playerPos, int(playerSprite.x), gl_FragColor.xyz, playerSprite.y != 0.0, 0, vec3(intensity));
+        fragColor.xyz = Sprite(playFieldCoord - playerPos, int(playerSprite.x), fragColor.xyz, playerSprite.y != 0.0, 0, vec3(intensity));
     }
     else
     {
         // dead
         int rot = int(-playerFlags.y)/16;
         rot = rot - rot/4*4;
-        gl_FragColor.xyz = Sprite(playFieldCoord - playerPos, int(playerSprite.x), gl_FragColor.xyz, playerSprite.y != 0.0, rot, vec3(1));
+        fragColor.xyz = Sprite(playFieldCoord - playerPos, int(playerSprite.x), fragColor.xyz, playerSprite.y != 0.0, rot, vec3(1));
     }
     
     
     
-    if(gl_FragCoord.x < 2.0*8.0)
+    if(fragCoord.x < 2.0*8.0)
     {
         // level
-        if(gl_FragCoord.y > 23.5*8.0)
+        if(fragCoord.y > 23.5*8.0)
         {
-            gl_FragColor.xyz -= Number(gl_FragCoord - vec2(-1,24.*8.-1.) + vec2(-1,1), level, 2);
-            gl_FragColor.xyz = clamp(gl_FragColor.xyz, 0.0, 1.0);
-            gl_FragColor.xyz += Number(gl_FragCoord - vec2(-1,24.*8.-1.), level, 2);
+            fragColor.xyz -= Number(fragCoord - vec2(-1,24.*8.-1.) + vec2(-1,1), level, 2);
+            fragColor.xyz = clamp(fragColor.xyz, 0.0, 1.0);
+            fragColor.xyz += Number(fragCoord - vec2(-1,24.*8.-1.), level, 2);
         }
         // lives
-        if(gl_FragCoord.y < 8.0)
+        if(fragCoord.y < 8.0)
         {
-            gl_FragColor.xyz -= Number(gl_FragCoord - vec2(-1,0.*8.-1.) + vec2(-1,1), lives, 2);
-            gl_FragColor.xyz = clamp(gl_FragColor.xyz, 0.0, 1.0);
-            gl_FragColor.xyz += Number(gl_FragCoord - vec2(-1,0.*8.-1.), lives, 2);
+            fragColor.xyz -= Number(fragCoord - vec2(-1,0.*8.-1.) + vec2(-1,1), lives, 2);
+            fragColor.xyz = clamp(fragColor.xyz, 0.0, 1.0);
+            fragColor.xyz += Number(fragCoord - vec2(-1,0.*8.-1.), lives, 2);
         }
     }
 }

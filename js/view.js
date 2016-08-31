@@ -43,7 +43,6 @@ var view = ( function () {
     var vsize, mouse, key = new Float32Array( 20 );
 
     var time = 0;
-    var frame = 0;
 
     var vs = { w:1, h:1, l:0, x:0 , y:0};
 
@@ -82,7 +81,6 @@ var view = ( function () {
 
             key = user.getKey();
             time += params.Speed * 0.01;
-            frame ++;
 
 
             if(isClear) { 
@@ -423,15 +421,6 @@ var view = ( function () {
             var i, name;
 
             //console.clear();
-            
-
-            /*i = tmp_txt.length;
-            while(i--){ 
-                txt[tmp_txt[i]].dispose();
-                txt[tmp_txt[i]] = null;
-            }
-
-            tmp_txt = [];*/
 
             for( i = 1; i < 5; i++ ){
 
@@ -455,19 +444,7 @@ var view = ( function () {
 
             }
 
-            /*for(var i=0; i<4 ; i++){
-                if( isBuff[i] ){ 
-
-                    isBuff[i] = false;
-                    C_materials[i].dispose();
-                    C_textures[i].dispose();
-                    C_uniforms[i] = null;
-                    
-                }
-            }*/
-
             time = 0;
-            frame = 0;
 
             tmp_buffer = [];
 
@@ -570,7 +547,7 @@ var view = ( function () {
             var wt = THREE.ClampToEdgeWrapping;
             var ws = THREE.ClampToEdgeWrapping;
 
-            var r = new THREE.WebGLRenderTarget( w, h, { minFilter: min, magFilter: max, type: THREE.FloatType, stencilBuffer: false, format: THREE.RGBAFormat, wrapT:wt, wrapS:ws });
+            var r = new THREE.WebGLRenderTarget( w, h, { minFilter: min, magFilter: max, type: THREE.FloatType, stencilBuffer: false, depthBuffer :false, format: THREE.RGBAFormat, wrapT:wt, wrapS:ws });
             r.isFull = full || false;
             return r;
 
@@ -870,7 +847,7 @@ var view = ( function () {
         render : function ( mat, output ) {
 
             this.mesh.material = mat;
-            this.renderer.render( this.scene, this.camera, output, true );
+            this.renderer.render( this.scene, this.camera, output, false );
             //this.mesh.material = this.passThruShader;
 
         },
@@ -893,59 +870,6 @@ var view = ( function () {
         }
     }
 
-    // ------------------------------
-    //   CHANNEL
-    // ------------------------------
-
-    /*view.Channel = function(){
-        
-        this.size = new THREE.Vector3();
-        this.renderTarget = null;
-        this.texture = null;
-        this.material = null;
-        this.uniforms = null;
-        this.fragment = null;
-
-        this.actif = false;
-
-    }
-
-    view.Channel.prototype = {
-
-        dispose : function () {
-
-        },
-
-        load : function ( file ) {
-
-            editor.load( file, i, view.applyChannel, c );
-
-        },
-
-        init : function ( w, h, file ) {
-
-            this.size.set( w, h, w / h );
-
-            this.uniforms = view.getUniforms();
-            this.uniforms.iResolution.value = this.size;
-            this.uniforms.iMouse.value = view.getMouse();
-            this.uniforms.key.value = view.getKey();
-
-        },
-
-        upUniforms : function ( time, frame ) {
-
-            this.uniforms.iGlobalTime.value = time;
-            this.uniforms.iFrame.value = frame;
-
-        },
-
-        resize : function () {
-
-        }
-
-
-    }*/
 
     return view;
 

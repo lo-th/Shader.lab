@@ -1,3 +1,9 @@
+
+// ------------------ channel define
+// 0_# bufferFULL_rainB #_0
+// 1_# cube_grey1 #_1
+// ------------------
+
 //OMGS
 ///proudly presents zguerrero`s slowmo fluid as rain on camera/window
 /// work based on sauce: https://www.shadertoy.com/view/ltdGDn

@@ -1,3 +1,10 @@
+
+// ------------------ channel define
+// 0_# buffer256_bubbleA #_0
+// ------------------
+
+
+
 // shared game state
 
 const int ENTITIES_START_Y = 1;
@@ -1074,37 +1081,37 @@ float isInside( vec2 p, vec2 c ) { vec2 d = abs(p-0.5-c) - 0.5; return -max(d.x,
 
 vec4 loadValue(vec2 re)
 {
-    return texture2D( iChannel0, (0.5 + re) / iChannelResolution[0].xy, -100.0 );
+    return texture2D( iChannel0, (0.5 + re) / iChannelResolution[0].xy, -16.0 );
 }
 
-void storeValue(vec2 re, vec4 va, inout vec4 gl_FragColor, vec2 gl_FragCoord)
+void storeValue(vec2 re, vec4 va, inout vec4 fragColor, vec2 fragCoord)
 {
-    gl_FragColor = (isInside(gl_FragCoord, re) > 0.0) ? va : gl_FragColor;
+    fragColor = (isInside(fragCoord, re) > 0.0) ? va : fragColor;
 }
 
-void main(){
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    int x = int(fragCoord.x);
+    int y = int(fragCoord.y);
 
-    int x = int(gl_FragCoord.x);
-    int y = int(gl_FragCoord.y);
-
-    gl_FragColor = texture2D( iChannel0, gl_FragCoord / iChannelResolution[0].xy, -100.0 );
+    fragColor = texture2D( iChannel0, fragCoord / iChannelResolution[0].xy, -16.0 );
     vec4 staticDataInited = loadValue(txStaticDataInited);
     if(staticDataInited.x == 0.0)
     {
-        gl_FragColor = vec4(0);
+        fragColor = vec4(0);
         if(y >= FONT_START_Y && y < FONT_START_Y + FONT_HEIGHT)
         {
-            gl_FragColor = Font(x - x/FONT_WIDTH*FONT_WIDTH, y - FONT_START_Y, x/FONT_WIDTH) ? vec4(1) : vec4(0);
+            fragColor = Font(x - x/FONT_WIDTH*FONT_WIDTH, y - FONT_START_Y, x/FONT_WIDTH) ? vec4(1) : vec4(0);
         }
         
         if(y >= LEVEL_START_Y && y < LEVEL_START_Y + LEVEL_HEIGHT)
         {
-            gl_FragColor = Level(x - x/LEVEL_WIDTH*LEVEL_WIDTH, y - LEVEL_START_Y, x/LEVEL_WIDTH) ? vec4(1) : vec4(0);
+            fragColor = Level(x - x/LEVEL_WIDTH*LEVEL_WIDTH, y - LEVEL_START_Y, x/LEVEL_WIDTH) ? vec4(1) : vec4(0);
         }
         
         if(y >= SPRITE_START_Y && y < SPRITE_START_Y + SPRITE_HEIGHT)
         {
-            gl_FragColor = vec4(Sprite(x - x/SPRITE_WIDTH*SPRITE_WIDTH, y - SPRITE_START_Y, x/SPRITE_WIDTH), 1.0);
+            fragColor = vec4(Sprite(x - x/SPRITE_WIDTH*SPRITE_WIDTH, y - SPRITE_START_Y, x/SPRITE_WIDTH), 1.0);
         }
         if(y >= STRINGS_START_Y && y < STRINGS_START_Y + NUM_STRINGS*FONT_HEIGHT)
         {
@@ -1112,11 +1119,11 @@ void main(){
             int c = String(str, x / FONT_WIDTH);
             int lx = x - x/FONT_WIDTH*FONT_WIDTH;
             int ly = (y - STRINGS_START_Y) - str*FONT_HEIGHT;
-            gl_FragColor = Font(lx, ly, c) ? vec4(1) : vec4(0);
+            fragColor = Font(lx, ly, c) ? vec4(1) : vec4(0);
         }
         if(y >= LOGO_START_Y && y < LOGO_START_Y + LOGO_HEIGHT)
         {
-            gl_FragColor.xyz = Logo(x, y - LOGO_START_Y);
+            fragColor.xyz = Logo(x, y - LOGO_START_Y);
         }
         
         staticDataInited.x = 1.0;
@@ -1144,10 +1151,10 @@ void main(){
     vec4 keyWasDown = loadValue(txKeyWasDown);
     vec4 cooldown = loadValue(txCoolDown);
     
-    float moveRight = texture2D( iChannel1, vec2(KEY_RIGHT, 0.25) ).x;
-    float moveLeft  = texture2D( iChannel1, vec2(KEY_LEFT,  0.25) ).x;
-    float moveUp    = texture2D( iChannel1, vec2(KEY_UP,    0.25) ).x;
-    float keySpace  = texture2D( iChannel1, vec2(KEY_SPACE, 0.0) ).x;
+    float moveRight = max(0., key[0]);//texture2D( iChannel1, vec2(KEY_RIGHT, 0.25) ).x;
+    float moveLeft  = min(0., key[0]) * -1.0;//texture2D( iChannel1, vec2(KEY_LEFT,  0.25) ).x;
+    float moveUp    = -key[1];//texture2D( iChannel1, vec2(KEY_UP,    0.25) ).x;
+    float keySpace  = key[4];//texture2D( iChannel1, vec2(KEY_SPACE, 0.0) ).x;
     
     float time = iGlobalTime - gameState2.w;
     
@@ -1166,7 +1173,7 @@ void main(){
         
         if(y == ENTITIES_START_Y || y == ENTITIES_START_Y + 1)
         {
-            gl_FragColor = vec4(-1);       //(x, y, time, type)
+            fragColor = vec4(-1);       //(x, y, time, type)
             //monster:
             //(x, y, time, type), (direction, target_height, y_velocity, had_floor_contact)
             //bubble:
@@ -1214,7 +1221,7 @@ void main(){
         {
             if(y == ENTITIES_START_Y || y == ENTITIES_START_Y + 1)
             {
-                gl_FragColor = vec4(-100,-100,-1,-1e5);
+                fragColor = vec4(-100,-100,-1,-1e5);
             }
             
             // init level
@@ -1231,74 +1238,74 @@ void main(){
             {
                 if(y == ENTITIES_START_Y)
                 {
-                    if(x == 0) gl_FragColor = vec4(14*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
-                    if(x == 1) gl_FragColor = vec4(14*8, LEVEL_HEIGHT*8+16, 0, ENTITY_TYPE_MONSTER);
-                    if(x == 2) gl_FragColor = vec4(14*8, LEVEL_HEIGHT*8+32, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 0) fragColor = vec4(14*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 1) fragColor = vec4(14*8, LEVEL_HEIGHT*8+16, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 2) fragColor = vec4(14*8, LEVEL_HEIGHT*8+32, 0, ENTITY_TYPE_MONSTER);
                 }
                 
                 if(y == ENTITIES_START_Y + 1)
                 {
-                    if(x == 0) gl_FragColor = vec4(-1, 16*8, -1, -1);
-                    if(x == 1) gl_FragColor = vec4(-1, 18*8, -1, -1);
-                    if(x == 2) gl_FragColor = vec4(-1, 20*8, -1, -1);
+                    if(x == 0) fragColor = vec4(-1, 16*8, -1, -1);
+                    if(x == 1) fragColor = vec4(-1, 18*8, -1, -1);
+                    if(x == 2) fragColor = vec4(-1, 20*8, -1, -1);
                 }
             }
             else if(modLevel == 2)
             {
                 if(y == ENTITIES_START_Y)
                 {
-                    if(x == 0) gl_FragColor = vec4(10*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
-                    if(x == 1) gl_FragColor = vec4(12*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
-                    if(x == 2) gl_FragColor = vec4(14*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
-                    if(x == 3) gl_FragColor = vec4(16*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 0) fragColor = vec4(10*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 1) fragColor = vec4(12*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 2) fragColor = vec4(14*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 3) fragColor = vec4(16*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
                 }
                 
                 if(y == ENTITIES_START_Y + 1)
                 {
-                    if(x == 0) gl_FragColor = vec4(-1, 16*8, -1, -1);
-                    if(x == 1) gl_FragColor = vec4(-1, 21*8, -1, -1);
-                    if(x == 2) gl_FragColor = vec4( 1, 21*8, -1, -1);
-                    if(x == 3) gl_FragColor = vec4( 1, 16*8, -1, -1);
+                    if(x == 0) fragColor = vec4(-1, 16*8, -1, -1);
+                    if(x == 1) fragColor = vec4(-1, 21*8, -1, -1);
+                    if(x == 2) fragColor = vec4( 1, 21*8, -1, -1);
+                    if(x == 3) fragColor = vec4( 1, 16*8, -1, -1);
                 }
             }
             else if(modLevel == 3)
             {
                 if(y == ENTITIES_START_Y)
                 {
-                    if(x == 0) gl_FragColor = vec4(4*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
-                    if(x == 1) gl_FragColor = vec4(8*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
-                    if(x == 2) gl_FragColor = vec4(18*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
-                    if(x == 3) gl_FragColor = vec4(22*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 0) fragColor = vec4(4*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
+                    if(x == 1) fragColor = vec4(8*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
+                    if(x == 2) fragColor = vec4(18*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 3) fragColor = vec4(22*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
                 }
                 
                 if(y == ENTITIES_START_Y + 1)
                 {
-                    if(x == 0) gl_FragColor = vec4( 1, 16*8, -1, -1);
-                    if(x == 1) gl_FragColor = vec4( 1, 21*8, -1, -1);
-                    if(x == 2) gl_FragColor = vec4(-1, 21*8, -1, -1);
-                    if(x == 3) gl_FragColor = vec4(-1, 16*8, -1, -1);
+                    if(x == 0) fragColor = vec4( 1, 16*8, -1, -1);
+                    if(x == 1) fragColor = vec4( 1, 21*8, -1, -1);
+                    if(x == 2) fragColor = vec4(-1, 21*8, -1, -1);
+                    if(x == 3) fragColor = vec4(-1, 16*8, -1, -1);
                 }
             }
             else if(modLevel == 4)
             {
                 if(y == ENTITIES_START_Y)
                 {
-                    if(x == 0) gl_FragColor = vec4(4*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
-                    if(x == 1) gl_FragColor = vec4(6*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
-                    if(x == 2) gl_FragColor = vec4(8*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
-                    if(x == 3) gl_FragColor = vec4(18*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
-                    if(x == 4) gl_FragColor = vec4(20*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
-                    if(x == 5) gl_FragColor = vec4(22*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 0) fragColor = vec4(4*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
+                    if(x == 1) fragColor = vec4(6*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
+                    if(x == 2) fragColor = vec4(8*8, LEVEL_HEIGHT*8,  0, ENTITY_TYPE_MONSTER);
+                    if(x == 3) fragColor = vec4(18*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 4) fragColor = vec4(20*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
+                    if(x == 5) fragColor = vec4(22*8, LEVEL_HEIGHT*8, 0, ENTITY_TYPE_MONSTER);
                 }
                 
                 if(y == ENTITIES_START_Y + 1)
                 {
-                    if(x == 0) gl_FragColor = vec4( 1, 20*8, -1, -1);
-                    if(x == 1) gl_FragColor = vec4( 1, 16*8, -1, -1);
-                    if(x == 2) gl_FragColor = vec4( 1,  8*8, -1, -1);
-                    if(x == 3) gl_FragColor = vec4(-1,  8*8, -1, -1);
-                    if(x == 4) gl_FragColor = vec4(-1, 16*8, -1, -1);
-                    if(x == 5) gl_FragColor = vec4(-1, 20*8, -1, -1);
+                    if(x == 0) fragColor = vec4( 1, 20*8, -1, -1);
+                    if(x == 1) fragColor = vec4( 1, 16*8, -1, -1);
+                    if(x == 2) fragColor = vec4( 1,  8*8, -1, -1);
+                    if(x == 3) fragColor = vec4(-1,  8*8, -1, -1);
+                    if(x == 4) fragColor = vec4(-1, 16*8, -1, -1);
+                    if(x == 5) fragColor = vec4(-1, 20*8, -1, -1);
                 }
             }
 
@@ -1368,7 +1375,7 @@ void main(){
         int firstFreeEntity = 0;
         for(int i = 0; i < MAX_ENTITIES; i++)
         {
-            vec4 entity0 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y) + 0.5) / iChannelResolution[0].xy, -100.0 );
+            vec4 entity0 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y) + 0.5) / iChannelResolution[0].xy, -16.0 );
             
             if(entity0.w == ENTITY_TYPE_MONSTER && playerFlags.y >= INVULNERABLE_FRAMES && length(entity0.xy - playerPos.xy) < 10.0)
             {
@@ -1428,8 +1435,8 @@ void main(){
         // entity update
         if((y == ENTITIES_START_Y || y == ENTITIES_START_Y + 1) && x < MAX_ENTITIES)
         {
-            vec4 entity0 = texture2D( iChannel0, (vec2(x, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -100.0 );
-            vec4 entity1 = texture2D( iChannel0, (vec2(x, ENTITIES_START_Y + 1) + 0.5) / iChannelResolution[0].xy, -100.0 );
+            vec4 entity0 = texture2D( iChannel0, (vec2(x, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -16.0 );
+            vec4 entity1 = texture2D( iChannel0, (vec2(x, ENTITIES_START_Y + 1) + 0.5) / iChannelResolution[0].xy, -16.0 );
             
             
             if(entity0.w == ENTITY_TYPE_BUBBLE) // bubble update
@@ -1442,8 +1449,8 @@ void main(){
                 vec2 pushVector = vec2(0);
                 for(int i = 0; i < MAX_ENTITIES; i++)
                 {
-                    vec4 otherEntity0 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -100.0 );
-                    vec4 otherEntity1 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 1) + 0.5) / iChannelResolution[0].xy, -100.0 );
+                    vec4 otherEntity0 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -16.0 );
+                    vec4 otherEntity1 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 1) + 0.5) / iChannelResolution[0].xy, -16.0 );
                 
                     if(entity0.z >= 0.0 && otherEntity0.w == ENTITY_TYPE_BUBBLE)
                     {
@@ -1469,7 +1476,7 @@ void main(){
                     {
                         for(int j = 0; j < MAX_ENTITIES; j++)
                         {
-                            vec4 otherEntity0 = texture2D( iChannel0, (vec2(j, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -100.0 );
+                            vec4 otherEntity0 = texture2D( iChannel0, (vec2(j, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -16.0 );
                             if(otherEntity0.w == ENTITY_TYPE_MONSTER)
                             {
                                 vec2 delta = entity0.xy - (otherEntity0.xy + vec2(8,8));
@@ -1550,8 +1557,8 @@ void main(){
                     // was monster hit by bubble?
                     for(int i = 0; i < MAX_ENTITIES; i++)
                     {
-                        vec4 otherEntity0 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -100.0 );
-                        vec4 otherEntity1 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 1) + 0.5) / iChannelResolution[0].xy, -100.0 );
+                        vec4 otherEntity0 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -16.0 );
+                        vec4 otherEntity1 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 1) + 0.5) / iChannelResolution[0].xy, -16.0 );
                         if(otherEntity0.w == ENTITY_TYPE_BUBBLE && otherEntity0.z >= 0.0 && otherEntity0.z < BUBBLE_ATTACK_FRAMES && otherEntity1.y <= 0.0)
                         {
                             vec2 delta = otherEntity0.xy - (entity0.xy + vec2(8,8));
@@ -1672,7 +1679,7 @@ void main(){
                 }
             }
             
-            gl_FragColor = (y == ENTITIES_START_Y) ? entity0 : entity1;
+            fragColor = (y == ENTITIES_START_Y) ? entity0 : entity1;
         }
         
         
@@ -1685,8 +1692,8 @@ void main(){
         {
             for(int i = 0; i < MAX_ENTITIES; i++)
             {
-                vec4 entity0 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -100.0 );
-                vec4 entity1 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 1) + 0.5) / iChannelResolution[0].xy, -100.0 );
+                vec4 entity0 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 0) + 0.5) / iChannelResolution[0].xy, -16.0 );
+                vec4 entity1 = texture2D( iChannel0, (vec2(i, ENTITIES_START_Y + 1) + 0.5) / iChannelResolution[0].xy, -16.0 );
                 if(entity0.w == ENTITY_TYPE_MONSTER || (entity0.w == ENTITY_TYPE_BUBBLE && entity1.y > 0.0))
                 {
                     winCondition = false;
@@ -1733,16 +1740,16 @@ void main(){
     }
     
     // store state
-    storeValue(txGameState,     vec4(gameState),    gl_FragColor, gl_FragCoord);
-    storeValue(txGameState2,    vec4(gameState2),   gl_FragColor, gl_FragCoord);
-    storeValue(txGameState3,    vec4(gameState3),   gl_FragColor, gl_FragCoord);
-    storeValue(txPlayerPos,     vec4(playerPos),    gl_FragColor, gl_FragCoord);
-    storeValue(txPlayerSprite,  vec4(playerSprite), gl_FragColor, gl_FragCoord);
-    storeValue(txPlayerVel,     vec4(playerVel),    gl_FragColor, gl_FragCoord);
-    storeValue(txPlayerFlags,   vec4(playerFlags),  gl_FragColor, gl_FragCoord);
-    storeValue(txKeyWasDown,    vec4(keyWasDown),   gl_FragColor, gl_FragCoord);
-    storeValue(txCoolDown,      vec4(cooldown),     gl_FragColor, gl_FragCoord);
-    storeValue(txStaticDataInited, vec4(staticDataInited),  gl_FragColor, gl_FragCoord);
+    storeValue(txGameState,     vec4(gameState),    fragColor, fragCoord);
+    storeValue(txGameState2,    vec4(gameState2),   fragColor, fragCoord);
+    storeValue(txGameState3,    vec4(gameState3),   fragColor, fragCoord);
+    storeValue(txPlayerPos,     vec4(playerPos),    fragColor, fragCoord);
+    storeValue(txPlayerSprite,  vec4(playerSprite), fragColor, fragCoord);
+    storeValue(txPlayerVel,     vec4(playerVel),    fragColor, fragCoord);
+    storeValue(txPlayerFlags,   vec4(playerFlags),  fragColor, fragCoord);
+    storeValue(txKeyWasDown,    vec4(keyWasDown),   fragColor, fragCoord);
+    storeValue(txCoolDown,      vec4(cooldown),     fragColor, fragCoord);
+    storeValue(txStaticDataInited, vec4(staticDataInited),  fragColor, fragCoord);
     
 }
 
