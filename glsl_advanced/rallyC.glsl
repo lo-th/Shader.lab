@@ -1,11 +1,10 @@
 
 // ------------------ channel define
-// 0_# buffer128_rallyA #_0
+// 0_# bufferFULL_rallyA #_0
 // 1_# tex17 #_1
 // 2_# tex05 #_2
-// 3_# buffer128_rallyB #_3
+// 3_# bufferFULL_rallyB #_3
 // ------------------
-
 
 // Shader Rally - @P_Malin
 
@@ -153,11 +152,11 @@ vec3 Hash32( vec2 p );
 
 vec2 g_TyreTrackOrigin;
 
-void main(){
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    g_pixelRandom = normalize( Hash32(fragCoord.xy + iGlobalTime) );
     
-    g_pixelRandom = normalize( Hash32(gl_FragCoord.xy + iGlobalTime) );
-    
-    vec2 vUV = gl_FragCoord.xy / iResolution.xy;
+    vec2 vUV = fragCoord.xy / iResolution.xy;
 
     vec3 vCameraPos = LoadVec3( addrCamera + offsetCameraPos );
     vec3 vCameraTarget = LoadVec3( addrCamera + offsetCameraTarget );
@@ -171,7 +170,7 @@ void main(){
     vec3 vResult = GetSceneColour(vRayOrigin, vRayDir, fDepth);
     vResult = max( vResult, vec3(0.0));
         
-    gl_FragColor = vec4(vResult, fDepth);
+    fragColor = vec4(vResult, fDepth);
 }
 
 // CAMERA

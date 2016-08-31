@@ -4,7 +4,7 @@ var pool = ( function () {
 
     var urls = [];
     var callback = null;
-    var results = null;
+    var results = {};
     var inLoading = false;
 
     pool = {
@@ -28,7 +28,7 @@ var pool = ( function () {
 
             callback = Callback || function(){};
 
-            results = {};
+            //results = {};
 
             inLoading = true;
 

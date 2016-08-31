@@ -1,7 +1,7 @@
 
 // ------------------ channel define
-// 0_# buffer128_rallyA #_0
-// 1_# buffer128_rallyC #_1
+// 0_# bufferFULL_rallyA #_0
+// 1_# bufferFULL_rallyC #_1
 // ------------------
 
 
@@ -23,6 +23,7 @@
 // Image shader - final postprocessing
 
 // https://www.shadertoy.com/view/XdcGWS
+
 
 #define MOTION_BLUR_TAPS 32
 
@@ -135,9 +136,9 @@ float Hash( float p )
 
 float fGolden = 3.141592 * (3.0 - sqrt(5.0));
 
-void main(){
-
-    vec2 vUV = gl_FagCoord.xy / iResolution.xy;
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    vec2 vUV = fragCoord.xy / iResolution.xy;
 
     vec4 vSample = texture2D( iChannel1, vUV ).rgba;
     
@@ -215,7 +216,7 @@ void main(){
     // Draw depth
     //vFinal = vec3(1.0) / abs(vSample.a);    
     
-    gl_FragColor = vec4(vFinal, 1.0);
+    fragColor = vec4(vFinal, 1.0);
 }
 
 // POSTFX

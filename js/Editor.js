@@ -12,9 +12,13 @@ var editor = ( function () {
 
     //var rl = 250;
 
-    var channels = [];
+    //var channels = [];
 
     var content, codeContent, code, separator_l, separator_r, menuCode, version, bigmenu2, channelPad;//, debug, title; 
+
+    var codes = {};
+    var mainCode = '';
+    var current = '';
 
     var ch = [];
     //var callback = function(){};
@@ -27,8 +31,8 @@ var editor = ( function () {
     var right = 0;
     var old_l = ~~ (window.innerWidth*0.4);
     var old_r = 250;
-    var fileName = '';
-    var fileName_old = '';
+    //var fileName = '';
+    //var fileName_old = '';
     var nextDemo = null;
     var selectColor = '#308AFF';
     var scrollOn = false;
@@ -76,7 +80,6 @@ var editor = ( function () {
             bigmenu.className = 'bigmenu';
             document.body.appendChild( bigmenu );
 
-
             this.makeBigMenu();
 
             // github logo
@@ -94,8 +97,6 @@ var editor = ( function () {
             separator_l = document.createElement('div');
             separator_l.className = 'separator';
             document.body.appendChild( separator_l );
-
-
 
             separator_r = document.createElement('div');
             separator_r.className = 'separator';
@@ -119,7 +120,7 @@ var editor = ( function () {
 
             code = CodeMirror( codeContent, {
                 lineNumbers: true, matchBrackets: true, indentWithTabs: true, styleActiveLine: true,
-                theme:'monokai', mode: "text/x-glsl",//mode:'glsl',//'text/javascript',
+                theme:'monokai', mode: "text/x-glsl",
                 tabSize: 4, indentUnit: 4, highlightSelectionMatches: {showToken: /\w/}
             });
 
@@ -139,30 +140,69 @@ var editor = ( function () {
 
 
             // channel pad
-
-            channelPad = document.createElement( 'div' );
-            channelPad.className = 'channelPad';
-            document.body.appendChild( channelPad );
-
             this.initChannelPad();
 
 
-            if(isWithCode) editor.show();
-
-            //bigmenu.style.width =  window.innerWidth - left - right +'px';
-            //bigmenu2.style.width =  window.innerWidth - left - right +'px';
+            if( isWithCode ) editor.show();
 
         },
 
         initChannelPad : function () {
-            var i = 4;
-            while(i--){
 
+            channelPad = document.createElement( 'div' );
+            channelPad.className = 'channelPad';
+            document.body.appendChild( channelPad );
+            
+            for( var i = 0; i < 4; i++ ){
                 ch[i] = document.createElement( 'div' );
                 ch[i].className = 'ch';
                 channelPad.appendChild( ch[i] );
             }
+
         },
+
+        setChannelPad : function ( i, type, name ) {
+
+            var c = document.createElement( 'div' );
+
+            if( type === 'buffer' ){
+
+            }else if( type === 'image' ){
+
+                var img = pool.getResult()[name];
+                if(img){
+                    c = document.createElement( 'canvas' );
+                    c.width = c.height = 64;
+                    c.getContext('2d').drawImage( img,0,0,64,64);
+                }
+                
+
+            } else if( type === 'cube' ){
+
+
+            }
+
+            c.className = 'chIn';
+            ch[i].appendChild(c);
+
+        },
+
+        clearChannelPad : function () {
+
+            var i = 4, j, b;
+            while(i--){
+                j = ch[i].childNodes.length;
+                while(j--){
+                    b = ch[i].childNodes[j];
+                    //b.removeEventListener('mousedown', editor.codeDown );
+                    ch[i].removeChild( b );
+                }
+
+            }
+
+        },
+
+        /////////////////////
 
         setMessage : function( t ) {
 
@@ -216,7 +256,7 @@ var editor = ( function () {
             editor.resize();
 
             channelPad.style.display = 'none';
-            gui.hide(true);
+            gui.hide( true );
 
         },
 
@@ -283,6 +323,8 @@ var editor = ( function () {
 
         clearMenuCode : function () {
 
+            //codes = {};
+
             var i = menuCode.childNodes.length, b;
             while(i--){
                 b = menuCode.childNodes[i];
@@ -292,17 +334,36 @@ var editor = ( function () {
 
         },
 
-        addCode : function ( name ) {
+        selectMenuCode : function () {
+
+            var i = menuCode.childNodes.length, b;
+            while(i--){
+                b = menuCode.childNodes[i];
+                if( b.name === current ) b.style.borderBottom = '1px solid #1e1e1e';
+                else b.style.borderBottom = 'none';
+            }
+
+        },
+
+        addCode : function ( name, m ) {
 
             var b = document.createElement('div');
             b.className = 'code';
+            b.name = name;
             b.innerHTML = name;
             b.addEventListener('mousedown', editor.codeDown );
+            if(m) b.style.borderBottom = '1px solid #1e1e1e';
             menuCode.appendChild( b );
 
         },
 
         codeDown : function ( e ) {
+
+            var name = e.target.name;
+            current = name;
+
+            editor.selectMenuCode();
+            code.setValue( codes[name] );
 
         },
 
@@ -372,29 +433,26 @@ var editor = ( function () {
 
             lng = demos_basic.length;
             if( lng )  editor.addRubric('BASIC');
-            for( i = 0; i < lng ; i++ ) editor.addButtonBig( demos_basic[i] );
+            for( i = 0; i < lng ; i++ ) editor.addButton( demos_basic[i] );
 
             //
 
             lng = demos.length;
             if( lng ) editor.addRubric('SHADERS');
-            for( i = 0; i < lng ; i++ ) editor.addButtonBig( demos[i] );
+            for( i = 0; i < lng ; i++ ) editor.addButton( demos[i] );
 
             //
 
             lng = demos_advanced.length;
             if( lng ) editor.addRubric('ADVANCED');
-            for( i = 0; i < lng ; i++ ) editor.addButtonBig( demos_advanced[i] );
+            for( i = 0; i < lng ; i++ ) editor.addButton( demos_advanced[i] );
 
             //
 
             lng = demos_texture.length;
             if( lng ) editor.addRubric('TEXTURES');
-            for( i = 0; i < lng ; i++ ) editor.addButtonBig( demos_texture[i] );
-            
-
-            
-
+            for( i = 0; i < lng ; i++ ) editor.addButton( demos_texture[i] );
+    
         },
 
         hideBigMenu : function ( e ) {
@@ -425,23 +483,26 @@ var editor = ( function () {
 
         },
 
-        addButtonBig : function ( name ) {
+        addButton : function ( name ) {
 
             var b = document.createElement('div');
-            b.className = 'mButton';
-            bigContent.appendChild( b );
-            b.innerHTML = '&bull; ' + name;//.charAt(0).toUpperCase() + name.substring(1).toLowerCase();
+            b.innerHTML = '&bull; ' + name;
             b.name = name;
-            b.addEventListener('mousedown', editor.bigDown, false );
 
-            if( name === fileName ) b.style.color = selectColor;
+            if( name === mainCode ){ 
+                b.className = 'mButtonSelect';
+            } else {
+                b.className = 'mButton';
+                b.addEventListener('mousedown', editor.bigDown, false );
+            }
 
+            bigContent.appendChild( b );
+        
         },
 
         bigDown : function ( e ) {
 
             editor.hideBigMenu();
-            //editor.load('demos/' + e.target.name + '.js');
             editor.load( e.target.name );
 
         },
@@ -584,38 +645,63 @@ var editor = ( function () {
 
         // code
 
-        load : function ( name, n, fun, c ) {
+        load : function ( name, size ) {
 
             var prev = 'glsl/';
             var end = '.glsl';
+            //var t = '';
+            var isMain = false;
 
-            n = n || 0;
+            var n = editor.getChannelNumber( name );
 
-            //fileName = name;
+            //console.log(n)
 
-            //if( demos.indexOf( fileName ) !== -1 ) prev = 'glsl/';
             if( demos_basic.indexOf( name ) !== -1 ) prev = 'glsl_basic/';
-            if( demos_texture.indexOf( name ) !== -1 ) prev = 'glsl_texture/';
-            if( demos_advanced.indexOf( name ) !== -1 ) prev = 'glsl_advanced/';
-            if( demos_advanced.indexOf( name.substring( 0, name.length-1 ) ) !== -1 ) prev = 'glsl_advanced/';
+            else if( demos_texture.indexOf( name ) !== -1 ) prev = 'glsl_texture/';
+            else if( demos_advanced.indexOf( name ) !== -1 ) prev = 'glsl_advanced/';
+            else if( demos_advanced.indexOf( name.substring( 0, name.length-1 ) ) !== -1 ) prev = 'glsl_advanced/';
             
+            var isMain = n === 0 ? true : false;
 
+            if( isMain ){ 
+                if( name !== mainCode ) editor.clear(); 
+            } else {
+                if( codes[ name ] ) return;
+            }
+            
             var xhr = new XMLHttpRequest();
             xhr.overrideMimeType( 'text/plain; charset=x-user-defined' ); 
             xhr.open( 'GET', prev + name + end, true );
 
             xhr.onload = function(){
 
-                if( fun !== undefined ) {
-                    fun( n, xhr.responseText, name, c );
-                    return;
+                //if( isMain && name !== mainCode ) editor.clear();
+
+                //if( codes[ name ] !== undefined ) return;
+
+                codes[ name ] = xhr.responseText;
+                editor.addCode( name, isMain );
+
+                if(n === 0 ) {
+
+                    mainCode = name;
+                    current = name;
+                    code.setValue( codes[name] );
+
                 } else {
-                    fileName = name;
-                    channels[n] = xhr.responseText;
-                    if( n === 0 ) code.setValue( xhr.responseText );
+
+                    view.addBuffer( codes[ name ], n, name, size );
+
                 }
 
-                
+                /*if( fun !== undefined ) {
+                    fun( n, xhr.responseText, name, c );
+                   // return;
+                }/* else {
+                    fileName = name;
+                    //channels[n] = xhr.responseText;
+                    if( n === 0 ) code.setValue( xhr.responseText );
+                }*/
 
             }
             
@@ -625,7 +711,14 @@ var editor = ( function () {
 
         clear : function () {
 
-            channels = [];
+            editor.clearChannelPad();
+            editor.clearMenuCode();
+
+            current = '';
+            mainCode = '';
+            codes = {};
+
+            view.reset();
 
         },
 
@@ -687,18 +780,24 @@ var editor = ( function () {
 
         onChange : function () {
 
-            
-            var value = code.getValue();
-            var isNew = fileName_old !== fileName ? true : false;
-            //editor.inject( value );
-
-            //view.setMat( value, isNew );
-
-            //fileName_old = fileName;
+            var n = editor.getChannelNumber( current );
+            codes[ current ] = code.getValue();
 
             clearTimeout( interval );
-            interval = setTimeout( function() { view.setMat( value, isNew ); fileName_old = fileName; }, 10 );
+            interval = setTimeout( function() { view.applyFragment( codes[ current ], n ); }, 10 );
             //if( this.validate( value ) ) interval = setTimeout( function() { editor.inject( value ); }, 500);
+
+        },
+
+        getChannelNumber : function ( name ){
+
+            var n = 0;
+            var t = name.substring( name.length - 1 );
+            if(t === 'A') n = 1;
+            if(t === 'B') n = 2;
+            if(t === 'C') n = 3;
+            if(t === 'D') n = 4;
+            return n;
 
         },
 
@@ -729,10 +828,10 @@ var editor = ( function () {
 
             if( value === undefined ){ 
 
-                editor.clearMenuCode();
-                editor.addCode( fileName );
+                //editor.clearMenuCode();
+                //editor.addCode( fileName );
                 //menuCode.innerHTML = '&bull; ' + fileName;
-                location.hash = fileName;
+                location.hash = mainCode;
                 //callback( fileName );
             }
             else menuCode.innerHTML = '<font color="red">' + value + '</font>';

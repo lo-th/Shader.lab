@@ -1,6 +1,6 @@
 // ------------------ channel define
 // 0_# bufferFULL_raytraceA #_0
-// 1_# grey1 #_1
+// 1_# cube_grey1 #_1
 // ------------------
 
 

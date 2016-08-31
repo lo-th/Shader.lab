@@ -1,8 +1,7 @@
 
 
 // ------------------ channel define
-// 0_# buffer128_rallyA #_0
-// 1_# key #_1
+// 0_# bufferFULL_rallyA #_0
 // ------------------
 
 // Shader Rally - @P_Malin
@@ -994,11 +993,11 @@ void CameraStoreState( Camera cam, in vec2 addr, inout vec4 fragColor, in vec2 f
     StoreVec3( addr + offsetCameraTarget, cam.vTarget, fragColor, fragCoord );    
 }
     
-void main(){
-
-    if (( gl_FragCoord.x > 13.0 ) || ( gl_FragCoord.y > 3.0 ) )
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    if (( fragCoord.x > 13.0 ) || ( fragCoord.y > 3.0 ) )
     {
-        gl_FragColor = vec4(0.0);
+        fragColor = vec4(0.0);
         return;
     }
     
@@ -1056,7 +1055,7 @@ void main(){
 
     fragColor = vec4( 0.0 );
     
-    VehicleStoreState( addrVehicle, vehicle, gl_FragColor, gl_FragCoord.xy );
+    VehicleStoreState( addrVehicle, vehicle, fragColor, fragCoord );
     
   
     Camera prevCam;
@@ -1065,7 +1064,7 @@ void main(){
     CameraLoadState( prevCam, addrCamera );
 
     // store in addrPrevCamera
-    CameraStoreState( prevCam, addrPrevCamera, gl_FragColor, gl_FragCoord.xy );
+    CameraStoreState( prevCam, addrPrevCamera, fragColor, fragCoord );
     
     Camera cam;
     
@@ -1080,5 +1079,5 @@ void main(){
     cam.vPos = RotY( cam.vPos, fAngle );
     cam.vPos += cam.vTarget;
             
-    CameraStoreState( cam, addrCamera, gl_FragColor, gl_FragCoord.xy );
+    CameraStoreState( cam, addrCamera, fragColor, fragCoord );
 }

@@ -134,8 +134,8 @@ vec3 PostEffects(vec3 rgb, vec2 xy)
     rgb *= .4 + 0.5 * pow(40.0 * xy.x * xy.y * (1.0 - xy.x) * (1.0 - xy.y), 0.2);
     return rgb;
 }
-void main(void) 
-{
+void main(){
+
     float gTime = (iGlobalTime * 5.0 + 2352.0) * .006;
     float hTime = iGlobalTime;
     vec2 xy = vUv.xy / iResolution.xy;

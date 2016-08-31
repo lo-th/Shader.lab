@@ -1,10 +1,9 @@
 
 
 // ------------------ channel define
-// 0_# buffer128_rallyA #_0
-// 1_# buffer128_rallyB #_1
+// 0_# bufferFULL_rallyA #_0
+// 1_# bufferFULL_rallyB #_1
 // ------------------
-
 // Tyre track buffer rendering shader
 
 vec2 addrVehicle = vec2( 0.0, 0.0 );
@@ -126,9 +125,9 @@ void UpdateTyreTracks( vec3 vCamPosPrev, vec3 vCamPos, inout vec4 fragColor, in 
 }
 
 
-void main(){
-    
-    gl_FragColor = vec4(0.0,0.0, 0.0, 1.0);
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    fragColor = vec4(0.0,0.0, 0.0, 1.0);
     
     Camera cam;
     CameraLoadState( cam, addrCamera );
@@ -136,5 +135,5 @@ void main(){
     Camera prevCam;    
     CameraLoadState( prevCam, addrPrevCamera );
     
-    UpdateTyreTracks( prevCam.vPos, cam.vPos, gl_FragColor, gl_FragCoord.xy );        
+    UpdateTyreTracks( prevCam.vPos, cam.vPos, fragColor, fragCoord );        
 }
