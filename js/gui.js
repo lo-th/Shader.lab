@@ -23,7 +23,7 @@ var gui = ( function () {
             ui.add('button',  { value: [0.125, 0.25,0.5,1], simple:true, sa:10 }).onChange( function(v){view.setQuality(v)} );
 
             ui.add('title',  { name:'Scene' });
-            ui.add('button',  { value: ['full', 'sphere','torus'], simple:true, sa:10 }).onChange( function(v){ if(v==='full') view.setScene(0); if(v==='sphere') view.setScene(1); if(v==='torus') view.setScene(2);} );
+            ui.add('button',  { value: ['full', 'sphere','hero'], simple:true, sa:10 }).onChange( function(v){ if(v==='full') view.setScene(0); if(v==='sphere') view.setScene(1); if(v==='hero') view.setScene(2);} );
 
             ui.add('title',  { name:'Tone Mapping' });
 

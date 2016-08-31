@@ -1,9 +1,9 @@
 
 
 
-THREE.Shadertoy = function ( frag, tone, objSpace ) {
+THREE.Shadertoy = function ( frag, tone, objSpace, parameters ) {
 
-    THREE.ShaderMaterial.call( this );
+    THREE.ShaderMaterial.call( this, parameters );
 
     this.objSpace = objSpace !== undefined ? objSpace : true;
     this.isTone = tone !== undefined ? tone : true;
@@ -27,6 +27,7 @@ THREE.Shadertoy = function ( frag, tone, objSpace ) {
         iChannelResolution: { type: 'v2v', value: this.channelRes },
 
         iGlobalTime: { type: 'f', value: 0 },
+        iTimeDelta: { type: 'f', value: 0 },
         iResolution: { type: 'v3', value: null },
         iMouse: { type: 'v4', value: null },
         iFrame: { type: 'i', value: 0 },
@@ -116,6 +117,7 @@ THREE.Shadertoy.prototype.completeFragment = function ( frag ) {
         'uniform vec4 iMouse;',
         'uniform vec3 iResolution;',
         'uniform float iGlobalTime;',
+        'uniform float iTimeDelta;',
         'uniform vec2 iChannelResolution[4];',
         'uniform float key[20];',
         'uniform float iDate;',

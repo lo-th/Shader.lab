@@ -6,6 +6,7 @@ var view = ( function () {
 
     var isReady = false;
     var isClear = false;
+    var isHero = false;
 
     var params = {
 
@@ -65,6 +66,8 @@ var view = ( function () {
 
     var tmp_buffer = [];
 
+    var hero;
+
     var precision = 'highp';
 
 
@@ -72,7 +75,7 @@ var view = ( function () {
 
         render: function () {
 
-            var i, name;
+            var i, name, delta;
 
             requestAnimationFrame( view.render );
 
@@ -80,7 +83,11 @@ var view = ( function () {
             while(i--) extraUpdate[i]();
 
             key = user.getKey();
-            time += params.Speed * 0.01;
+
+            delta = params.Speed * 0.01;
+            time += delta;
+
+            if(isHero) THREE.SEA3D.AnimationHandler.update( delta );
 
 
             if(isClear) { 
@@ -105,15 +112,18 @@ var view = ( function () {
 
                 if( materials[i] !== null ){
 
-                    materials[i].uniforms.iGlobalTime.value = time;
-                    //materials[i].uniforms.iFrame.value = frame;
-
                     if( i !== 0 ){ 
+
                         name = materials[i].name;
                         gputmp.render( materials[i], buffers_1[i] );
                         gputmp.renderTexture( buffers_1[i].texture, buffers_2[i], buffers_1[i].width, buffers_1[i].height );
+
                         materials[i].uniforms.iFrame.value ++;
+                        materials[i].uniforms.iTimeDelta.value = delta;
+                        
                     }
+
+                    materials[i].uniforms.iGlobalTime.value = time;
 
                 }
 
@@ -352,7 +362,7 @@ var view = ( function () {
 
             txt_name = [ 'stone', 'bump', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02', 'tex12', 'tex10', 'tex17' ];
 
-            pool.load( [ 'textures/basic.png', 'textures/noise.png' ], view.initModel );
+            pool.load( [ 'models/hero.sea', 'textures/basic.png', 'textures/noise.png' ], view.initModel );
 
         },
 
@@ -574,6 +584,11 @@ var view = ( function () {
             materials[n].uniforms.iResolution.value = vsize;
             materials[n].uniforms.iMouse.value = mouse;
             materials[n].uniforms.key.value = key;
+
+            if(isHero) {
+                materials[n].skinning = true;
+                materials[n].morphTargets = true;
+            }
             //materials[n].extensions.drawBuffers = true;
 
         },
@@ -658,6 +673,8 @@ var view = ( function () {
         initModel : function () {
 
             var p = pool.getResult();
+
+            hero = p['hero'][0];
         
             // init base textures
 
@@ -687,6 +704,8 @@ var view = ( function () {
         // -----------------------
 
         setScene : function( n ){
+
+            isHero = false;
 
             var g;
 
@@ -718,9 +737,24 @@ var view = ( function () {
 
             if( n === 2 ){
 
+                isHero = true;
+
                 g = new THREE.TorusBufferGeometry( 3, 1, 50, 20 );
-                mesh = new THREE.Mesh( g, materials[0] );
+               // materials[0].skinning = true;
+               //materials[0].morphTargets = true;
+
+                mesh = hero;//new THREE.SEA3D.SkinnedMesh( hero.geometry, materials[0], false );//new THREE.Mesh( g, materials[0] );
+                mesh.material = materials[0];
+                mesh.material.skinning = true;
+                mesh.material.morphTargets = true;
+
+                mesh.scale.set(0.04,0.04,0.04);
+                mesh.position.set(0,0,0);
+                //
+                //mesh = new THREE.Mesh( hero.geometry, materials[0] );
                 scene.add( mesh );
+
+                mesh.play( 'walk' );
 
             }
 
