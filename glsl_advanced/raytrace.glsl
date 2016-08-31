@@ -11,29 +11,3 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     fragColor = vec4(pow(clamp(color, 0., 1.), vec3(1./2.2)), 1.);
 }
-
-//---------------------------
-
-// THREE JS TRANSPHERE
-
-void main(){
-
-    vec4 color = vec4(0.0);
-
-    // screen space
-    //vec2 coord = gl_FragCoord.xy;
-    // object space
-    vec2 coord = vUv * iResolution.xy;
-
-    mainImage( color, coord );
-
-    // tone mapping
-    #if defined( TONE_MAPPING ) 
-    color.rgb = toneMapping( color.rgb ); 
-    #endif
-
-    gl_FragColor = color;
-
-}
-
-//---------------------------
