@@ -784,7 +784,7 @@ var editor = ( function () {
             codes[ current ] = code.getValue();
 
             clearTimeout( interval );
-            interval = setTimeout( function() { view.applyFragment( codes[ current ], n ); }, 10 );
+            interval = setTimeout( function() { view.applyFragment( codes[ current ], n ); }, 300 );
             //if( this.validate( value ) ) interval = setTimeout( function() { editor.inject( value ); }, 500);
 
         },
