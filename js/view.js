@@ -644,9 +644,10 @@ var view = ( function () {
             } else {
 
                 materials[n].updateFragment( frag );
+                view.pushChannel( n );
                 if( isLoaded ){ 
                     editor.setMessage( 'v' + (isWebGL2 ? '2' : '1'));
-                    view.pushChannel( n );
+                    //view.pushChannel( n );
                 }
 
             }
