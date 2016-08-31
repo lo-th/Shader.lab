@@ -1,10 +1,5 @@
 
 
-// ------------------ channel define
-// 0_# cube_grey1 #_0
-// 1_# buffer1024_phyA #_1
-// ------------------
-
 #define PI 3.1415926
 #define border 0.01
 #define radius 0.03
