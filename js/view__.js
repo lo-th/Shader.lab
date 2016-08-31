@@ -54,8 +54,6 @@ var view = ( function () {
 
     var geo = {};
 
-    var dummyTexture;
-
     var extraUpdate = [];
     var toneMappings;
 
@@ -77,7 +75,7 @@ var view = ( function () {
 
         render: function () {
 
-            var i, name, over, delta;
+            var i, name, delta;
 
             requestAnimationFrame( view.render );
 
@@ -92,11 +90,20 @@ var view = ( function () {
             if(isHero) THREE.SEA3D.AnimationHandler.update( delta );
 
 
-            /*if(isClear) { 
+            //if(isClear) { 
 
-                gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
-                isClear = false; 
-            }*/
+                //renderer.clearColor();
+                //renderer.setClearColor( 0x1e1e1e, 1 );
+                // renderer.clear();
+
+               // gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+
+               //  gl.clearColor(1, 0.5, 0.5, 3);
+
+                // console.log('isclear')
+                //r
+               // isClear = false; 
+           // }
 
             //console.log(clock.getDelta())
 
@@ -108,21 +115,10 @@ var view = ( function () {
                     if( i !== 0 ){ 
 
                         name = materials[i].name;
-                        over = materials[i].overdraw;
-
-                        /*var ch = materials[i].channels;
-                        var j = 4;
-                        while(j--){
-                            if(ch[j].name === name) materials[i].uniforms['iChannel'+j].value = dummyTexture.texture;
-                        }*/
-                        
-
-                        //txt[ name ] = dummyTexture.texture;;
-
                         gputmp.render( materials[i], buffers_1[i] );
-                        if( over ) gputmp.renderTexture( buffers_1[i].texture, buffers_2[i], buffers_1[i].width, buffers_1[i].height );
+                        //gputmp.renderTexture( buffers_1[i].texture, buffers_2[i], buffers_1[i].width, buffers_1[i].height );
 
-                        //txt[ name ] = buffers_1[i].texture;
+                        txt[ name ] = buffers_1[i].texture.clone();
 
                         materials[i].uniforms.iFrame.value ++;
                         materials[i].uniforms.iTimeDelta.value = delta;
@@ -166,7 +162,7 @@ var view = ( function () {
                 if(materials[i] !== null){
                     if( buffers_1[i].isFull ){
                         buffers_1[i].setSize( vsize.x, vsize.y );
-                        if( materials[i].overdraw ) buffers_2[i].setSize( vsize.x, vsize.y );
+                        buffers_2[i].setSize( vsize.x, vsize.y );
                         materials[i].uniforms.iFrame.value = 0;
                     }            
                 }
@@ -281,9 +277,6 @@ var view = ( function () {
 
             //renderer.domElement.addEventListener( 'drop', function(e){ e.preventDefault(); return false; }, false );  
             renderer.domElement.addEventListener( 'dragover', function(e){ e.preventDefault(); return false; }, false );
-
-
-            dummyTexture = view.addRenderTarget( 1, 1, false );
 
 
             
@@ -437,7 +430,7 @@ var view = ( function () {
 
 
 
-            var i, name, over;
+            var i, name;
 
             //console.clear();
 
@@ -446,7 +439,6 @@ var view = ( function () {
                 if(materials[i] !== null ){
 
                     name = materials[i].name;
-                    over = materials[i].overdraw;
 
                     if( txt[ name ] ){ 
                         txt[ name ].dispose();
@@ -455,15 +447,11 @@ var view = ( function () {
 
                     materials[i].dispose();
                     buffers_1[i].dispose();
+                    buffers_2[i].dispose();
 
                     materials[i] = null;
                     buffers_1[i] = null;
-
-                    if( over ){ 
-                        buffers_2[i].dispose();
-                        buffers_2[i] = null;
-                    }
-                    
+                    buffers_2[i] = null;
                 }
 
             }
@@ -472,7 +460,7 @@ var view = ( function () {
 
             tmp_buffer = [];
 
-            //isClear = true;
+            isClear = true;
 
             console.log('view reset');
 
@@ -524,8 +512,6 @@ var view = ( function () {
                                 
                             if( name && txt[name] ){ 
                                 materials[n].uniforms['iChannel'+i].value = txt[name];
-                                //materials[n].channelRes[i].x = 128;
-                                //materials[n].channelRes[i].y = 128;
                             }
                         }
                         
@@ -550,30 +536,16 @@ var view = ( function () {
             materials[n].uniforms.iResolution.value = vsize;///new THREE.Vector3( w, h, d );
             materials[n].uniforms.iMouse.value = mouse;
             materials[n].uniforms.key.value = key;
+
             materials[n].name = name;
 
-            // find if texture is same than target
-            var overdraw = false;
-            var ch = materials[n].channels;
-            var j = 4;
-            while(j--){
-                if(ch[j].name === name) overdraw = true;
-            }
-
-            materials[n].overdraw = overdraw;
-
-            //console.log( materials[n].overdraw )
-
             buffers_1[n] = view.addRenderTarget( w, h, isFull );
-            
+            buffers_2[n] = view.addRenderTarget( w, h, isFull );
 
-            if( !overdraw ){ 
-                txt[ name ] = buffers_1[n].texture;
-            } else {
-                buffers_2[n] = view.addRenderTarget( w, h, isFull );
-                txt[ name ] = buffers_2[n].texture;
-            }
+            //tmp_txt.push( name );
+            //txt[ name ] = buffers[n].texture;
 
+            txt[ name ] = buffers_1[n].texture.clone();
 
             view.pushChannel(n);
 
@@ -915,6 +887,7 @@ var view = ( function () {
 
             this.mesh.material = mat;
             this.renderer.render( this.scene, this.camera, output, false );
+            //this.mesh.material.dispose();
             //this.mesh.material = this.passThruShader;
 
         },

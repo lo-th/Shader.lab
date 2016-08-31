@@ -5,6 +5,8 @@ THREE.Shadertoy = function ( frag, tone, objSpace, parameters ) {
 
     THREE.ShaderMaterial.call( this, parameters );
 
+    this.overdraw = false;
+
     this.objSpace = objSpace !== undefined ? objSpace : true;
     this.isTone = tone !== undefined ? tone : true;
 
