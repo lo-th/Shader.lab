@@ -1,6 +1,6 @@
 
 // ------------------ channel define
-// 0_# bufferFULL_phyballA #_0
+// 0_# buffer64_phyballA #_0
 // ------------------
 
 // https://www.shadertoy.com/view/XdGGWz
@@ -12,9 +12,8 @@
 #define PI 3.1415927
 #define SEED 4.
 
-//#define txBuf iChannel0
-//#define txSize iChannelResolution[0].xy
-//#define txSize iResolution.xy
+#define txBuf iChannel0
+#define txSize iChannelResolution[0].xy
 
 const int SPH = 16;
 
@@ -32,18 +31,11 @@ mat3 QToRMat (vec4 q)
 
 const float txRow = 64.;
 
-float mmo ( float x, float y ){
-  return x - y * floor(x / y);
-}
 
 vec4 Loadv4 (int idVar)
 {
   float fi = float (idVar);
-  vec2 uv = (vec2 (mmo (fi, txRow), floor (fi / txRow)) + 0.5) / iResolution.xy;
-  vec4 c = texture2D( iChannel0, uv );
-  return c;
-  //return texture2D (txBuf, (vec2 (mmo (fi, txRow), floor (fi / txRow)) + 0.5) /
-  //   txSize);
+  return texture2D ( txBuf, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize);
 }
 
 const float pi = 3.14159;
@@ -294,8 +286,8 @@ void mainImage (out vec4 fragColor, in vec2 fragCoord)
     //-----------------------------------------------------
     
     float time = iGlobalTime+1.;  
-    float spI = floor(mmo(time,float(SPH)));
-  float sec = mmo(time,1.);
+    float spI = floor(mod(time,float(SPH)));
+  float sec = mod(time,1.);
     //-----------------------------------------------------
     for( int i=0; i<SPH; i++ ) {
 

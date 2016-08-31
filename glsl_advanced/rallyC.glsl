@@ -11,7 +11,7 @@
 // Main HDR scene shader
 
 // Uncomment the next line to speed things up a bit
-//#define FAST_VERSION
+#define FAST_VERSION
 //#define SHOW_PHYSICS_SHAPE
 
 #define RAYTRACE_COUNT 2
@@ -45,7 +45,7 @@ vec2 addrPrevCamera = vec2( 0.0, 2.0 );
 vec4 LoadVec4( in vec2 vAddr )
 {
     vec2 vUV = (vAddr + 0.5) / iChannelResolution[0].xy;
-    return texture2D( iChannel0, vUV, -100.0 );
+    return texture2D( iChannel0, vUV, -16.0 );
 }
 
 vec3 LoadVec3( in vec2 vAddr )

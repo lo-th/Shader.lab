@@ -69,6 +69,16 @@ THREE.Shadertoy.prototype.setUniforms = function ( name, value ) {
 
 }
 
+THREE.Shadertoy.prototype.setChannelResolution = function ( n, x, y ) {
+
+    this.channelRes[n].x = x;
+    this.channelRes[n].y = y;
+
+    //this.uniforms.iChannelResolution[n].value = new THREE.Vector2( x, y );
+    this.uniforms.iChannelResolution.value = this.channelRes;
+
+}
+
 THREE.Shadertoy.prototype.updateFragment = function ( frag ) {
 
     this.fragmentShader = frag;//this.completeFragment( frag );

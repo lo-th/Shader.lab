@@ -1,13 +1,13 @@
 
 // ------------------ channel define
-// 0_# bufferFULL_phyA #_0
+// 0_# buffer128_phyA #_0
 // ------------------
 
 // "Leaping Balls Return" by dr2 - 2016
 // License: Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
 
-//#define txBuf iChannel0
-//#define txSize iChannelResolution[0].xy
+#define txBuf iChannel0
+#define txSize iChannelResolution[0].xy
 
 vec4 QtMul (vec4 q1, vec4 q2)
 {
@@ -96,9 +96,8 @@ const float txRow = 128.;
 
 vec4 Loadv4 (int idVar)
 {
-  float fi;
-  fi = float (idVar);
-  return texture2D (iChannel0, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / iResolution.xy);
+  float fi = float (idVar);
+  return texture2D (txBuf, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize);
 }
 
 void Savev4 (int idVar, vec4 val, inout vec4 fCol, vec2 fCoord)

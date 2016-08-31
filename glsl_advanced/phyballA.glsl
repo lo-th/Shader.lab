@@ -1,25 +1,20 @@
 
 // ------------------ channel define
-// 0_# bufferFULL_phyballA #_0
+// 0_# buffer64_phyballA #_0
 // ------------------
 
 
 // "Reflecting Balls" by dr2 - 2016
-// License: Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
+// License: Creative Comodns Attribution-NonCommercial-ShareAlike 3.0 Unported License
 
 // iapafoto : adaptation to enable various ball size and realistic behaviours
 
 
-//#define txBuf iChannel0
-//#define txSize iChannelResolution[0].xy
-//#define txSize iResolution.xy
+#define txBuf iChannel0
+#define txSize iChannelResolution[0].xy
 
 const float pi = 3.14159;
 const int SPH = 16;
-
-float mmo ( float x, float y ){
-  return x - y * floor(x / y);
-}
 
 vec4 QMul (vec4 q1, vec4 q2)
 {
@@ -62,19 +57,13 @@ const float txRow = 64.;
 vec4 Loadv4 (int idVar)
 {
   float fi = float (idVar);
-  vec2 uv = (vec2 (mmo (fi, txRow), floor (fi / txRow)) + 0.5) / iResolution.xy;
-  vec4 c = texture2D( iChannel0, uv );
-
-  return c;
-
-  //return texture2D (txBuf, (vec2 (mmo (fi, txRow), floor (fi / txRow)) + 0.5) /
-   //  txSize);
+  return texture2D (txBuf, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize);
 }
 
 void Savev4 (int idVar, vec4 val, inout vec4 fCol, vec2 fCoord)
 {
   float fi = float (idVar);
-  vec2 d = abs (fCoord - vec2 (mmo (fi, txRow), floor (fi / txRow)) - 0.5);
+  vec2 d = abs (fCoord - vec2 (mod (fi, txRow), floor (fi / txRow)) - 0.5);
   if (max (d.x, d.y) < 0.5) fCol = val;
 }
 
@@ -149,7 +138,7 @@ void Init (int mId, out vec3 r, out vec3 v)
   float fm, fme, fn;
   fme = 3.;
   fm = float (mId);
-  r = 1.5 * floor (vec3 (mmo (fm, fme), mmo (fm, fme * fme) / fme,
+  r = 1.5 * floor (vec3 (mod (fm, fme), mod (fm, fme * fme) / fme,
      fm / (fme * fme))) - 0.5 * (fme - 1.);
   v = VInit (mId);
 }
@@ -218,9 +207,9 @@ void mainImage (out vec4 fragColor, in vec2 fragCoord)
   float sphereSize = .1+.12*(.15*float(pxId));
     
   float time = iGlobalTime + 1.;
-  float spI = floor(mmo(time, float(SPH)));
+  float spI = floor(mod(time, float(SPH)));
   float an = 0.3*time;
-  float sec = mmo(time,1.);
+  float sec = mod(time,1.);
 
 
 

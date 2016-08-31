@@ -1,6 +1,6 @@
 
 // ------------------ channel define
-// 0_# bufferFULL_phyA #_0
+// 0_# buffer128_phyA #_0
 // ------------------
 
 // https://www.shadertoy.com/view/4sG3Wt
@@ -8,8 +8,8 @@
 // "Leaping Balls Return" by dr2 - 2016
 // License: Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
 
-//#define txBuf iChannel0
-//#define txSize iChannelResolution[0].xy
+#define txBuf iChannel0
+#define txSize iChannelResolution[0].xy
 
 mat3 QtToRMat (vec4 q) 
 {
@@ -35,9 +35,8 @@ const float txRow = 128.;
 
 vec4 Loadv4 (int idVar)
 {
-  float fi;
-  fi = float (idVar);
-  return texture2D (iChannel0, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / iResolution.xy);
+  float fi = float (idVar);
+  return texture2D (txBuf, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize);
 }
 
 const float pi = 3.14159;

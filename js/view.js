@@ -149,8 +149,14 @@ var view = ( function () {
             }
 
             for(var i = 1; i < 5; i++){
-                if(buffers_1[i])buffers_1[i].setSize( vsize.x, vsize.y );
-                if(buffers_2[i])buffers_2[i].setSize( vsize.x, vsize.y );
+                if(materials[i] !== null){
+                    if( buffers_1[i].isFull ){
+                        buffers_1[i].setSize( vsize.x, vsize.y );
+                        buffers_2[i].setSize( vsize.x, vsize.y );
+                        materials[i].uniforms.iFrame.value = 0;
+                    }            
+                }
+                
             }
 
             editor.resizeMenu( vsize.x );
@@ -500,8 +506,9 @@ var view = ( function () {
                         if(buff){
 
                             size = channel[i].size;
-                            materials[n].channelRes[i].x = size === "FULL" ? vsize.x : Number( size );
-                            materials[n].channelRes[i].y = size === "FULL" ? vsize.y : Number( size );
+                            if(size === "FULL") materials[n].setChannelResolution( i, vsize.x, vsize.y );
+                            else materials[n].setChannelResolution( i, Number( size ), Number( size ) );
+
 
                             if( tmp_buffer.indexOf(name) === -1 ) {
 
@@ -524,22 +531,24 @@ var view = ( function () {
 
         addBuffer : function ( frag, n, name, size ){
 
-            console.log( n, name, size );
+            //console.log( n, name, size );
 
-            var w = vsize.x; 
-            var h = vsize.y;
-            if(size !== "FULL") w = h = Number( size );
-            var d = w / h;
+            var isFull = size === "FULL" ? true : false;
 
-            materials[n] = new THREE.Shadertoy( frag, false );
+            var w = isFull ? vsize.x : Number( size ); 
+            var h = isFull ? vsize.y : Number( size );
+            //if(size !== "FULL") w = h = Number( size );
+            //var d = w / h;
+
+            materials[n] = new THREE.Shadertoy( frag, false, isFull );
             materials[n].uniforms.iResolution.value = vsize;///new THREE.Vector3( w, h, d );
             materials[n].uniforms.iMouse.value = mouse;
             materials[n].uniforms.key.value = key;
 
             materials[n].name = name;
 
-            buffers_1[n] = view.addRenderTarget( w, h );
-            buffers_2[n] = view.addRenderTarget( w, h );
+            buffers_1[n] = view.addRenderTarget( w, h, isFull );
+            buffers_2[n] = view.addRenderTarget( w, h, isFull );
 
             //tmp_txt.push( name );
             //txt[ name ] = buffers[n].texture;
@@ -550,9 +559,20 @@ var view = ( function () {
 
         },
 
-        addRenderTarget : function ( w, h ) {
+        addRenderTarget : function ( w, h, full ) {
 
-            return new THREE.WebGLRenderTarget( w, h, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType, stencilBuffer: false, format: THREE.RGBAFormat,  wrapT:THREE.ClampToEdgeWrapping, wrapS:THREE.ClampToEdgeWrapping  });
+            //console.log(w, h)
+
+            full = full || false;
+
+            var min = THREE.NearestFilter;// full ? THREE.NearestFilter : THREE.LinearFilter;
+            var max = THREE.NearestFilter;//full ? THREE.NearestFilter : THREE.LinearFilter;
+            var wt = THREE.ClampToEdgeWrapping;
+            var ws = THREE.ClampToEdgeWrapping;
+
+            var r = new THREE.WebGLRenderTarget( w, h, { minFilter: min, magFilter: max, type: THREE.FloatType, stencilBuffer: false, format: THREE.RGBAFormat, wrapT:wt, wrapS:ws });
+            r.isFull = full || false;
+            return r;
 
         },
 

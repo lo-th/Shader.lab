@@ -1,6 +1,6 @@
 
 // ------------------ channel define
-// 0_# bufferFULL_ppA #_0
+// 0_# buffer64_ppA #_0
 // ------------------
 
 // "Reflecting Balls" by dr2 - 2016
@@ -50,7 +50,7 @@ const float txRow = 64.;
 vec4 Loadv4 (int idVar)
 {
   float fi = float (idVar);
-  return texture2D (iChannel0, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / iResolution.xy);
+  return texture2D ( txBuf, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize );
 }
 
 void Savev4 (int idVar, vec4 val, inout vec4 fCol, vec2 fCoord)

@@ -54,7 +54,7 @@ float PI = acos(-1.0);
 vec4 LoadVec4( in vec2 vAddr )
 {
     vec2 vUV = (vAddr + 0.5) / iChannelResolution[0].xy;
-    return texture2D( iChannel0, vUV, -100.0 );
+    return texture2D( iChannel0, vUV, -16.0 );
 }
 
 vec3 LoadVec3( in vec2 vAddr )
@@ -594,25 +594,29 @@ void BodyApplyDebugForces( inout Body body )
 {
 #ifdef ENABLE_DEBUG_FORCES    
     float debugForceMag = 20000.0;
-    if ( KeyIsPressed( KEY_LEFT ) )
+    //if ( KeyIsPressed( KEY_LEFT ) )
+    if ( key[0] < -0.2 )
     {
         vec3 vForcePos = body.vPos;
         vec3 vForce = vec3(-debugForceMag, 0.0, 0.0);
         BodyApplyForce( body, vForcePos, vForce );
     }
-    if ( KeyIsPressed( KEY_RIGHT ) )
+    //if ( KeyIsPressed( KEY_RIGHT ) )
+    if ( key[0] > 0.2 )
     {
         vec3 vForcePos = body.vPos;
         vec3 vForce = vec3(debugForceMag, 0.0, 0.0);
         BodyApplyForce( body, vForcePos, vForce );
     }
-    if ( KeyIsPressed( KEY_UP ) )
+    //if ( KeyIsPressed( KEY_UP ) )
+    if ( key[1] < -0.2 )
     {
         vec3 vForcePos = body.vPos;
         vec3 vForce = vec3(0.0, 0.0, debugForceMag);
         BodyApplyForce( body, vForcePos, vForce );
     }
-    if ( KeyIsPressed( KEY_DOWN ) )
+    //if ( KeyIsPressed( KEY_DOWN ) )
+    if ( key[1] > 0.2 )
     {
         vec3 vForcePos = body.vPos;
         vec3 vForce = vec3(0.0, 0.0, -debugForceMag);
@@ -844,18 +848,21 @@ void WheelUpdate( inout Engine engine, inout Body body, inout Wheel wheel, float
         fWheelMOI = 30.0;
 
         // consta-torque mega engine
-        if( KeyIsPressed( KEY_W ) )
+        //if( KeyIsPressed( KEY_W ) )
+        if( key[1] < -0.2 )
         {
             wheel.fAngularVelocity += 2.0;
         }        
 
-        if( KeyIsPressed( KEY_S ) )
+        //if( KeyIsPressed( KEY_S ) )
+        if( key[1] > 0.2 )
         {
             wheel.fAngularVelocity -= 2.0;
         }        
     }
 
-    if( KeyIsPressed( KEY_SPACE ) )
+    //if( KeyIsPressed( KEY_SPACE ) )
+    if( key[4] > 0.2 )
     {
         wheel.fAngularVelocity = 0.0; // insta-grip super brake
     }        
@@ -1021,11 +1028,13 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     BodyCalculateDerivedState( vehicle.body );
     
     // TODO: dT for steering
-    if ( KeyIsPressed( KEY_A ) )
+    //if ( KeyIsPressed( KEY_A ) )
+    if( key[0] < -0.2 )
     {
         vehicle.fSteerAngle += 0.05;
     }    
-    if ( KeyIsPressed( KEY_D ) )
+    //if ( KeyIsPressed( KEY_D ) )
+    if( key[0] > 0.2 )
     {
         vehicle.fSteerAngle -= 0.05;
     }    

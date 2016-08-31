@@ -1,6 +1,6 @@
 
 // ------------------ channel define
-// 0_# bufferFULL_ppA #_0
+// 0_# buffer64_ppA #_0
 // ------------------
 
 
@@ -13,6 +13,8 @@ transparent when looking from outside, but not for the reflections. Use the mous
 spin the box.
 */
 
+#define txBuf iChannel0
+#define txSize iChannelResolution[0].xy
 
 mat3 QToRMat (vec4 q) 
 {
@@ -42,7 +44,7 @@ const float txRow = 64.;
 vec4 Loadv4 (int idVar)
 {
   float fi = float (idVar);
-  return texture2D (iChannel0, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / iResolution.xy);
+  return texture2D (txBuf, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize);
 }
 
 const float pi = 3.14159;

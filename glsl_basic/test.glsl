@@ -1,6 +1,6 @@
 
 // ------------------ channel define
-// 0_# bufferFULL_ppA #_0
+// 0_# buffer64_ppA #_0
 // ------------------
 
 void main() {
