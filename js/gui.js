@@ -7,6 +7,7 @@ var gui = ( function () {
         init: function(){
 
             ui = new UIL.Gui({css:'right:0px;' , size:240, color:'no', height:20, close:false });
+            ui.hide( true );
             this.basic();
 
         },

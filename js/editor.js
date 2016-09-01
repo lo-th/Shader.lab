@@ -138,8 +138,8 @@ var editor = ( function () {
             code.on('drop', function () { if ( !isSelfDrag ) code.setValue(''); else isSelfDrag = false; } );
             code.on('dragstart', function () { isSelfDrag = true; } );
 
-
             // channel pad
+
             this.initChannelPad();
 
 
@@ -376,7 +376,7 @@ var editor = ( function () {
             bigButton[0] = document.createElement( 'div' );
             bigButton[0].className = 'bigButton';
             bigmenu.appendChild( bigButton[0] );
-            bigButton[0].innerHTML = "DEMOS";
+            bigButton[0].innerHTML = "MENU";
             bigButton[0].addEventListener('mousedown', editor.selectBigMenu, false );
             bigButton[0].name = 'demo';
 
@@ -422,7 +422,7 @@ var editor = ( function () {
             var lng, i;
 
             //bigContent.style.display = "block";
-            bigmenu2.style.background = "rgba(37,37,37,0.9)";
+            bigmenu2.style.background = "rgba( 30,30,30,0.9 )";
             bigmenu2.style.borderBottom = "1px solid #626262";
             bigmenu2.style.height = 'auto';
             bigmenu2.style.display = 'block';
@@ -509,9 +509,9 @@ var editor = ( function () {
 
         Bover : function ( e ) {
 
-            e.target.style.border = "1px solid "+selectColor;
+            //e.target.style.border = "1px solid "+selectColor;
             e.target.style.background = selectColor;;
-            e.target.style.color = "#2A2A2A";
+            e.target.style.color = "#000";
 
         },
 
@@ -531,16 +531,16 @@ var editor = ( function () {
 
         Bselect : function ( b ) {
 
-            b.style.border = "1px solid rgba(255, 255, 255, 0)";
-            b.style.background = "rgba(255, 255, 255, 0.2)";
+            //b.style.border = "1px solid rgba(255, 255, 255, 0)";
+            b.style.background = "#626262";//"rgba(255, 255, 255, 0.2)";
             b.style.color = "#000000";
 
         },
 
         Bdefault : function ( b ) {
 
-            b.style.border = "1px solid #626262";
-            b.style.background = "none";
+            //b.style.border = "1px solid #626262";
+            b.style.background = "#1e1e1e";
             b.style.color = "#dedede";
 
         },
