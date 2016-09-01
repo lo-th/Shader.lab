@@ -511,7 +511,7 @@ var editor = ( function () {
 
             //e.target.style.border = "1px solid "+selectColor;
             e.target.style.background = selectColor;;
-            e.target.style.color = "#000";
+            e.target.style.color = "#FFF";
 
         },
 
