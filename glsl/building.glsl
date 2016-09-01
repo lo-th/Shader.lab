@@ -1,7 +1,7 @@
 
 // ------------------ channel define
 // 0_# noise #_0
-// 1_# grey1 #_1
+// 1_# cube_grey1 #_1
 // ------------------
 
 // https://www.shadertoy.com/view/4ss3z4

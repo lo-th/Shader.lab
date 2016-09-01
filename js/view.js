@@ -71,7 +71,7 @@ var view = ( function () {
 
     var tmp_buffer = [];
 
-    var hero;
+    var hero, heroMat, pointLight, pointLight2;
 
     var precision = 'highp';
 
@@ -94,7 +94,7 @@ var view = ( function () {
 
             if( isNeedDate ) view.upDate();
 
-            if(isHero) THREE.SEA3D.AnimationHandler.update( delta );
+            if(isHero) THREE.SEA3D.AnimationHandler.update( delta/2 );
 
 
             /*if(isClear) { 
@@ -229,7 +229,7 @@ var view = ( function () {
 
             isWebGL2 = false;
 
-            var options = { antialias: false, alpha:false, stencil:false, depth:false, precision:precision, preserveDrawingBuffer:drawBuffer }
+            var options = { antialias: false, alpha:false, stencil:false, depth:true, precision:precision, preserveDrawingBuffer:drawBuffer }
 
             // Try creating a WebGL 2 context first
             gl = canvas.getContext( 'webgl2', options );
@@ -814,6 +814,10 @@ var view = ( function () {
             if(buffers_1[0]!==null){
                 buffers_1[0].dispose();
                 buffers_1[0] = null;
+
+                heroMat.dispose();
+                scene.remove( pointLight );
+                scene.remove( pointLight2 );
             }
 
             isHero = false;
@@ -860,16 +864,24 @@ var view = ( function () {
 
                 mesh = hero;//new THREE.SEA3D.SkinnedMesh( hero.geometry, materials[0], false );//new THREE.Mesh( g, materials[0] );
                 //mesh.material = new THREE.MeshBasicMater;
-                mesh.material.color.setHex(0xFFFFFF);
-                mesh.material.skinning = true;
-                mesh.material.morphTargets = true;
-                mesh.material.map = buffers_1[0].texture;
+
+                heroMat = new THREE.MeshPhongMaterial({map:buffers_1[0].texture, skinning:true, morphTargets:true })
+                mesh.material = heroMat;
+                //mesh.material.map.flipY = false;
 
                 mesh.scale.set(0.04,0.04,0.04);
                 mesh.position.set(0,0,0);
                 //
                 //mesh = new THREE.Mesh( hero.geometry, materials[0] );
                 scene.add( mesh );
+
+                pointLight = new THREE.PointLight( 0xFFFFFF, 1, 600);
+                pointLight.position.set( 3,10,10 ).multiplyScalar( 10 );
+                scene.add( pointLight );
+
+                pointLight2 = new THREE.PointLight( 0x8888FF, 0.3, 600);
+                pointLight2.position.set( -5,-10,-10 ).multiplyScalar( 10 );
+                scene.add( pointLight2 );
 
                 mesh.play( 'walk' );
 
