@@ -41,12 +41,13 @@ var demos = [
 ];
 
 var demos_basic = [ 
-    'basic', 'follow', 'spline', 'tech-occ', 'tech-noise', 'tech-ao','raymatch', 'metashape', 'hg_sdf', 'icecube', 'test', 'analytic', 'sphere', 'edge', 'number'
+    'basic', 'follow', 'spline', 'tech-occ', 'tech-noise', 'tech-ao','raymatch', 'metashape', 'hg_sdf', 'icecube',
+    'test', 'analytic', 'sphere', 'edge', 'number', 'mouse'
 ];
 
 var demos_advanced = [
    'calanque', 'phy', 'road', 'raytrace', 'cube', 'rally', 'light', 'phyball', 'pp', 'pmars', 'pearth', 'rain', 'bubble',
-   'billiard', 'liquid', 'phy2', 'brick', 'minifish', 'iceworld', 'shooter'
+   'billiard', 'liquid', 'phy2', 'brick', 'minifish', 'iceworld', 'shooter', 'ice'
 ];
 
 var demos_texture = [
@@ -63,7 +64,7 @@ var demoName = 'follow';
 //////////////////////////////
 
 gui.init();
-editor.init( false );
+editor.init( true );
 view.init();
 user.init();
 

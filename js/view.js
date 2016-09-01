@@ -8,6 +8,7 @@ var view = ( function () {
     var isClear = false;
     var isHero = false;
     var isNeedDate = false;
+    var isMouseDown = false;
 
     var params = {
 
@@ -288,6 +289,7 @@ var view = ( function () {
             renderer.domElement.addEventListener( 'mousemove', view.move, false );
             renderer.domElement.addEventListener( 'mousedown', view.down, false );
             renderer.domElement.addEventListener( 'mouseup', view.up, false );
+            //renderer.domElement.addEventListener( 'mousewheel', view.wheel, false );
 
             //renderer.domElement.addEventListener( 'drop', function(e){ e.preventDefault(); return false; }, false );  
             renderer.domElement.addEventListener( 'dragover', function(e){ e.preventDefault(); return false; }, false );
@@ -355,19 +357,49 @@ var view = ( function () {
         //
 
         move: function ( e ) {
-            if(mouse.z === 1){
-                mouse.x = e.clientX - vs.x;//( e.clientX / vsize.x ) * 2 - 1;
-                mouse.y =  vsize.y-e.clientY;//- ( e.clientY / vsize.y ) * 2 + 1;
+            if( isMouseDown ){
+                mouse.x = (e.clientX - vs.x);
+                mouse.y =  (vsize.y - e.clientY);
+
+                //mouse.x = mouse.z;
+                //mouse.y = mouse.w;
             }
             
         },
 
-        down: function () {
-            mouse.z = 1;
+        down: function ( e ) {
+            mouse.x = (e.clientX - vs.x);
+            mouse.y =  (vsize.y - e.clientY);
+
+            mouse.z = mouse.x;
+            mouse.w = mouse.y;
+            isMouseDown = true;
+
+
+
+           // mouse.x = (e.clientX - vs.x);
+           // mouse.y =  (vsize.y - e.clientY);
+          //  mouse.z = 1;
+            
         },
 
         up: function () {
-            mouse.z = 0;
+            isMouseDown = false;
+            mouse.z = -Math.abs( mouse.z );
+            mouse.w = -Math.abs( mouse.w );
+            //mouse.z = 0;
+        },
+
+        wheel : function( e ){
+
+            e.preventDefault();
+            var delta = 0;
+            if(e.wheelDeltaY) delta = -e.wheelDeltaY*0.04;
+            else if(e.wheelDelta) delta = -e.wheelDelta*0.2;
+            else if(e.detail) delta = e.detail*4.0;
+
+            //mouse.w = delta;
+
         },
 
         //

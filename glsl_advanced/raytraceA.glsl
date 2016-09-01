@@ -3,7 +3,6 @@
 // 1_# cube_grey1 #_1
 // ------------------
 
-
 //thank for the demo https://www.shadertoy.com/view/4dtGWB
 //and the tutorial https://www.shadertoy.com/view/XllGW4
 //and https://www.shadertoy.com/view/Xl2XWt
@@ -212,9 +211,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     
     float weight = 1.0;
-    float m = iMouse.z;
     //if mouse moved,reset weight
-    
+    {
         vec2 uvMouse = vec2(0.5,0.5) / iResolution.xy;
         vec4 lastMouse = texture2D(iChannel0, uvMouse);
         float mouseMove = length(lastMouse.xy * iResolution.xy - iMouse.xy);
@@ -230,7 +228,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
             fragColor = vec4(iMouse.xy/iResolution.xy,1.0/(1.0/weight + 1.0) ,0.0);
             return;
         }
-    
+    }
     
     vec2 p0 = fragCoord.xy + vec2(rand(),rand());//anti-aliasing
     vec2 p1 = -1.0 + 2.0 * p0 / iResolution.xy;
