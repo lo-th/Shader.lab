@@ -144,6 +144,7 @@ THREE.Shadertoy.prototype.findChannels = function ( frag ) {
         this.channels[i] = {};
         this.channels[i].type = 'sampler2D';
         this.channels[i].buffer = false;
+        this.channels[i].def = '';
         //this.channels[i].actif = false;
 
         pre = frag.search( i + '_#' );
@@ -152,12 +153,15 @@ THREE.Shadertoy.prototype.findChannels = function ( frag ) {
 
         if( name ){
 
+            this.channels[i].def = 'image';
+
             //this.channels[i].actif = true;
 
             if( name.substring( 0, 4 ) === 'cube' ){
 
                 this.channels[i].type = 'samplerCube';
                 this.channels[i].name = name.substring( 5 );
+                this.channels[i].def = 'cube';
 
             }
 
@@ -172,6 +176,7 @@ THREE.Shadertoy.prototype.findChannels = function ( frag ) {
                 this.channels[i].size = name.substring( 6, n );
                 this.channels[i].name = name.substring( n + 1 );
                 this.channels[i].buffer = true;
+                this.channels[i].def = 'buffer';
 
             } 
 

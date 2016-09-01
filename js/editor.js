@@ -119,9 +119,9 @@ var editor = ( function () {
             content.appendChild( codeContent );
 
             code = CodeMirror( codeContent, {
-                lineNumbers: true, matchBrackets: true, indentWithTabs: true, styleActiveLine: true,
+                lineNumbers: true, matchBrackets: true, indentWithTabs: false, styleActiveLine: true,
                 theme:'monokai', mode: "text/x-glsl",
-                tabSize: 4, indentUnit: 4, highlightSelectionMatches: {showToken: /\w/}
+                tabSize: 4, indentUnit: 4, highlightSelectionMatches: {showToken: /\w/},
             });
 
             menuCode = document.createElement('div');
@@ -134,7 +134,7 @@ var editor = ( function () {
 
             code.on('change', function () { editor.onChange() } );
             code.on('focus', function () { isFocus = true; view.needFocus(); } );
-            code.on('blur', function () { isFocus = false; } );
+            code.on('blur', function () { isFocus = fileName_oldse; } );
             code.on('drop', function () { if ( !isSelfDrag ) code.setValue(''); else isSelfDrag = false; } );
             code.on('dragstart', function () { isSelfDrag = true; } );
 
@@ -161,24 +161,34 @@ var editor = ( function () {
 
         },
 
+        upChannelPad : function ( ar ){
+
+            editor.clearChannelPad();
+
+            var i = 4;
+            while(i--){
+                editor.setChannelPad( i, ar[i].def, ar[i].name );
+            }
+
+        },
+
         setChannelPad : function ( i, type, name ) {
 
-            var c = document.createElement( 'div' );
+            var c = document.createElement( 'div' ), l;
 
             if( type === 'buffer' ){
-
-            }else if( type === 'image' ){
-
+                l = name.length;
+                c.innerHTML = name.substring(0, l-1) + '<br><p style="font-size:27px">' + name.substring(l-1) + '</p>';
+            } else if( type === 'image' ){
                 var img = pool.getResult()[name];
                 if(img){
                     c = document.createElement( 'canvas' );
                     c.width = c.height = 64;
                     c.getContext('2d').drawImage( img,0,0,64,64);
                 }
-                
-
             } else if( type === 'cube' ){
 
+                c.innerHTML = name + '<br><p style="font-size:20px">CUBE</p>';
 
             }
 

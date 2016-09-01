@@ -541,12 +541,15 @@ var view = ( function () {
 
         applyFragment : function( frag, n ) {
 
-            view.validate( materials[n].completeFragment( frag ), n );
             if( n === 0 ){ 
                 var name = editor.getCurrent();
+                materials[0].name = name;
                 if(name === 'number' || name === 'iceworld') isNeedDate = true;
                 editor.setTitle();
             }
+
+            view.validate( materials[n].completeFragment( frag ), n );
+            
 
         },
 
@@ -554,11 +557,15 @@ var view = ( function () {
 
             var n, i, name, buff, channel, size;
 
+            var edName = editor.getCurrent();
+
             for( n = 0; n < 5; n ++ ){
 
                 if( materials[n] !== null ){
 
                     channel = materials[n].channels;
+
+                    if( materials[n].name === edName ) editor.upChannelPad( channel );
 
                     if(channel.length === 4){
 
@@ -568,6 +575,8 @@ var view = ( function () {
 
                             name = channel[i].name;
                             buff = channel[i].buffer;
+
+                            
 
                             if(buff){
 
@@ -584,6 +593,7 @@ var view = ( function () {
                             }
                                 
                             if( name && txt[name] ){ 
+
                                 materials[n].uniforms['iChannel'+i].value = txt[name];
                                 //materials[n].channelRes[i].x = 128;
                                 //materials[n].channelRes[i].y = 128;
@@ -593,6 +603,8 @@ var view = ( function () {
                     }
                 }
             }
+
+
 
         },
 
@@ -638,7 +650,7 @@ var view = ( function () {
             }
 
 
-            view.pushChannel(n);
+            view.pushChannel( n );
 
         },
 
@@ -753,7 +765,9 @@ var view = ( function () {
             } else {
 
                 materials[n].updateFragment( frag );
+
                 view.pushChannel( n );
+
                 if( isLoaded ){ 
                     editor.setMessage( 'v' + (isWebGL2 ? '2' : '1'));
                     //view.pushChannel( n );

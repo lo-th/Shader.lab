@@ -57,9 +57,10 @@ body{
 }
 
 .ch{
+    vertical-align: top;
     position: relative; 
     display: inline-block;
-    padding: 2px 2px;
+    padding: 3px 3px;
     margin: 10px 10px;
     border:1px dashed #626262; 
     width:72px; 
@@ -71,12 +72,12 @@ body{
 }
 
 .chIn{
-    position: relative; 
+    line-height:22px;
     padding: 0px 0px;
     margin: 0px 0px;
     width:64px; 
     height:64px;
-    background:#d0d0d0;
+    background:#1e1e1e;
     pointer-events:none;
     text-align: center;
 }
@@ -119,6 +120,7 @@ body{
 }
 
 .mRubric {
+    vertical-align: top;
     pointer-events:none;
     font-size: 11px;
     height: 16px;
@@ -132,7 +134,7 @@ body{
 }
 
 .mButton{
-    
+    vertical-align: top;
     line-height:9px;
     font-size: 11px;
     height: 14px;
