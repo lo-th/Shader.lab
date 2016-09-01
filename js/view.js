@@ -92,7 +92,7 @@ var view = ( function () {
             delta = params.Speed * 0.01;
             time += delta;
 
-            if(isNeedDate) view.upDate();
+            if( isNeedDate ) view.upDate();
 
             if(isHero) THREE.SEA3D.AnimationHandler.update( delta );
 
@@ -110,7 +110,7 @@ var view = ( function () {
 
                 if( materials[i] !== null ){
 
-                    if( i !== 0 ){ 
+                    if( i !== 0 || isHero ){ 
 
                         name = materials[i].name;
                         over = materials[i].overdraw;
@@ -693,12 +693,7 @@ var view = ( function () {
             materials[n].uniforms.iMouse.value = mouse;
             materials[n].uniforms.iDate.value = date;
             materials[n].uniforms.key.value = key;
-
-            if(isHero) {
-                materials[n].skinning = true;
-                materials[n].morphTargets = true;
-            }
-            //materials[n].extensions.drawBuffers = true;
+            materials[n].overdraw = false;
 
         },
 
@@ -816,6 +811,11 @@ var view = ( function () {
 
         setScene : function( n ){
 
+            if(buffers_1[0]!==null){
+                buffers_1[0].dispose();
+                buffers_1[0] = null;
+            }
+
             isHero = false;
 
             var g;
@@ -848,16 +848,22 @@ var view = ( function () {
 
             if( n === 2 ){
 
+
+
                 isHero = true;
+
+                buffers_1[0] = view.addRenderTarget( 512, 512, false );
 
                 g = new THREE.TorusBufferGeometry( 3, 1, 50, 20 );
                // materials[0].skinning = true;
                //materials[0].morphTargets = true;
 
                 mesh = hero;//new THREE.SEA3D.SkinnedMesh( hero.geometry, materials[0], false );//new THREE.Mesh( g, materials[0] );
-                mesh.material = materials[0];
+                //mesh.material = new THREE.MeshBasicMater;
+                mesh.material.color.setHex(0xFFFFFF);
                 mesh.material.skinning = true;
                 mesh.material.morphTargets = true;
+                mesh.material.map = buffers_1[0].texture;
 
                 mesh.scale.set(0.04,0.04,0.04);
                 mesh.position.set(0,0,0);
