@@ -1,4 +1,4 @@
-<p align="center"><a href="http://lo-th.github.io/Shader.lab/"><img src="http://lo-th.github.io/Shader.lab/textures/logo.png"/></a></p>
+<p align="center"><a href="http://lo-th.github.io/Shader.lab/"><img src="http://lo-th.github.io/Shader.lab/textures/logon.png"/></a></p>
 <p align="center">Advanced shader lab for <a href="https://github.com/mrdoob/three.js/tree/dev">Three.js</a><br>
 Shader is convert from <a href="https://www.shadertoy.com/">shadertoy.com</a><br><br>
 
