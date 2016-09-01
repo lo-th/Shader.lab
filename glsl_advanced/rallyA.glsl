@@ -1,7 +1,7 @@
 
 
 // ------------------ channel define
-// 0_# bufferFULL_rallyA #_0
+// 0_# buffer64_rallyA #_0
 // ------------------
 
 // Shader Rally - @P_Malin

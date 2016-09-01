@@ -1,8 +1,8 @@
 
 
 // ------------------ channel define
-// 0_# bufferFULL_rallyA #_0
-// 1_# bufferFULL_rallyB #_1
+// 0_# buffer64_rallyA #_0
+// 1_# buffer64_rallyB #_1
 // ------------------
 // Tyre track buffer rendering shader
 

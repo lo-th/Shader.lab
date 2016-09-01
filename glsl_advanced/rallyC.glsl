@@ -1,9 +1,9 @@
 
 // ------------------ channel define
-// 0_# bufferFULL_rallyA #_0
+// 0_# buffer64_rallyA #_0
 // 1_# tex17 #_1
 // 2_# tex05 #_2
-// 3_# bufferFULL_rallyB #_3
+// 3_# buffer64_rallyB #_3
 // ------------------
 
 // Shader Rally - @P_Malin
@@ -871,7 +871,7 @@ ClosestSurface GetVehicleClosestSurface( const in VehicleState vehicleState, con
     vWheelLocalPos.x *= -fWheelSide;
     closest = ClosestSurfaceUnion( closest, GetWheelClosestSurface( vWheelLocalPos ) );
     
-#ifndef FAST_VERSION    
+//#ifndef FAST_VERSION    
     vec3 vAxleOrigin = vWheelOrigin;
     vAxleOrigin.x = 0.0;
     vAxleOrigin.y = 0.25;
@@ -907,7 +907,7 @@ ClosestSurface GetVehicleClosestSurface( const in VehicleState vehicleState, con
         closest.surface.vUVW = vSuspensionDomain;
         closest.surface.vUVW.y = closest.surface.vUVW.y / vSuspensionEnd.y;
     }
-#endif 
+//#endif 
     
     return closest;
 }

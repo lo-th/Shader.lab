@@ -7,6 +7,7 @@ var view = ( function () {
     var isReady = false;
     var isClear = false;
     var isHero = false;
+    var isNeedDate = false;
 
     var params = {
 
@@ -44,6 +45,7 @@ var view = ( function () {
     var vsize, mouse, key = new Float32Array( 20 );
 
     var time = 0;
+    var date = null;
 
     var vs = { w:1, h:1, l:0, x:0 , y:0};
 
@@ -88,6 +90,8 @@ var view = ( function () {
 
             delta = params.Speed * 0.01;
             time += delta;
+
+            if(isNeedDate) view.upDate();
 
             if(isHero) THREE.SEA3D.AnimationHandler.update( delta );
 
@@ -204,10 +208,16 @@ var view = ( function () {
             vsize.z = vsize.x / vsize.y;
 
             mouse = new THREE.Vector4();
+            date = new THREE.Vector4();
+            this.upDate(true);
+
+            
 
             var drawBuffer = false;
 
             ///////////
+
+
 
             canvas = document.createElement("canvas");
             canvas.className = 'canvas3d';
@@ -302,6 +312,19 @@ var view = ( function () {
             
         },
 
+        upDate : function( full ) {
+
+            var d = new Date();
+            if(full){
+                date.x = d.getFullYear();
+                date.y = d.getMonth();
+                date.z = d.getDate();
+            }
+            
+            date.w = (d.getHours() * 3600) + (d.getMinutes() * 60) + d.getSeconds();
+
+        },
+
 
 
         setTone : function(v) {
@@ -332,8 +355,11 @@ var view = ( function () {
         //
 
         move: function ( e ) {
-            mouse.x = e.clientX - vs.x;//( e.clientX / vsize.x ) * 2 - 1;
-            mouse.y =  vsize.y-e.clientY;//- ( e.clientY / vsize.y ) * 2 + 1;
+            if(mouse.z === 1){
+                mouse.x = e.clientX - vs.x;//( e.clientX / vsize.x ) * 2 - 1;
+                mouse.y =  vsize.y-e.clientY;//- ( e.clientY / vsize.y ) * 2 + 1;
+            }
+            
         },
 
         down: function () {
@@ -435,8 +461,6 @@ var view = ( function () {
 
         reset: function ( ) {
 
-
-
             var i, name, over;
 
             //console.clear();
@@ -469,6 +493,7 @@ var view = ( function () {
             }
 
             time = 0;
+            isNeedDate = false;
 
             tmp_buffer = [];
 
@@ -485,7 +510,11 @@ var view = ( function () {
         applyFragment : function( frag, n ) {
 
             view.validate( materials[n].completeFragment( frag ), n );
-            if( n === 0 ) editor.setTitle();
+            if( n === 0 ){ 
+                var name = editor.getCurrent();
+                if(name === 'number' || name === 'iceworld') isNeedDate = true;
+                editor.setTitle();
+            }
 
         },
 
@@ -549,7 +578,9 @@ var view = ( function () {
             materials[n] = new THREE.Shadertoy( frag, false, isFull );
             materials[n].uniforms.iResolution.value = vsize;///new THREE.Vector3( w, h, d );
             materials[n].uniforms.iMouse.value = mouse;
+            materials[n].uniforms.iDate.value = date;
             materials[n].uniforms.key.value = key;
+
             materials[n].name = name;
 
             // find if texture is same than target
@@ -616,6 +647,7 @@ var view = ( function () {
             materials[n] = new THREE.Shadertoy();
             materials[n].uniforms.iResolution.value = vsize;
             materials[n].uniforms.iMouse.value = mouse;
+            materials[n].uniforms.iDate.value = date;
             materials[n].uniforms.key.value = key;
 
             if(isHero) {

@@ -645,6 +645,14 @@ var editor = ( function () {
 
         // code
 
+        getMainCode : function(){
+            return mainCode;
+        },
+
+        getCurrent: function(){
+            return current;
+        },
+
         load : function ( name, size ) {
 
             var prev = 'glsl/';

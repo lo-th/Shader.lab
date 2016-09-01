@@ -1,6 +1,6 @@
 
 // ------------------ channel define
-// 0_# bufferFULL_rallyA #_0
+// 0_# buffer64_rallyA #_0
 // 1_# bufferFULL_rallyC #_1
 // ------------------
 
@@ -211,12 +211,14 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     }
     vResult /= fTot;
         
-    vec3 vFinal = ApplyPostFX( vUV, vResult );
+    //vec3 vFinal = ApplyPostFX( vUV, vResult );
 
     // Draw depth
     //vFinal = vec3(1.0) / abs(vSample.a);    
     
-    fragColor = vec4(vFinal, 1.0);
+    //fragColor = vec4(vFinal, 1.0);
+
+    fragColor = vec4(vResult, 1.0);
 }
 
 // POSTFX
