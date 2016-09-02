@@ -7,6 +7,7 @@ var view = ( function () {
     var isReady = false;
     var isClear = false;
     var isHero = false;
+    var isHead = false;
     var isNeedDate = false;
     var isMouseDown = false;
 
@@ -71,7 +72,7 @@ var view = ( function () {
 
     var tmp_buffer = [];
 
-    var hero, heroMat, pointLight, pointLight2;
+    var hero, head, bone, heroMat, pointLight, pointLight2;
 
     var precision = 'highp';
 
@@ -357,6 +358,18 @@ var view = ( function () {
         //
 
         move: function ( e ) {
+            if( isHead ){
+                var x = ((e.clientX - vs.x) / vsize.x ) * 2 - 1;
+                var y = - ( e.clientY / vsize.y ) * 2 + 1;
+
+
+                bone.rotation.x = (-x*36)*degtorad;
+                bone.rotation.y = (-y*25)*degtorad;
+
+                //console.log(x, y)
+
+
+            }
             if( isMouseDown ){
                 mouse.x = (e.clientX - vs.x);
                 mouse.y =  (vsize.y - e.clientY);
@@ -429,7 +442,7 @@ var view = ( function () {
 
             txt_name = [ 'stone', 'bump', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02', 'tex12', 'tex10', 'tex17' ];
 
-            pool.load( [ 'models/hero.sea', 'textures/basic.png', 'textures/noise.png' ], view.initModel );
+            pool.load( [ 'models/hero.sea', 'models/head.sea', 'textures/basic.png', 'textures/noise.png' ], view.initModel );
 
         },
 
@@ -781,6 +794,7 @@ var view = ( function () {
             var p = pool.getResult();
 
             hero = p['hero'][0];
+            head = p['head'][0];
         
             // init base textures
 
@@ -809,7 +823,20 @@ var view = ( function () {
         //  SCENE SWITCH
         // -----------------------
 
+        resetCamera : function(){
+
+            camera.position.set(0,0,10);
+            controls.target.set(0,0,0);
+            controls.enableKeys = false;
+            controls.enableZoom = false;
+            controls.enableRotate = false;
+            controls.update();
+
+        },
+
         setScene : function( n ){
+
+            view.resetCamera();
 
             if(buffers_1[0]!==null){
                 buffers_1[0].dispose();
@@ -821,6 +848,7 @@ var view = ( function () {
             }
 
             isHero = false;
+            isHead = false;
 
             var g;
 
@@ -848,11 +876,11 @@ var view = ( function () {
                 mesh = new THREE.Mesh( g, materials[0] );
                 scene.add( mesh );
 
+                controls.enableRotate = true;
+
             }
 
             if( n === 2 ){
-
-
 
                 isHero = true;
 
@@ -875,15 +903,55 @@ var view = ( function () {
                 //mesh = new THREE.Mesh( hero.geometry, materials[0] );
                 scene.add( mesh );
 
-                pointLight = new THREE.PointLight( 0xFFFFFF, 1, 600);
+                pointLight = new THREE.PointLight( 0xFFFFFF, 1.5, 600);
                 pointLight.position.set( 3,10,10 ).multiplyScalar( 10 );
                 scene.add( pointLight );
 
-                pointLight2 = new THREE.PointLight( 0x8888FF, 0.3, 600);
+                pointLight2 = new THREE.PointLight( 0x8888FF, 0.6, 600);
                 pointLight2.position.set( -5,-10,-10 ).multiplyScalar( 10 );
                 scene.add( pointLight2 );
 
                 mesh.play( 'walk' );
+
+                controls.enableRotate = true;
+
+            }
+
+            if( n === 3 ){
+                
+                isHero = true;
+                isHead = true;
+
+                buffers_1[0] = view.addRenderTarget( 512, 512, false );
+
+                g = new THREE.TorusBufferGeometry( 3, 1, 50, 20 );
+               // materials[0].skinning = true;
+               //materials[0].morphTargets = true;
+
+                mesh = head;//new THREE.SEA3D.SkinnedMesh( hero.geometry, materials[0], false );//new THREE.Mesh( g, materials[0] );
+                //mesh.material = new THREE.MeshBasicMater;
+
+                heroMat = new THREE.MeshPhongMaterial({map:buffers_1[0].texture, skinning:true, morphTargets:true })
+                mesh.material = heroMat;
+                //mesh.material.map.flipY = false;
+
+                mesh.scale.set(0.16,0.16,0.16);
+                mesh.position.set(0,-2,0);
+                //
+                //mesh = new THREE.Mesh( hero.geometry, materials[0] );
+                scene.add( mesh );
+
+                pointLight = new THREE.PointLight( 0xFFFFFF, 1.5, 600);
+                pointLight.position.set( 3,10,10 ).multiplyScalar( 10 );
+                scene.add( pointLight );
+
+                pointLight2 = new THREE.PointLight( 0x8888FF, 0.6, 600);
+                pointLight2.position.set( -5,-10,-10 ).multiplyScalar( 10 );
+                scene.add( pointLight2 );
+
+                bone = mesh.skeleton.bones[1];
+
+                //mesh.play( 'walk' );
 
             }
 

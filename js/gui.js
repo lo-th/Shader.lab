@@ -24,7 +24,7 @@ var gui = ( function () {
             ui.add('button',  { value: [0.125, 0.25,0.5,1], simple:true, sa:10 }).onChange( function(v){view.setQuality(v)} );
 
             ui.add('title',  { name:'Scene' });
-            ui.add('button',  { value: ['full', 'sphere','hero'], simple:true, sa:10 }).onChange( function(v){ if(v==='full') view.setScene(0); if(v==='sphere') view.setScene(1); if(v==='hero') view.setScene(2);} );
+            ui.add('button',  { value: ['full', 'sphere','hero', 'head'], simple:true, sa:10 }).onChange( function(v){ gui.sceneSelect(v); } );
 
             ui.add('title',  { name:'Tone Mapping' });
 
@@ -33,6 +33,14 @@ var gui = ( function () {
             ui.add( params, 'whitePoint', { min:0, max:10, stype:0, precision:1, stype :2 } ).onChange( function(){ view.setTone(); } );
 
 
+        },
+
+        sceneSelect : function (v) {
+            var n = 0;
+            if(v === 'sphere') n = 1; 
+            if(v === 'hero') n = 2;
+            if(v === 'head') n = 3;
+            view.setScene(n);
         },
 
         resize : function ( r ) {
