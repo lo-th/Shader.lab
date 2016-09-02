@@ -56,6 +56,8 @@ var view = ( function () {
     var txt_name = [];
     var cube_name = [];
 
+    var lights = [];
+
     var geo = {};
 
     var dummyTexture;
@@ -72,7 +74,7 @@ var view = ( function () {
 
     var tmp_buffer = [];
 
-    var hero, head, bone, heroMat, pointLight, pointLight2;
+    var hero, head, bone, heroMat;
 
     var precision = 'highp';
 
@@ -843,8 +845,8 @@ var view = ( function () {
                 buffers_1[0] = null;
 
                 heroMat.dispose();
-                scene.remove( pointLight );
-                scene.remove( pointLight2 );
+                view.removeLight();
+                
             }
 
             isHero = false;
@@ -882,18 +884,20 @@ var view = ( function () {
 
             if( n === 2 ){
 
+                view.addLight();
+
                 isHero = true;
 
                 buffers_1[0] = view.addRenderTarget( 512, 512, false );
 
-                g = new THREE.TorusBufferGeometry( 3, 1, 50, 20 );
+                //g = new THREE.TorusBufferGeometry( 3, 1, 50, 20 );
                // materials[0].skinning = true;
                //materials[0].morphTargets = true;
 
                 mesh = hero;//new THREE.SEA3D.SkinnedMesh( hero.geometry, materials[0], false );//new THREE.Mesh( g, materials[0] );
                 //mesh.material = new THREE.MeshBasicMater;
 
-                heroMat = new THREE.MeshPhongMaterial({map:buffers_1[0].texture, skinning:true, morphTargets:true })
+                heroMat = new THREE.MeshPhongMaterial({map:buffers_1[0].texture, skinning:true, morphTargets:true, shininess:60 })
                 mesh.material = heroMat;
                 //mesh.material.map.flipY = false;
 
@@ -903,14 +907,6 @@ var view = ( function () {
                 //mesh = new THREE.Mesh( hero.geometry, materials[0] );
                 scene.add( mesh );
 
-                pointLight = new THREE.PointLight( 0xFFFFFF, 1.5, 600);
-                pointLight.position.set( 3,10,10 ).multiplyScalar( 10 );
-                scene.add( pointLight );
-
-                pointLight2 = new THREE.PointLight( 0x8888FF, 0.6, 600);
-                pointLight2.position.set( -5,-10,-10 ).multiplyScalar( 10 );
-                scene.add( pointLight2 );
-
                 mesh.play( 'walk' );
 
                 controls.enableRotate = true;
@@ -918,22 +914,26 @@ var view = ( function () {
             }
 
             if( n === 3 ){
+
+                view.addLight();
                 
                 isHero = true;
                 isHead = true;
 
                 buffers_1[0] = view.addRenderTarget( 512, 512, false );
+                buffers_1[0].texture.flipY = false;
 
-                g = new THREE.TorusBufferGeometry( 3, 1, 50, 20 );
+                //g = new THREE.TorusBufferGeometry( 3, 1, 50, 20 );
                // materials[0].skinning = true;
                //materials[0].morphTargets = true;
 
                 mesh = head;//new THREE.SEA3D.SkinnedMesh( hero.geometry, materials[0], false );//new THREE.Mesh( g, materials[0] );
                 //mesh.material = new THREE.MeshBasicMater;
 
-                heroMat = new THREE.MeshPhongMaterial({map:buffers_1[0].texture, skinning:true, morphTargets:true })
+                //heroMat = new THREE.MeshLambertMaterial({map:buffers_1[0].texture, skinning:true, morphTargets:true });
+                heroMat = new THREE.MeshPhongMaterial({map:buffers_1[0].texture, skinning:true, morphTargets:true, shininess:10 })
                 mesh.material = heroMat;
-                //mesh.material.map.flipY = false;
+                
 
                 mesh.scale.set(0.16,0.16,0.16);
                 mesh.position.set(0,-2,0);
@@ -941,13 +941,7 @@ var view = ( function () {
                 //mesh = new THREE.Mesh( hero.geometry, materials[0] );
                 scene.add( mesh );
 
-                pointLight = new THREE.PointLight( 0xFFFFFF, 1.5, 600);
-                pointLight.position.set( 3,10,10 ).multiplyScalar( 10 );
-                scene.add( pointLight );
-
-                pointLight2 = new THREE.PointLight( 0x8888FF, 0.6, 600);
-                pointLight2.position.set( -5,-10,-10 ).multiplyScalar( 10 );
-                scene.add( pointLight2 );
+               
 
                 bone = mesh.skeleton.bones[1];
 
@@ -956,6 +950,36 @@ var view = ( function () {
             }
 
             currentScene = n;
+
+        },
+
+        removeLight : function () {
+
+            var i = lights.length;
+            while(i--){
+                scene.remove(lights[i]);
+            }
+
+        },
+
+        addLight : function () {
+
+            lights[0] = new THREE.AmbientLight( 0x030303 );
+
+            lights[1] = new THREE.SpotLight( 0xFFFFFF, 2, 600 );
+            lights[1].position.set(-3,7,10).multiplyScalar( 10 );
+            lights[1].lookAt(new THREE.Vector3(0,0,0));
+
+            lights[2] = new THREE.PointLight( 0xFFFFFF, 1, 600);
+            lights[2].position.set( 3, 5, -5 ).multiplyScalar( 10 );
+
+            lights[3] = new THREE.PointLight( 0x8888FF, 1, 600);
+            lights[3].position.set( -6,-10,-10 ).multiplyScalar( 10 );
+
+            var i = lights.length;
+            while(i--){
+                scene.add(lights[i]);
+            }
 
         },
 
