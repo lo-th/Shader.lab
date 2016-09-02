@@ -198,7 +198,7 @@ var view = ( function () {
 
             isMobile = view.testMobile();
 
-            precision = isMobile ? 'lowp' : 'highp';
+            precision = isMobile ? 'lowp' : 'mediump';
 
             toneMappings = {
                 None: THREE.NoToneMapping,
@@ -254,6 +254,8 @@ var view = ( function () {
             renderer.setPixelRatio( params.pixelRatio );
             renderer.setSize( vsize.x, vsize.y );
             renderer.setClearColor( 0x1e1e1e, 1 );
+
+            //console.log(renderer.getPrecision())
 
 
 
@@ -660,7 +662,7 @@ var view = ( function () {
             if( !overdraw ){ 
                 txt[ name ] = buffers_1[n].texture;
             } else {
-                buffers_2[n] = view.addRenderTarget( w, h, isFull );
+                buffers_2[n] = buffers_1[n].clone();//view.addRenderTarget( w, h, isFull );
                 txt[ name ] = buffers_2[n].texture;
             }
 

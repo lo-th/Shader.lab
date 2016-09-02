@@ -134,7 +134,7 @@ var editor = ( function () {
 
             code.on('change', function () { editor.onChange() } );
             code.on('focus', function () { isFocus = true; view.needFocus(); } );
-            code.on('blur', function () { isFocus = fileName_oldse; } );
+            code.on('blur', function () { isFocus = false; } );
             code.on('drop', function () { if ( !isSelfDrag ) code.setValue(''); else isSelfDrag = false; } );
             code.on('dragstart', function () { isSelfDrag = true; } );
 
