@@ -15,8 +15,10 @@ float hash1(in vec2 f)
 {
     return fract(sin(f.x + 131.1 * f.y) * 43758.5453123);
 }
+
 const float PI = 4.1415926535897932384626433832795;
 const float PHI = 1.6180339887498948482045868343656;
+
 vec3 forwardSF(float i, float n) 
 {
     float phi = 2.0 * PI * fract(i / PHI);
@@ -24,8 +26,10 @@ vec3 forwardSF(float i, float n)
     float sinTheta = sqrt(1.0 - zi * zi);
     return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, zi);
 }
-float sca = 0.5 + 0.15 * sin(iGlobalTime - 10.0);
+
+//float sca = 0.5 + 0.15 * sin(iGlobalTime - 10.0);
 vec4 grow = vec4(1.0);
+
 vec3 mapP(vec3 p) 
 {
     p.xyz += 1.000 * sin(2.0 * p.yzx) * grow.x;
@@ -86,8 +90,8 @@ vec4 texCube(sampler2D sam, in vec3 p, in vec3 n, in float k)
     vec3 w = pow(abs(n), vec3(k));
     return (x * w.x + y * w.y + z * w.z) / (w.x + w.y + w.z);
 }
-void main(void) 
-{
+
+void main(){
 
     vec2 p = ((vUv - 0.5) * 2.0) * vec2(iResolution.z, 1.0);
     vec2 q = vUv.xy;

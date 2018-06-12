@@ -66,7 +66,7 @@ var view = ( function () {
     var toneMappings;
 
     var isWebGL2 = false;
-    var isMobile = false;
+    //var isMobile = false;
     var isLoaded = false;
     var isError = false;
 
@@ -80,6 +80,8 @@ var view = ( function () {
 
 
     view = {
+
+        isMobile: false,
 
         render: function () {
 
@@ -118,6 +120,8 @@ var view = ( function () {
                         name = materials[i].name;
                         over = materials[i].overdraw;
 
+                        
+
                         /*var ch = materials[i].channels;
                         var j = 4;
                         while(j--){
@@ -126,17 +130,22 @@ var view = ( function () {
                         
 
                         //txt[ name ] = dummyTexture.texture;;
-
                         gputmp.render( materials[i], buffers_1[i] );
-                        if( over ) gputmp.renderTexture( buffers_1[i].texture, buffers_2[i], buffers_1[i].width, buffers_1[i].height );
-
+                        //gputmp.render( materials[i], buffers_1[i] );
+                        if( over ) gputmp.renderTexture( buffers_1[i].texture, buffers_2[i] );//, buffers_1[i].width, buffers_1[i].height );
+                        
                         //txt[ name ] = buffers_1[i].texture;
 
                         materials[i].uniforms.iFrame.value ++;
                         materials[i].uniforms.iTimeDelta.value = delta;
+
+
+                        //materials[i].uniforms.iFrame.value ++;
+                        //materials[i].uniforms.iTimeDelta.value = delta;
                         
                     }
 
+                    materials[i].uniforms.iTime.value = time;
                     materials[i].uniforms.iGlobalTime.value = time;
 
                 }
@@ -188,17 +197,70 @@ var view = ( function () {
         
 
         testMobile: function () {
-            var nav = navigator.userAgent;
-            if (nav.match(/Android/i) || nav.match(/webOS/i) || nav.match(/iPhone/i) || nav.match(/iPad/i) 
-                || nav.match(/iPod/i) || nav.match(/BlackBerry/i) || nav.match(/Windows Phone/i)) return true;
-            else return false;        
+
+            var n = navigator.userAgent;
+            if (n.match(/Android/i) || n.match(/webOS/i) || n.match(/iPhone/i) || n.match(/iPad/i) || n.match(/iPod/i) || n.match(/BlackBerry/i) || n.match(/Windows Phone/i)) view.isMobile = true;
+            else view.isMobile = false;  
+
         },
 
-        init: function () {
+        getWebGL: function ( force ) {
 
-            isMobile = view.testMobile();
+            // WebGLExtensions
+            // 
 
-            precision = isMobile ? 'lowp' : 'mediump';
+            //var canvas = document.createElement("canvas");
+            //canvas.style.cssText = 'position: absolute; top:0; left:0; width:100%; height:100%;'//pointer-events:auto;
+
+            isWebGL2 = false;
+
+            var options = { 
+                antialias: view.isMobile ? false : true, 
+                alpha: view.isMobile ? false : true, 
+                stencil:false, depth:true, precision:"highp", premultipliedAlpha:false, preserveDrawingBuffer:false 
+            }
+
+            if( !force ){
+
+                gl = canvas.getContext( 'webgl2', options );
+                if (!gl) gl = canvas.getContext( 'experimental-webgl2', options );
+                isWebGL2 = !!gl;
+
+            }
+
+            if(!isWebGL2) {
+                gl = canvas.getContext( 'webgl', options );
+                if (!gl) gl = canvas.getContext( 'experimental-webgl', options );
+            }
+
+            options.canvas = canvas;
+            options.context = gl;
+            //version = isWebGL2 ? 'GL2':'GL1';
+
+            view.isGL2 = isWebGL2;
+
+            if(isWebGL2){ 
+                gl.v2 = true;
+
+                //var bf = gl.getExtension('EXT_color_buffer_float');
+                //var fa = gl.getExtension('EXT_texture_filter_anisotropic');
+
+                if (!gl.getExtension("EXT_color_buffer_float")) console.error("FLOAT color buffer not available");
+                if (!gl.getExtension("EXT_texture_filter_anisotropic")) console.error("anisotropic filter not available");
+
+                
+            }
+
+
+            return options;
+
+        },
+
+        init: function ( forceGL1 ) {
+
+            view.testMobile();
+
+            //precision = isMobile ? 'lowp' : 'mediump';
 
             toneMappings = {
                 None: THREE.NoToneMapping,
@@ -235,7 +297,7 @@ var view = ( function () {
             var options = { antialias: false, alpha:false, stencil:false, depth:true, precision:precision, preserveDrawingBuffer:drawBuffer }
 
             // Try creating a WebGL 2 context first
-            gl = canvas.getContext( 'webgl2', options );
+            /*gl = canvas.getContext( 'webgl2', options );
             if (!gl) {
                 gl = canvas.getContext( 'experimental-webgl2', options );
             }
@@ -246,14 +308,17 @@ var view = ( function () {
                 if (!gl) gl = canvas.getContext( 'experimental-webgl', options );
             }
 
-            console.log('Webgl 2 is ' + isWebGL2 );
+            console.log('Webgl 2 is ' + isWebGL2 );*/
 
 
-            renderer = new THREE.WebGLRenderer({ canvas:canvas, context:gl, antialias:false, alpha:false, precision:precision, preserveDrawingBuffer:drawBuffer, stencil:false  });
+            //renderer = new THREE.WebGLRenderer({ canvas:canvas, context:gl, antialias:false, alpha:false, precision:precision, preserveDrawingBuffer:drawBuffer, stencil:false  });
+            renderer = new THREE.WebGLRenderer( view.getWebGL( forceGL1 ) );
             //renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:false, alpha:false, preserveDrawingBuffer:true, precision:precision });
             renderer.setPixelRatio( params.pixelRatio );
             renderer.setSize( vsize.x, vsize.y );
             renderer.setClearColor( 0x1e1e1e, 1 );
+
+            renderer.gl2 = isWebGL2;
 
             //console.log(renderer.getPrecision())
 
@@ -470,7 +535,7 @@ var view = ( function () {
 
             isLoaded = true;
 
-            if(!isError) editor.setMessage( 'v' + (isWebGL2 ? '2' : '1'));
+            if(!isError) editor.setMessage( 'gl' + (isWebGL2 ? '2' : '1'));
             else editor.setMessage('error');
 
             var p = pool.getResult();
@@ -485,6 +550,7 @@ var view = ( function () {
                 tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
                 if( name === 'tex10'|| name === 'tex12') tx.flipY = false;
                 else tx.flipY = true;
+                //tx.minFilter = THREE.LinearFilter;
                 tx.needsUpdate = true;
                 txt[name] = tx;
 
@@ -548,7 +614,7 @@ var view = ( function () {
 
             //isClear = true;
 
-            console.log('view reset');
+            //console.log('view reset');
 
         },
 
@@ -586,14 +652,10 @@ var view = ( function () {
 
                     if(channel.length === 4){
 
-
-
                         for( i = 0; i < 4; i++ ){
 
                             name = channel[i].name;
                             buff = channel[i].buffer;
-
-                            
 
                             if(buff){
 
@@ -677,12 +739,20 @@ var view = ( function () {
 
             full = full || false;
 
-            var min = THREE.NearestFilter;// full ? THREE.NearestFilter : THREE.LinearFilter;
-            var max = THREE.NearestFilter;//full ? THREE.NearestFilter : THREE.LinearFilter;
+            var min = THREE.NearestFilter;
+            var max = THREE.NearestFilter;
             var wt = THREE.ClampToEdgeWrapping;
             var ws = THREE.ClampToEdgeWrapping;
 
-            var r = new THREE.WebGLRenderTarget( w, h, { minFilter: min, magFilter: max, type: THREE.FloatType, stencilBuffer: false, depthBuffer :false, format: THREE.RGBAFormat, wrapT:wt, wrapS:ws });
+            var format = THREE.RGBAFormat;
+            var intern = isWebGL2 ? THREE.RGBA32Format : THREE.RGBAFormat;
+
+            //var type = isWebGL2 ? THREE.UnsignedByteType : THREE.FloatType;
+            var type = THREE.FloatType;
+
+          // var r = new THREE.WebGLRenderTarget( w, h, { minFilter: min, magFilter: max, type: THREE.FloatType, stencilBuffer: false, depthBuffer :false, format: THREE.RGBAFormat, wrapT:wt, wrapS:ws });
+            var r = new THREE.WebGLRenderTarget( w, h, { minFilter: min, magFilter: max, type: type, format: format, intern: intern, stencilBuffer: false, depthBuffer :false, wrapT:wt, wrapS:ws, anisotropy:0, generateMipmaps:false });
+         
             r.isFull = full || false;
             return r;
 
@@ -693,9 +763,16 @@ var view = ( function () {
             w = w || vsize.x;
             h = h || vsize.y;
 
+            //var type = isWebGL2 ? THREE.UnsignedByteType : THREE.FloatType;
+            //var type = THREE.FloatType;
+            var type = THREE.UnsignedByteType;
+
             var a = new Float32Array( w * h * 4 );
-            var texture = new THREE.DataTexture( a, w, h, THREE.RGBAFormat, THREE.FloatType );
+            var texture = new THREE.DataTexture( a, w, h, THREE.RGBAFormat, type );
+            //var texture = new THREE.DataTexture( a, w, h, THREE.RGBAFormat, gl.FLOAT );
             texture.needsUpdate = true;
+
+            //console.log(texture)
 
             return texture;
 
@@ -730,10 +807,24 @@ var view = ( function () {
                 'uniform vec3 cameraPosition;',
             ].join('\n');
 
+            var string = baseVar + frag;
+
+            if(isWebGL2){
+                string = '#version 300 es\n' + string;
+                string = string.replace('uniform vec3 cameraPosition;', "uniform vec3 cameraPosition;\nout vec4 FragColor_gl;\n");
+                string = string.replace('#extension GL_OES_standard_derivatives : enable', "");
+                string = string.replace('#extension GL_EXT_shader_texture_lod : enable', "");
+                string = string.replace(/varying /g, "in ");
+                string = string.replace(/transpose/g, "transposition");
+                string = string.replace(/gl_FragColor/g, "FragColor_gl");
+                string = string.replace(/texture2D/g, "texture");
+                string = string.replace(/textureCube/g, "texture");
+            }
+
             try {
 
                 tmpShader = gl.createShader( gl.FRAGMENT_SHADER );
-                gl.shaderSource( tmpShader, baseVar + frag );
+                gl.shaderSource( tmpShader, string );
                 gl.compileShader( tmpShader );
                 status = gl.getShaderParameter( tmpShader, gl.COMPILE_STATUS );
 
@@ -781,7 +872,7 @@ var view = ( function () {
                 view.pushChannel( n );
 
                 if( isLoaded ){ 
-                    editor.setMessage( 'v' + (isWebGL2 ? '2' : '1'));
+                    editor.setMessage( 'gl' + (isWebGL2 ? '2' : '1'));
                     //view.pushChannel( n );
                 }
 
@@ -799,6 +890,8 @@ var view = ( function () {
 
             hero = p['hero'][0];
             head = p['head'][0];
+
+            //console.log(hero, head)
         
             // init base textures
 
@@ -933,7 +1026,22 @@ var view = ( function () {
                 //mesh.material = new THREE.MeshBasicMater;
 
                 //heroMat = new THREE.MeshLambertMaterial({map:buffers_1[0].texture, skinning:true, morphTargets:true });
-                heroMat = new THREE.MeshPhongMaterial({map:buffers_1[0].texture, skinning:true, morphTargets:true, shininess:10 })
+                heroMat = new THREE.MeshPhongMaterial({ map:buffers_1[0].texture, skinning:true, shininess:10})//map:buffers_1[0].texture, skinning:true, morphTargets:true, shininess:10 })
+                /* heroMat.onBeforeCompile = function ( shader ) {
+
+                    //name = shader.name;
+                    var uniforms = shader.uniforms;
+                    var vertex = shader.vertexShader;
+                   var fragment = shader.fragmentShader;
+                   fragment = fragment.replace(/texture2D/g, "texture");
+                   shader.vertexShader = vertex;
+                   shader.fragmentShader = fragment;
+
+           // console.log(shader.fragmentShader)
+
+           // return shader;
+
+                 }*/
                 mesh.material = heroMat;
                 
 
@@ -1010,7 +1118,16 @@ var view = ( function () {
             w = w || 1;
             h = h || 1;
             var read = new Float32Array( 4 * (w * h) );
-            renderer.readRenderTargetPixels( texture, x || 0, y || 0, w, h, read ); 
+            if (isWebGL2){
+                var rgb = 0.003921569;
+                var read2 = new Uint8Array( 4 * (w * h) );
+                renderer.readRenderTargetPixels( texture, x || 0, y || 0, w, h, read2 );
+                var i = read2.length;
+                while(i--) read[i] = read2[i] * rgb;
+            }
+            else { 
+                renderer.readRenderTargetPixels( texture, x || 0, y || 0, w, h, read ); 
+            }
             return read;
             
         },
@@ -1080,6 +1197,10 @@ var view = ( function () {
     view.GpuSide = function(){
 
         this.renderer = view.getRenderer();
+        this.gl = this.renderer.getContext();
+        this.v2 = this.gl.v2;
+
+        //console.log('is Gl2', this.v2)
         this.scene = new THREE.Scene();
         this.camera = new THREE.Camera();
         this.camera.position.z = 1;
@@ -1089,12 +1210,23 @@ var view = ( function () {
         
         this.scene.add( this.mesh );
 
-        this.passThruUniforms = { texture: { value: null }, resolution: { value: new THREE.Vector2(128,128) } };
+        this.passThruUniforms = { map: { value: null } };//, resolution: { value: new THREE.Vector2(128,128) } };
         this.passThruShader = new THREE.ShaderMaterial( {
             uniforms: this.passThruUniforms,
-            vertexShader: ['void main() {', 'gl_Position = vec4( position, 1.0 );', '}'].join('\n'),
-            fragmentShader: ['uniform sampler2D texture;', 'uniform vec2 resolution;', 'void main() {', 'vec2 uv = gl_FragCoord.xy/ resolution.xy;', 'gl_FragColor = texture2D( texture, uv );', '}'].join('\n')
-            //fragmentShader: ['uniform sampler2D texture;', 'void main() {', 'vec2 uv = gl_FragCoord.xy / resolution.xy;', 'gl_FragColor = texture2D( texture, uv );', '}'].join('\n')
+            vertexShader: [
+                'varying vec2 vUv;',
+                'void main() {',
+                '    vUv = uv;',
+                '    gl_Position = vec4( position, 1.0 );', 
+                '}'
+            ].join('\n'),
+            fragmentShader: [
+                'uniform sampler2D map;',
+                'varying vec2 vUv;',
+                'void main() {',
+                    'gl_FragColor = texture2D( map, vUv );', 
+                '}'
+            ].join('\n')
         }); 
 
     };
@@ -1104,7 +1236,7 @@ var view = ( function () {
         render : function ( mat, output ) {
 
             this.mesh.material = mat;
-            this.renderer.render( this.scene, this.camera, output, false );
+            this.renderer.render( this.scene, this.camera, output, true );
             //this.mesh.material = this.passThruShader;
 
         },
@@ -1115,12 +1247,12 @@ var view = ( function () {
 
         },*/
 
-        renderTexture : function ( input, output, w, h ) {
+        renderTexture : function ( input, output ) {
 
-            this.passThruUniforms.resolution.value.x = w;
-            this.passThruUniforms.resolution.value.y = h;
+            //this.passThruUniforms.resolution.value.x = w;
+           // this.passThruUniforms.resolution.value.y = h;
             
-            this.passThruUniforms.texture.value = input;
+            this.passThruUniforms.map.value = input;
             this.render( this.passThruShader, output );
             //this.passThruUniforms.texture.value = null;
 

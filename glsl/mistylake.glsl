@@ -14,8 +14,8 @@
 #define BUMPFACTOR 0.1
 #define EPSILON 0.1
 #define BUMPDISTANCE 60.
-
-float time = iGlobalTime+285.;
+#define time (iTime+285.)
+//float time = iGlobalTime+285.;
 
 // Noise functions by inigo quilez 
 
@@ -290,29 +290,3 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
     
     fragColor = vec4( col, 1.0 );
 }
-
-//---------------------------
-
-// THREE JS TRANSPHERE
-
-void main(){
-
-    vec4 color = vec4(0.0);
-
-    // screen space
-    //vec2 coord = gl_FragCoord.xy;
-    // object space
-    vec2 coord = vUv * iResolution.xy;
-
-    mainImage( color, coord );
-
-    // tone mapping
-    #if defined( TONE_MAPPING ) 
-    color.rgb = toneMapping( color.rgb ); 
-    #endif
-
-    gl_FragColor = color;
-
-}
-
-//---------------------------

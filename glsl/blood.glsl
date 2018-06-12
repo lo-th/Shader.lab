@@ -20,15 +20,14 @@ vec3 GetCameraRayDir( const in vec2 vWindow, const in vec3 vCameraPos, const in 
 vec3 GetSceneColour( in vec3 vRayOrigin,  in vec3 vRayDir );
 vec3 ApplyPostFX( const in vec2 vUV, const in vec3 vInput );
 
-float fPulseTime = iGlobalTime;
 
-float fCameraZ = fPulseTime * 30.0;
+
 float fPulse = 0.0;
 float fDPulse = 0.0;
 
 const float kExposure = 1.5;
 
-vec3 vLightColour = vec3(1.0, 0.01, 0.005);
+const vec3 vLightColour = vec3(1.0, 0.01, 0.005);
 
 vec3 vRimLightColour = vLightColour * 0.5;
 vec3 vAmbientLight = vLightColour * 0.05;
@@ -37,8 +36,26 @@ vec3 vEmissiveLight = vLightColour * 1.0;
 float kFogDensity = 0.0075;
 vec3 vFogColour = vec3(1.0, 0.05, 0.005) * 0.25 * 10.0;
 
-float fStartTime = 90.0;
-float fGlobalTime = fStartTime;
+float GetGlobalTime()
+{
+    float fStartTime = 90.0;
+    return fStartTime + iTime;
+}
+
+float GetPulseTime()
+{
+    float fGlobalTime = GetGlobalTime();
+    
+    float s= sin(fGlobalTime * 2.0);
+    fPulse = s * s;
+    fDPulse = cos(fGlobalTime * 2.0);
+    return fGlobalTime + fPulse * 0.2;
+}
+
+float GetCameraZ()
+{
+    return GetPulseTime() * 20.0;
+}
 
 mat3 SetRot( const in vec3 r )
 {
@@ -60,24 +77,14 @@ vec3 TunnelOffset( float z )
     vec3 vResult = vec3( sin(z * 0.0234)* r, sin(z * 0.034)* r, 0.0 );
     return vResult;
 }
-    
+
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-    fGlobalTime = fStartTime + iGlobalTime;
-    
-    //fGlobalTime = 160.0;
-    
-    float s= sin(fGlobalTime * 2.0);
-    fPulse = s * s;
-    fDPulse = cos(fGlobalTime * 2.0);
-    fPulseTime = fGlobalTime + fPulse * 0.2;
-
-    fCameraZ = fPulseTime * 20.0;
-    
     vec2 vUV = fragCoord.xy / iResolution.xy;
 
     vec2 vMouse = iMouse.xy / iResolution.xy;
-    
+
+    float fCameraZ = GetCameraZ();
 
     vec3 vCameraPos = vec3(0.0, 0.0, 0.0);
     vCameraPos.z += fCameraZ;
@@ -102,7 +109,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vCameraTarget.x += sin(fAngle) * fTargetLookahead;
 
     // camera shake
-    vec3 vShake = (texture2D(iChannel0, vec2(fPulseTime * 0.05, 0.0)).rgb * 2.0 - 1.0);
+    vec3 vShake = (textureLod(iChannel0, vec2(GetPulseTime() * 0.05, 0.0), 0.0).rgb * 2.0 - 1.0);
     vCameraTarget += vShake * fDPulse * 0.02 * length(vCameraTarget - vCameraPos);
     
     float fFOV = 0.5;
@@ -214,7 +221,7 @@ float GetCellDistance( const in vec3 vPos, const in float fSeed )
     
     vec3 vRotSpeed = vec3(0.0, 1.0, 2.0) + vec3(1.0, 2.0, 3.0) * fSeed;
     
-    mat3 mCell = SetRot(vRotSpeed * fGlobalTime);
+    mat3 mCell = SetRot(vRotSpeed * GetGlobalTime());
     
     vCellPos = vCellPos * mCell;
     
@@ -272,7 +279,7 @@ float GetSceneDistanceMain( out vec4 vOutUVW_Id, const in vec3 vPos )
     
     vec3 vCellDomain = vPos;
             
-    vCellDomain.z -= fPulseTime * 30.0 + fPulse * 0.5;
+    vCellDomain.z -= GetPulseTime() * 30.0 + fPulse * 0.5;
         
     float fCurrTile = GetSegment(vCellDomain.z, kZRepeat);
 
@@ -338,7 +345,7 @@ float GetSceneDistanceMain( out vec4 vOutUVW_Id, const in vec3 vPos )
     }
         
     // noise
-    float fSample = texture2D(iChannel0, vOutUVW_Id.xy, -100.0).r;
+    float fSample = textureLod(iChannel0, vOutUVW_Id.xy, 0.0).r;
     fOutDist -= fSample * fNoiseMag;
     
     return fOutDist;    
@@ -420,13 +427,13 @@ vec3 SampleTunnel( vec2 vUV )
     float mipBias = 4.0;
 
     // Sample the texture with UV modulo seam at the bottom
-    vec3 vSampleA = texture2D(iChannel0, vUV, mipBias).rgb;
+    vec3 vSampleA = texture(iChannel0, vUV, mipBias).rgb;
     
     vec2 vUVb = vUV;
     vUVb.x = fract(vUVb.x + 0.5) - 0.5; // move UV modulo seam
     
     // Sample the texture with UV modulo seam on the left
-    vec3 vSampleB = texture2D(iChannel0, vUVb, mipBias).rgb;
+    vec3 vSampleB = texture(iChannel0, vUVb, mipBias).rgb;
     
     // Blend out seam around zero
     float fBlend = abs( fract( vUVb.x ) * 2.0 - 1.0 );
@@ -503,4 +510,22 @@ vec3 GetSceneColour( in vec3 vRayOrigin,  in vec3 vRayDir )
     }
     
     return vColour;
+}
+
+
+void mainVR( out vec4 fragColor, in vec2 fragCoord, in vec3 fragRayOri, in vec3 fragRayDir )
+{
+    fragRayOri.z *= -1.0;
+    fragRayDir.z *= -1.0;
+         
+    float fCameraZ = GetCameraZ();
+
+    fragRayOri.z += fCameraZ;
+    fragRayOri += TunnelOffset(fCameraZ);
+
+    vec3 vResult = GetSceneColour(fragRayOri, fragRayDir);
+    
+    vec3 vFinal = ApplyPostFX( vec2(0.5), vResult );
+    
+    fragColor = vec4( vFinal, 1.0 );
 }

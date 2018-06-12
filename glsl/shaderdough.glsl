@@ -34,10 +34,10 @@ mat3 rotationMatrix(vec3 axis, float angle)
 
 
 // --------------------------------------------------------
-// https://github.com/stackgl/glsl-inverse
+// https://github.com/stackgl/glsl-inversed
 // --------------------------------------------------------
 
-mat3 inverse(mat3 m) {
+mat3 inversed(mat3 m) {
   float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
   float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
   float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];
@@ -69,7 +69,7 @@ mat3 orientMatrix(vec3 A, vec3 B) {
         length(cross(A, B)),    dot(A, B),              0,
         0,                      0,                      1
     );
-    return Fi * G * inverse(Fi);
+    return Fi * G * inversed(Fi);
 }
 
 
@@ -208,7 +208,7 @@ float pModPolar(inout vec2 p, float repetitions) {
 void pModPolar(inout vec3 p, vec3 axis, float repetitions, float offset) {
     vec3 z = vec3(0,0,1);
     mat3 m = orientMatrix(axis, z);
-    p *= inverse(m);
+    p *= inversed(m);
     pR(p.xy, offset);
     pModPolar(p.xy, repetitions);
     pR(p.xy, -offset);
@@ -691,29 +691,3 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     fragColor = vec4(color,1.0);
 }
-
-//---------------------------
-
-// THREE JS TRANSPHERE
-
-void main(){
-
-    vec4 color = vec4(0.0);
-
-    // screen space
-    //vec2 coord = gl_FragCoord.xy;
-    // object space
-    vec2 coord = vUv * iResolution.xy;
-
-    mainImage( color, coord );
-
-    // tone mapping
-    #if defined( TONE_MAPPING ) 
-    color.rgb = toneMapping( color.rgb ); 
-    #endif
-
-    gl_FragColor = color;
-
-}
-
-//---------------------------

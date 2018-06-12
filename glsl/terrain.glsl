@@ -3,18 +3,19 @@
 // 0_# tex03 #_0
 // ------------------
 
-
-//by mu6k, Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-
-// just playing around with some more rays...
-
-// 10/05/2013:- published
-
-// 24/05/2013:- added the compatibility fix as suggested by reinder
-
-// muuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuusk!
-
 // https://www.shadertoy.com/view/Xss3z4
+
+/*by mu6k, Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
+ just playing around with some more rays...
+
+ 10/05/2013:
+ - published
+
+ 24/05/2013:
+ - added the compatibility fix as suggested by reinder
+
+ muuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuusk!*/
 
 float hash(vec2 x)
 {
@@ -48,10 +49,9 @@ float dist(vec3 p) // distance function for the terrain, 2 layers of texture
     float d1 = p.y+2.0;
     
     p.x+=p.z*0.25;p.z-=p.x*0.25; //rotate
-    d1-=texture2D(iChannel0,p.xz*0.01).r*0.7-5.5;;
+    d1-=textureLod(iChannel0,p.xz*0.01,0.0).r*0.7-5.5;;
     p.x+=p.z*0.25;p.z-=p.x*0.25; //rotate
-    d1-=texture2D(iChannel0,p.xz*0.001).r*14.0-5.5;;    
-    //d1 -= texture2D(iChannel1,vec2(mod(p.z*0.01,1.0),1.0))*5.0;
+    d1-=textureLod(iChannel0,p.xz*0.001,0.0).r*14.0-5.5;;   
 
     return d1;
 }
@@ -62,13 +62,13 @@ float dist_smooth(vec3 p) //smoother version of the dist for the camera
     
     p = ps;
 
-    //p.z+=iGlobalTime*2.0+10.0; 
+    //p.z+=iTime*2.0+10.0; 
     float d1 = p.y+2.0;
     
     p.x+=p.z*0.25;p.z-=p.x*0.25;
-    //d1-=texture2D(iChannel0,p.xz*0.01)*0.7-5.5;;
+    //d1-=texture(iChannel0,p.xz*0.01)*0.7-5.5;;
     p.x+=p.z*0.25;p.z-=p.x*0.25; 
-    d1-=texture2D(iChannel0,p.xz*0.001).r*14.0-5.5;;    
+    d1-=texture(iChannel0,p.xz*0.001).r*14.0-5.5;;  
 
     return d1;
 }
@@ -82,8 +82,8 @@ vec3 normal(vec3 p) //returns the normal at a given position
 
 //the sun has gone wild and is moving around like crazy...
 //l is the light direction
-float lt = iGlobalTime;
-vec3 l =normalize(vec3(sin(lt*0.41),sin(lt*0.1)*0.27+0.30,cos(lt*0.512)));
+
+vec3 l;
 
 float shadow(vec3 p) //generates some really long shadows...
 {
@@ -138,7 +138,7 @@ vec3 sky(vec3 dir) //atmospere
 
 float stars(vec3 dir) //stars are generated using 2d noise on a UV sphere
 {
-    vec2 staruv = vec2(atan(dir.x/dir.z)*88.0+iGlobalTime*0.1,dir.y*64.0);
+    vec2 staruv = vec2(atan(dir.x/dir.z)*88.0+iTime*0.1,dir.y*64.0);
     float st = (noise(staruv)+noise(staruv*5.1)+noise(staruv*2.7))*0.3633;
     if (st<0.0) st = 0.0;
     st = pow(st,25.0);
@@ -153,30 +153,32 @@ vec3 sun(vec3 dir) //makes that bright spot on the sky
     return vec3(sun);
 }
 
-void main(){
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    l =normalize(vec3(sin(iTime*0.41),sin(iTime*0.1)*0.27+0.30,cos(iTime*0.512)));
 
-    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
+    
+    vec2 uv = fragCoord.xy / iResolution.xy;
     vec2 m = iMouse.xy / iResolution.xy - 0.5;
     m+=vec2(0.0,0.1);
     
     //move the camera forward!
-    vec3 pos = vec3(sin(iGlobalTime*0.013)*10.0,-1.0,cos(iGlobalTime*0.01)+iGlobalTime*3.0);
+    vec3 pos = vec3(sin(iTime*0.013)*10.0,-1.0,cos(iTime*0.01)+iTime*3.0);
     //move the camera up based on the distance from the heightmap
     pos = vec3(pos.x,-5.0-dist_smooth(pos),pos.z);
     //camera direction
     vec3 dir = vec3((uv.x-0.5)*iResolution.x/iResolution.y,uv.y-0.5,1.0);
     dir.xy+=m*0.1;
-    //dir.z += sin(iGlobalTime*0.35117)*0.1;
+    //dir.z += sin(iTime*0.35117)*0.1;
     dir.z = (1.0-length(dir)*0.5);
     dir = normalize(dir);
     
     vec3 color,skycolor=sky(dir),suncolor=vec3(sun(dir)),starscolor=vec3(stars(dir));
-    float t = iGlobalTime;
+    float t = iTime;
     float totald = 0.0; //distance travelled, used for fog
     
     float visp = (dir.x+dir.z*0.5+0.95-dir.y*0.5); visp=abs(visp); visp=pow(visp,0.8)*0.19;
-    float vis= texture2D(iChannel1,vec2(visp,0.0)).y;
+    float vis= texture(iChannel1,vec2(visp,0.0)).y;
     vis = min(1.0,vis*1.2*(0.92+visp*0.6));
     vis=pow(vis,20.0)*2.5*dir.y;
 
@@ -209,10 +211,6 @@ void main(){
             break;
         }
     }
-
-    #if defined( TONE_MAPPING ) 
-    color = toneMapping( color ); 
-    #endif
     
     color = color*vec3(1.5,1.5,1.5);
     color -= length(uv.xy-0.5)*0.3;
@@ -221,8 +219,6 @@ void main(){
     
     float w=color.x+color.y+color.z;
     color = mix(color,vec3(w,w,w)*0.3,w*0.35);
-
     
-    
-    gl_FragColor = vec4(color,1.0);
+    fragColor = vec4(color,1.0);
 }

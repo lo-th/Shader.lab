@@ -15,15 +15,15 @@ mat3 rotz(float a) { mat3 rot; rot[0] = vec3(cos(a), -sin(a), 0.0); rot[1] = vec
 const float H = 0.2;
 
 
-vec4 filter(sampler2D sampler, vec2 uv, float filter)
+vec4 flter(sampler2D sampler, vec2 uv, float f)
 {
-    vec4 c = texture2D(sampler, uv);
-    c = clamp(c - filter, 0.0, 1.0);
-    c /= filter;
+    vec4 c = texture(sampler, uv);
+    c = clamp(c - f, 0.0, 1.0);
+    c /= f;
     return c;
 }
 
-float filter(float f, float a)
+float flter(float f, float a)
 {
     f = clamp(f - a, 0.0, 1.0);
     return f / (1.0 - a);
@@ -35,11 +35,11 @@ float fbm(vec2 uv)
 {
     float f = 0.0;
     
-    f += (texture2D(iChannel0, uv).r - 0.5) * 0.5;
-    f += (texture2D(iChannel0, uv * 2.0).r - 0.5) * 0.25;
-    f += (texture2D(iChannel0, uv * 4.0).r - 0.5) * 0.125;
-    f += (texture2D(iChannel0, uv * 8.0).r - 0.5) * 0.125 * 0.5;
-    f += (texture2D(iChannel0, uv * 32.0).r - 0.5) * 0.125 * 0.5 * 0.5;
+    f += (texture(iChannel0, uv).r - 0.5) * 0.5;
+    f += (texture(iChannel0, uv * 2.0).r - 0.5) * 0.25;
+    f += (texture(iChannel0, uv * 4.0).r - 0.5) * 0.125;
+    f += (texture(iChannel0, uv * 8.0).r - 0.5) * 0.125 * 0.5;
+    f += (texture(iChannel0, uv * 32.0).r - 0.5) * 0.125 * 0.5 * 0.5;
     
     return f + 0.5;
 }
@@ -103,7 +103,7 @@ vec3 warpedRp = vec3(0.0);
 
 float map(in vec3 rp, inout AA aa, bool useAA)
 {
-    float gt = iGlobalTime * 0.9;
+    float gt = iTime * 0.9;
     float t = sin(gt + rp.x * 1.2) * 0.5;
     t += sin(gt + rp.z * 1.4) * 0.5;
     t *= 0.5;
@@ -119,7 +119,7 @@ float map(in vec3 rp, inout AA aa, bool useAA)
     float s2 = 1.0 - smoothstep(rp.x - sin(rp.z * 4.4) * 0.1 + sin(rp.z * 14.0) * 0.04, 0.4, -0.);
     rp.y += (s1 + s2) * 0.03;
     
-    vec4 col = texture2D(iChannel0, uv, -100.0);
+    vec4 col = texture(iChannel0, uv, -100.0);
     float h = col.r;
     
     if(useAA)
@@ -128,7 +128,7 @@ float map(in vec3 rp, inout AA aa, bool useAA)
         h = avg(aa);
     }
     
-    h *= mix(texture2D(iChannel0, uv * 0.025).r + 0., 1.0, 0.7);
+    h *= mix(texture(iChannel0, uv * 0.025).r + 0., 1.0, 0.7);
     h *= H;
     warpedRp = rp;
     return rp.y - h;
@@ -159,19 +159,19 @@ float shadow(in vec3 rp)
 vec4 clouds(in vec3 rp, in vec3 rd)
 {
     vec4 c = vec4(0.0);
-    float gt = iGlobalTime * 0.5;
+    float gt = iTime * 0.5;
     rp += rd * (1.0 / abs(rd.y));
     vec2 uv = rp.xz;
     uv.y += gt;
     float f1 = fbm(uv * 0.009);
-    f1 = filter(f1, .3);
+    f1 = flter(f1, .3);
 
     uv = rp.xz;
     uv.y += gt * 1.5;
     uv.x += gt * 0.5;
     
     float f2 = fbm(uv * 0.015);
-    f2 = filter(f2, 0.5);
+    f2 = flter(f2, 0.5);
     float f = mix(f1, f2, .2);
     f = clamp(f * 1.2, 0.0, 1.0);
     return vec4(f);
@@ -202,17 +202,17 @@ bool trace(inout vec3 rp, in vec3 rd, inout vec4 col)
         if(h <= 0.0 || rp.y < 0.0)
         {
             
-            vec4 tx = texture2D(iChannel2, warpedRp.xz * 0.5);
+            vec4 tx = texture(iChannel2, warpedRp.xz * 0.5);
             
             // straw color variance    
-            float filter = 0.5;
-            float strw = clamp(tx.g - filter, 0.0, 1.0);
-            strw /= 1.0 - filter;
+            float flter = 0.5;
+            float strw = clamp(tx.g - flter, 0.0, 1.0);
+            strw /= 1.0 - flter;
             strawcol = mix(vec4(1., 1., 0., 0.0), vec4(.8, 0.6, 0.3, 0.0), strw);
             strawcol *= 1.5;
             
             // coloring
-            vec4 c2 = texture2D(iChannel2, warpedRp.xz * 0.008);
+            vec4 c2 = texture(iChannel2, warpedRp.xz * 0.008);
             col = mix(c2, strawcol, 0.8);
             
             vec3 g = grad(rp, aa);
@@ -244,17 +244,16 @@ bool trace(inout vec3 rp, in vec3 rd, inout vec4 col)
 
 
 
-void main(){
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
     
-    vec4 col = vec4(0.0);
-    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    //uv -= vec2(0.5);
-    //uv.y /= iResolution.x / iResolution.y;
-
-    vec2 uv = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
+    fragColor = vec4(0.0);
+    vec2 uv = fragCoord.xy / iResolution.xy;
+    uv -= vec2(0.5);
+    uv.y /= iResolution.x / iResolution.y;
     
     vec3 rp = vec3(0.0, 0.5, -1.0);
-    rp.z += iGlobalTime * 0.15;
+    rp.z += iTime * 0.15;
     
     vec3 ro = rp;
     vec3 rd = normalize(vec3(uv ,0.5));
@@ -266,7 +265,7 @@ void main(){
     rd *= roty( (m.x / iResolution.y) * 3.0);
     rd = normalize(rd);
     bool hit = false;
-    hit = trace(rp, rd, col);
+    hit = trace(rp, rd, fragColor);
     
     if(!hit)
     {
@@ -277,33 +276,26 @@ void main(){
     float dist = length(ro - rp);
     vec4 fog = vec4(0.1, 0.25, 0.4, 0.0) * 0.7;
     fog = mix(fog, vec4(1.0), smoothstep(0.5,-0.4, rd.y));
-    col = mix(col, fog, smoothstep(3.0, 10.0, dist));
+    fragColor = mix(fragColor, fog, smoothstep(3.0, 10.0, dist));
     
     if(rd.y > 0.0)
     {
         vec4 clds = clouds(ro, rd);
         clds *= smoothstep(0.0, 0.2, rd.y);
-        col = mix(col, vec4(1.0) * 0.95, clds);
+        fragColor = mix(fragColor, vec4(1.0) * 0.95, clds);
     }
 
     vec2 halo = rd.xy;
     float hl = length(halo);
     if(rd.z < 0.0) hl = 11.0;
-    col += clamp(1.0 - pow(hl, .3), 0.0, 1.0);
+    fragColor += clamp(1.0 - pow(hl, .3), 0.0, 1.0);
     
-    float mx = max(col.r, col.g);
-    mx = max(col.b, mx);
-    col /= max(1.0, mx);
+    float mx = max(fragColor.r, fragColor.g);
+    mx = max(fragColor.b, mx);
+    fragColor /= max(1.0, mx);
     
     // contrast
-    //float contr = 0.2;
-    //col = mix(vec4(0.0), vec4(1.0), col * contr + (1.0 - contr) * col * col * (3.0 - 2.0 * col));
-
-    // tone mapping
-    #if defined( TONE_MAPPING ) 
-    col.rgb = toneMapping( col.rgb ); 
-    #endif
-
-    gl_FragColor = col;
+    float contr = 0.2;
+    fragColor = mix(vec4(0.0), vec4(1.0), fragColor * contr + (1.0 - contr) * fragColor * fragColor * (3.0 - 2.0 * fragColor));
     
 }

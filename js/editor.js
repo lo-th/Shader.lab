@@ -216,8 +216,8 @@ var editor = ( function () {
 
         setMessage : function( t ) {
 
-            if(t === 'v1') { version.style.background = 'rgba(0,255,255,0.3)'; version.style.width='40px'; }
-            else if(t === 'v2') { version.style.background = 'rgba(0,255,0,0.3)'; version.style.width='40px'; }
+            if(t === 'gl1') { version.style.background = 'rgba(0,255,255,0.3)'; version.style.width='50px'; }
+            else if(t === 'gl2') { version.style.background = 'rgba(0,255,0,0.3)'; version.style.width='50px'; }
             else if(t === 'error') { t = '/!&#92; error'; version.style.background = 'rgba(255,0,0,0.3)'; version.style.width='100px'; }
             else if(t === 'load'){ t = '/?&#92; loading'; version.style.background = 'rgba(0,50,255,0.3)'; version.style.width='130px';}
             version.innerHTML = t;

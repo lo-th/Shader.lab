@@ -23,7 +23,7 @@
 #define focus 5.0
 #define far 14.0
 
-float atime = time*5.0;
+float atime;
 vec3 sun = normalize(vec3(0.6, 1.0, 0.5));
 
 float rand(vec2 co)
@@ -195,6 +195,7 @@ vec3 colorize(in Hit hit, in vec3 pos, in vec3 dir)
 void main() {
 
     //vec2 pos = (fragCoord.xy*2.0 - resolution.xy) / resolution.y;
+    atime = time*5.0;
     vec2 pos = ((vUv * 2.0) - 1.0) * vec2(iResolution.z, 1.0);
     
     vec3 cp = vec3(track(atime)+sin(atime)*sin(atime*0.2)*vec2(rand(atime)*0.02, rand(time)*0.03), atime); 

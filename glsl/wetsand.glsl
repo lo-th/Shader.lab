@@ -14,15 +14,15 @@
 //#define FAST
 
 // keys
-int kA=65,kB=66,kC=67,kD=68,kE=69,kF=70,kG=71,kH=72,kI=73,kJ=74,kK=75,kL=76,kM=77,kN=78,kO=79,kP=80,kQ=81,kR=82,kS=83,kT=84,kU=85,kV=86,kW=87,kX=88,kY=89,kZ=90;
-int k0=48,k1=49,k2=50,k3=51,k4=52,k5=53,k6=54,k7=55,k8=56,k9=57;
-int kSpace=32,kLeft=37,kUp=38,kRight=39,kDown=40;
+const int kA=65,kB=66,kC=67,kD=68,kE=69,kF=70,kG=71,kH=72,kI=73,kJ=74,kK=75,kL=76,kM=77,kN=78,kO=79,kP=80,kQ=81,kR=82,kS=83,kT=84,kU=85,kV=86,kW=87,kX=88,kY=89,kZ=90;
+const int k0=48,k1=49,k2=50,k3=51,k4=52,k5=53,k6=54,k7=55,k8=56,k9=57;
+const int kSpace=32,kLeft=37,kUp=38,kRight=39,kDown=40;
 
 
 // TOGGLES:
 
 // demo mode - cycle through the effects
-int kDemoMode = kD;
+const int kDemoMode = kD;
 
 // aesthetic toggles
 int kAnimate = kA;  float pauseTime = 3.6;

@@ -16,7 +16,8 @@
 //----------------------------------------------------------------------
 
 const vec3 backgroundColor = vec3(0.2,0.4,0.6) * 0.09;
-float time = iGlobalTime + 90.;
+//float time = iGlobalTime + 90.;
+#define time (iGlobalTime + 90.)
 
 //----------------------------------------------------------------------
 // noises

@@ -803,7 +803,7 @@ vec4 trace(vec3 ray_start, vec3 ray_dir){
 // abs(1+1-1)=1
 float xnor(float x, in float y) { return abs(x+y-1.0); }
 
-vec4 texture(vec3 pos, float sample_size, vec3 norm ){
+vec4 textureSample(vec3 pos, float sample_size, vec3 norm ){
 
 
    pos = pos*8.0 + .5;
@@ -893,7 +893,7 @@ vec3 shade(vec3 ray_start, vec3 ray_dir, vec3 light_dir){
        
       ray_len = length(dir);
    
-      vec3 base_color = texture(hit.xyz,ray_len/iResolution.y, norm ).xyz;
+      vec3 base_color = textureSample(hit.xyz,ray_len/iResolution.y, norm ).xyz;
 
       // sphere uv
       //vec3 base_color = texture2D(iChannel0,uxX(norm, hit.xyz)*4.0).xyz;

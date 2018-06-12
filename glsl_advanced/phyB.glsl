@@ -261,4 +261,3 @@ void mainImage (out vec4 fragColor, in vec2 fragCoord)
   else if (pxId == 4 + 4 * mId + 3) p = vec4 (wm, 0.);
   Savev4 (pxId, ((pxId >= 4) ? p : stDat), fragColor, fragCoord);
 }
-

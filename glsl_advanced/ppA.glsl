@@ -47,10 +47,26 @@ float Hashff (float p)
 
 const float txRow = 64.;
 
+
+
 vec4 Loadv4 (int idVar)
 {
   float fi = float (idVar);
-  return texture2D ( txBuf, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize );
+  vec2 coord = (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize;
+  vec4 v = texture2D ( txBuf, coord );
+  //vec4 v = textureLod ( txBuf, coord, 0.0 );
+  //float rgb = 0.003921569;
+  //vec4 va = texelFetch( txBuf, ivec2((coord)), 0 );
+  //vec4 v = vec4(float( va.x )*rgb, float( va.y )*rgb, float( va.z )*rgb, 0.0);
+  //vec3 v3 = texelFetch ( txBuf, ivec2(coord), 0 );
+  //float val = decode_float( v );
+  //float res = float( val );
+  ///return encode_float( res );
+
+  //return vec4( v.r*255.0, v.g*255.0, v.b*255.0, v.a*255.0 );
+  return v;
+  //return texture2D ( txBuf, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize );
+  //return encode_float( texture2D ( txBuf, (vec2 (mod (fi, txRow), floor (fi / txRow)) + 0.5) / txSize ) );
 }
 
 void Savev4 (int idVar, vec4 val, inout vec4 fCol, vec2 fCoord)

@@ -13,7 +13,7 @@
 
 //-----------------------------------------------------
 
-// Display distance field in a plane perpendicular to camera crossing pt(0,0,0)
+// Display distanced field in a plane perpendicular to camera crossing pt(0,0,0)
 //#define DRAW_DISTANCE
 
 
@@ -77,7 +77,7 @@ vec3 hsv2rgb_smooth(float x, float y, float z) {
 }
 
 // Distance from ray to point
-float distance(vec3 ro, vec3 rd, vec3 p) {
+float distanced(vec3 ro, vec3 rd, vec3 p) {
     return length(cross(p-ro,rd));
 }
 
@@ -394,7 +394,7 @@ vec3 iris(vec2 p, float open)
 
 
 
-vec3 Shade( vec3 pos, vec3 ray, vec3 normal, vec3 lightDir1, vec3 lightDir2, vec3 lightCol1, vec3 lightCol2, float shadowMask1, float shadowMask2, float distance )
+vec3 Shade( vec3 pos, vec3 ray, vec3 normal, vec3 lightDir1, vec3 lightDir2, vec3 lightCol1, vec3 lightCol2, float shadowMask1, float shadowMask2, float distanced )
 {
     
     float colorId = colorField(pos);
@@ -402,7 +402,7 @@ vec3 Shade( vec3 pos, vec3 ray, vec3 normal, vec3 lightDir1, vec3 lightDir2, vec
     vec3 ambient = g_envBrightness*mix( vec3(.2,.27,.4), vec3(.4), (-normal.y*.5+.5) ); // ambient
     
     // ambient occlusion, based on my DF Lighting: https://www.shadertoy.com/view/XdBGW3
-    float aoRange = distance/20.0;
+    float aoRange = distanced/20.0;
     
     float occlusion = max( 0.0, 1.0 - map( pos + normal*aoRange )/aoRange ); // can be > 1.0
     occlusion = exp2( -2.0*pow(occlusion,2.0) ); // tweak the curve
@@ -423,7 +423,7 @@ vec3 Shade( vec3 pos, vec3 ray, vec3 normal, vec3 lightDir1, vec3 lightDir2, vec
 
     
     // And sub surface scattering too! Because, why not?
-    float transmissionRange = distance/10.0; // this really should be constant... right?
+    float transmissionRange = distanced/10.0; // this really should be constant... right?
     float transmission1 = map( pos + lightDir1*transmissionRange )/transmissionRange;
     float transmission2 = map( pos + lightDir2*transmissionRange )/transmissionRange;
     
@@ -816,7 +816,7 @@ void main(){
             col = Sky( ray );
         }
         // Draw light
-        float s1 = max(distance(pos, ray, g_lightPos)+.03,0.);
+        float s1 = max(distanced(pos, ray, g_lightPos)+.03,0.);
         float dist = length(g_lightPos-pos);
         if (dist < t) {
             vec3 col2 = lightCol2*2.5*exp( -.01*dist*dist );

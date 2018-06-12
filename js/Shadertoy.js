@@ -30,6 +30,7 @@ THREE.Shadertoy = function ( frag, tone, objSpace, parameters ) {
 
         iGlobalTime: { type: 'f', value: 0 },
         iTimeDelta: { type: 'f', value: 0 },
+        iTime: { type: 'f', value: 0 },
         iResolution: { type: 'v3', value: null },
         iMouse: { type: 'v4', value: null },
         iFrame: { type: 'i', value: 0 },
@@ -76,8 +77,6 @@ THREE.Shadertoy.prototype.setChannelResolution = function ( n, x, y ) {
 
     this.channelRes[n].x = x;
     this.channelRes[n].y = y;
-
-    //this.uniforms.iChannelResolution[n].value = new THREE.Vector2( x, y );
     this.uniforms.iChannelResolution.value = this.channelRes;
 
 }
@@ -108,6 +107,50 @@ THREE.Shadertoy.prototype.completeFragment = function ( frag ) {
 
     this.findChannels( frag );
 
+    var encode = [
+        'float shift_right (float v, float amt) {',
+            'v = floor(v) + 0.5;',
+            'return floor(v / exp2(amt));',
+        '}',
+        'float shift_left (float v, float amt) {',
+            'return floor(v * exp2(amt) + 0.5);',
+        '}',
+        'float mask_last (float v, float bits) {', 
+            'return mod(v, shift_left(1.0, bits));',
+        '}',
+        'float extract_bits (float num, float from, float to) {',
+            'from = floor(from + 0.5); to = floor(to + 0.5);',
+            'return mask_last(shift_right(num, from), to - from);',
+        '}',
+        'vec4 encode_float (float val) {',
+            'if (val == 0.0) return vec4(0, 0, 0, 0);',
+            'float sign = val > 0.0 ? 0.0 : 1.0;',
+            'val = abs(val);',
+            'float exponent = floor(log2(val));',
+            'float biased_exponent = exponent + 127.0;',
+            'float fraction = ((val / exp2(exponent)) - 1.0) * 8388608.0;',
+            'float t = biased_exponent / 2.0;',
+            'float last_bit_of_biased_exponent = fract(t) * 2.0;',
+            'float remaining_bits_of_biased_exponent = floor(t);', 
+            'float byte4 = extract_bits(fraction, 0.0, 8.0) / 255.0;', 
+            'float byte3 = extract_bits(fraction, 8.0, 16.0) / 255.0;', 
+            'float byte2 = (last_bit_of_biased_exponent * 128.0 + extract_bits(fraction, 16.0, 23.0)) / 255.0;', 
+            'float byte1 = (sign * 128.0 + remaining_bits_of_biased_exponent) / 255.0;',
+            'return vec4(byte4, byte3, byte2, byte1);',
+        '}',
+        'float decode_float( vec4 val ) {',
+            'float sign = ( val.a * 255. / pow( 2., 7. ) ) >= 1. ? -1. : 1.;',
+            'float s = val.a * 255.;',
+            'if( s > 128. ) s -= 128.;',
+            'float exponent = s * 2. + floor( val.b * 255. / pow( 2., 7. ) );',
+            'float mantissa = ( val.r * 255. + val.g * 255. * 256. + clamp( val.b * 255. - 128., 0., 255. ) * 256. * 256. );',
+            'float t = val.b * 255.;',
+            'if( t > 128. ) t -= 128.;',
+            'mantissa = t * 256. * 256. + val.g * 255. * 256. + val.r * 255.;',
+            'return sign * pow( 2., exponent - 127. ) * ( 1. + mantissa / pow ( 2., 23. ) );',
+        '}',
+    ];
+
     var prev = [
 
         'uniform '+ this.channels[0].type +' iChannel0;',
@@ -120,6 +163,7 @@ THREE.Shadertoy.prototype.completeFragment = function ( frag ) {
         'uniform vec4 iDate;',
         'uniform vec3 iResolution;',
         'uniform float iGlobalTime;',
+        'uniform float iTime;',
         'uniform float iTimeDelta;',
         'uniform vec2 iChannelResolution[4];',
         'uniform float key[20];',
@@ -131,7 +175,7 @@ THREE.Shadertoy.prototype.completeFragment = function ( frag ) {
 
     var end = frag.indexOf( 'void main()' ) !== -1 ? [''] : def_main;
 
-    return prev.join('\n') + frag + end.join('\n');
+    return prev.join('\n') + encode.join('\n') + frag + end.join('\n');
 
 }
 

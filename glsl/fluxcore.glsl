@@ -442,13 +442,13 @@ vec3 RayTrace(in vec2 fragCoord )
     {
         float time = localTime - t5;
         float alpha = time / (t6 - t5);
-        float smooth = smoothstep(0.0, 1.0, saturated(alpha*1.8-0.1));
-        animStructure = 1.0-smooth;
+        float smoothing = smoothstep(0.0, 1.0, saturated(alpha*1.8-0.1));
+        animStructure = 1.0-smoothing;
         fade = saturated(time);
         fade *= saturated(t6 - localTime);
-        camPos = vec3(10.0, -0.95+smooth*1.0, 0.0);
+        camPos = vec3(10.0, -0.95+smoothing*1.0, 0.0);
         camPos.x -= alpha * 6.8;
-        camUp=normalize(vec3(0,1.0-smooth,0.0+smooth));
+        camUp=normalize(vec3(0,1.0-smoothing,0.0+smoothing));
         camLookat=vec3(0,-0.0,-0.0);
     }
 #endif

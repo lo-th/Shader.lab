@@ -12,9 +12,9 @@
 <link rel="stylesheet" href="css/lab.css">
 
 <script src="js/libs/codemirror.min.js"></script>
-<script src="js/libs_new/three.js"></script>
-<script src="js/libs_new/sea3d.js"></script>
-<script src="js/libs_new/uil.js"></script>
+<script src="js/libs/three.js"></script>
+<script src="js/libs/sea3d.js"></script>
+<script src="js/libs/uil.js"></script>
 
 <script src="js/OrbitControls.js"></script>
 
@@ -32,7 +32,7 @@
 
 'use strict';
 
-var forceV1 = 0;
+var forceV1 = 1;
 
 var demos = [ 
     'cave', 'lunar', 'ground', 'canyon', 'dustplanet', 'diamond', 'cubic', 'xypton', 'neptune', 'catacombs', 'nursery','cellular','starnest','fractalroad',
@@ -40,7 +40,7 @@ var demos = [
     'building', 'corridor', 'hills', 'minecraft', 'ball', 'cloundy', 'primitives', 'antialias', 'foggy', 'frozen', 'metaball', 'wetsand', 'meditation',
     'glacius', 'cavegame', 'subterran', 'terrain', 'windplaine', 'mars', 'sponge', 'cosmic', 'mining', 'submarin',  'fluxcore', 'shaderdough',
     'elevated', 'jetstream', 'weather', 'mistylake', 'steel', 'cavern', 'boss', 'tokyo', 'storm', 'fish', 'warp', 'greebles', 'stellar',
-    'blood', 'circuit', 'race', 'medusa', 'luminescence', 'river','lego_castle','terrain_tube',
+    'blood', 'circuit', 'race', 'medusa', 'luminescence'
 ];
 
 var demos_basic = [ 
@@ -50,7 +50,7 @@ var demos_basic = [
 
 var demos_advanced = [
    'calanque', 'phy', 'road', 'raytrace', 'cube', 'rally', 'light', 'phyball', 'pp', 'pmars', 'pearth', 'rain', 'bubble',
-   'billiard', 'liquid', 'phy2', 'brick', 'minifish', 'iceworld', 'shooter', 'ice', 'rolling', 'forest', 'goo', 'carbon',
+   'billiard', 'liquid', 'phy2', 'brick', 'minifish', 'iceworld', 'shooter', 'ice', 'rolling'
 ];
 
 var demos_texture = [

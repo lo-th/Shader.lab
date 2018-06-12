@@ -1110,13 +1110,13 @@ vec3 ProjectedTexture( vec3 pos, vec3 normal )
 {
     vec3 vWeights = normal * normal;
     vec3 col = vec3(0.0);
-    vec3 sample;
-    sample = texture2D( iChannel1, pos.xz ).rgb;
-    col += sample * sample * vWeights.y;
-    sample = texture2D( iChannel1, pos.xy ).rgb;
-    col += sample * sample * vWeights.z;
-    sample = texture2D( iChannel1, pos.yz ).rgb;
-    col += sample * sample * vWeights.x;
+    vec3 sampling;
+    sampling = texture2D( iChannel1, pos.xz ).rgb;
+    col += sampling * sampling * vWeights.y;
+    sampling = texture2D( iChannel1, pos.xy ).rgb;
+    col += sampling * sampling * vWeights.z;
+    sampling = texture2D( iChannel1, pos.yz ).rgb;
+    col += sampling * sampling * vWeights.x;
     col /= vWeights.x + vWeights.y + vWeights.z;
     return col;    
 }

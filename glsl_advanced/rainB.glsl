@@ -7,7 +7,7 @@
 /// work based on sauce: https://www.shadertoy.com/view/ltdGDn
 // License: MINE, MY OWN! I knows you wants it precious
 
-float smooth = 0.1;
+float smoothing = 0.1;
 float ballradius = 0.0;
 float metaPow = 1.0;
 float densityMin = 4.0;
@@ -64,7 +64,7 @@ float metaNoiseRaw(vec2 uv, float density)
 float metaNoise(vec2 uv)
 { 
     float density = mix(densityMin,densityMax,sin(densityEvolution)*0.5+0.5);
-    return 1.0 - smoothstep(ballradius, ballradius+smooth, metaNoiseRaw(uv, density));
+    return 1.0 - smoothstep(ballradius, ballradius+smoothing, metaNoiseRaw(uv, density));
 }
 
 vec4 calculateNormals(vec2 uv, float s){
