@@ -1,7 +1,6 @@
 <p align="center"><a href="http://lo-th.github.io/Shader.lab/"><img src="http://lo-th.github.io/Shader.lab/textures/logon.png"/></a></p>
 <p align="center">Advanced shader lab for <a href="https://github.com/mrdoob/three.js/tree/dev">Three.js</a><br>
 Shader is convert from <a href="https://www.shadertoy.com/">shadertoy.com</a><br><br>
-
 <a href="http://lo-th.github.io/Shader.lab/">LAUNCH</a><br><br></p>
 
 
@@ -14,7 +13,6 @@ Shader is convert from <a href="https://www.shadertoy.com/">shadertoy.com</a><br
     <a href="https://www.shadertoy.com/user/mplanck">mplanck</a> - <a href="https://www.shadertoy.com/user/eiffie">eiffie</a> - <a href="https://www.shadertoy.com/user/iapafoto">iapafoto</a> - <a href="https://www.shadertoy.com/user/fizzer">fizzer</a><br>
     <a href="https://www.shadertoy.com/user/reinder">reinder</a> - <a href="https://www.shadertoy.com/user/TekF">TekF</a> - <a href="https://www.shadertoy.com/user/Antonalog">Antonalog</a> - <a href="https://www.shadertoy.com/user/Kali">Kali</a><br>
     <a href="https://www.shadertoy.com/user/mu6k">mu6k</a> - <a href="https://www.shadertoy.com/user/nimitz">nimitz</a> - <a href="https://www.shadertoy.com/user/dr2">dr2</a> - <a href="https://www.shadertoy.com/user/knarkowicz">knarkowicz</a><br><a href="https://www.shadertoy.com/user/Duke">Duke</a><br><br>
-
     one good link to start glsl<br>
     <a href="http://www.iquilezles.org/www/index.htm">iquilezles</a><br>
 </p>
