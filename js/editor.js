@@ -37,6 +37,7 @@ var editor = ( function () {
     var selectColor = '#308AFF';
     var scrollOn = false;
     //var menuPins;
+    var guiContent;
     var bigmenu;
     var github;
     var bigButton = [];
@@ -140,10 +141,21 @@ var editor = ( function () {
 
             // channel pad
 
+            
             this.initChannelPad();
-
+            this.initGui();
 
             if( isWithCode ) editor.show();
+
+        },
+
+        initGui: function () {
+
+            /*guiContent = document.createElement( 'div' );
+            guiContent.className = 'guiContent';
+            document.body.appendChild( guiContent );*/
+
+            gui.init( );
 
         },
 

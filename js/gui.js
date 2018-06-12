@@ -4,9 +4,9 @@ var gui = ( function () {
 
     gui = {
         
-        init: function(){
+        init: function( content ){
 
-            ui = new UIL.Gui({css:'right:0px; margin-right: -10px;' , size:240, color:'no', h:20, close:false });
+            ui = new UIL.Gui({  css:'right:0px; margin-right: -10px;', size:240, color:'no', h:20, close:false });
             ui.hide( true );
             this.basic();
 

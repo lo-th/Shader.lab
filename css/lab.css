@@ -43,7 +43,17 @@ body{
 
 
 /* CHANNEL */
+.guiContent {
+    position: absolute;
+    background:none;
+    top: 0px;
+    right:0px;
+    background:#626262;
+    height: auto;
+    text-align: center;
+    display:none;
 
+}
 .channelPad {
     position: absolute;
     background:none;
