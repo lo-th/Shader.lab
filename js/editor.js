@@ -189,15 +189,19 @@ var editor = ( function () {
             var c = document.createElement( 'div' ), l;
 
             if( type === 'buffer' ){
+
                 l = name.length;
                 c.innerHTML = name.substring(0, l-1) + '<br><p style="font-size:27px">' + name.substring(l-1) + '</p>';
+
             } else if( type === 'image' ){
+
                 var img = pool.getResult()[name];
                 if(img){
                     c = document.createElement( 'canvas' );
                     c.width = c.height = 64;
                     c.getContext('2d').drawImage( img,0,0,64,64);
                 }
+
             } else if( type === 'cube' ){
 
                 c.innerHTML = name + '<br><p style="font-size:20px">CUBE</p>';
@@ -415,14 +419,6 @@ var editor = ( function () {
             bigContent = document.createElement( 'div' );
             bigContent.className = 'bigContent';
             bigmenu2.appendChild( bigContent );
-
-
-
-
-
-            //bigContent.style.display = "none";
-
-
 
 
             var i = bigButton.length;
@@ -684,7 +680,7 @@ var editor = ( function () {
 
             var n = editor.getChannelNumber( name );
 
-            //console.log(n)
+            //console.log(n, name)
 
             if( demos_basic.indexOf( name ) !== -1 ) prev = 'glsl_basic/';
             else if( demos_texture.indexOf( name ) !== -1 ) prev = 'glsl_texture/';
@@ -705,10 +701,6 @@ var editor = ( function () {
 
             xhr.onload = function(){
 
-                //if( isMain && name !== mainCode ) editor.clear();
-
-                //if( codes[ name ] !== undefined ) return;
-
                 codes[ name ] = xhr.responseText;
                 editor.addCode( name, isMain );
 
@@ -718,24 +710,32 @@ var editor = ( function () {
                     current = name;
                     code.setValue( codes[name] );
 
+                } else if ( n === 5 ){
+
+                    view.setCommon( codes[ name ] );
+
                 } else {
 
                     view.addBuffer( codes[ name ], n, name, size );
 
                 }
 
-                /*if( fun !== undefined ) {
-                    fun( n, xhr.responseText, name, c );
-                   // return;
-                }/* else {
-                    fileName = name;
-                    //channels[n] = xhr.responseText;
-                    if( n === 0 ) code.setValue( xhr.responseText );
-                }*/
-
             }
             
             xhr.send();
+
+        },
+
+        getChannelNumber : function ( name ){
+
+            var n = 0;
+            var t = name.substring( name.length - 1 );
+            if(t === 'A') n = 1;
+            if(t === 'B') n = 2;
+            if(t === 'C') n = 3;
+            if(t === 'D') n = 4;
+            if(t === 'V') n = 5;
+            return n;
 
         },
 
@@ -819,17 +819,7 @@ var editor = ( function () {
 
         },
 
-        getChannelNumber : function ( name ){
 
-            var n = 0;
-            var t = name.substring( name.length - 1 );
-            if(t === 'A') n = 1;
-            if(t === 'B') n = 2;
-            if(t === 'C') n = 3;
-            if(t === 'D') n = 4;
-            return n;
-
-        },
 
         //inject : function ( value ) {
 

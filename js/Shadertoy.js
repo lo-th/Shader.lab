@@ -12,6 +12,10 @@ THREE.Shadertoy = function ( frag, tone, objSpace, parameters ) {
 
     this.channels = [];
 
+    // common setting for shader
+    this.commonName = '';
+    this.common = '';
+
     this.channelRes = [
         new THREE.Vector2(512,512),
         new THREE.Vector2(512,512),
@@ -106,8 +110,13 @@ THREE.Shadertoy.prototype.completeFragment = function ( frag ) {
     def_main.push('    gl_FragColor = color;', '}');
 
     this.findChannels( frag );
+    this.findCommon( frag );
 
-    var encode = [
+    this.updateCommon();
+
+    var encode = [];//
+
+    /*var encode = [
         'float shift_right (float v, float amt) {',
             'v = floor(v) + 0.5;',
             'return floor(v / exp2(amt));',
@@ -149,7 +158,7 @@ THREE.Shadertoy.prototype.completeFragment = function ( frag ) {
             'mantissa = t * 256. * 256. + val.g * 255. * 256. + val.r * 255.;',
             'return sign * pow( 2., exponent - 127. ) * ( 1. + mantissa / pow ( 2., 23. ) );',
         '}',
-    ];
+    ];*/
 
     var prev = [
 
@@ -175,7 +184,29 @@ THREE.Shadertoy.prototype.completeFragment = function ( frag ) {
 
     var end = frag.indexOf( 'void main()' ) !== -1 ? [''] : def_main;
 
-    return prev.join('\n') + encode.join('\n') + frag + end.join('\n');
+    return prev.join('\n') + this.common + encode.join('\n') + frag + end.join('\n');
+
+}
+
+THREE.Shadertoy.prototype.updateCommon = function () {
+
+    this.common = view.getCommon();
+
+}
+
+THREE.Shadertoy.prototype.findCommon = function ( frag ) {
+
+    var pre = frag.search( 'V_#' );
+    var name = pre !== -1 ? frag.substring( pre + 4, frag.lastIndexOf( '#_V' ) - 1 ) : '';
+
+    if( name ) {
+        //console.log( name );
+        this.commonName = name;
+
+
+        
+    }
+
 
 }
 
@@ -189,7 +220,6 @@ THREE.Shadertoy.prototype.findChannels = function ( frag ) {
         this.channels[i].type = 'sampler2D';
         this.channels[i].buffer = false;
         this.channels[i].def = '';
-        //this.channels[i].actif = false;
 
         pre = frag.search( i + '_#' );
         name = pre !== -1 ? frag.substring( pre + 4, frag.lastIndexOf( '#_' + i ) - 1 ) : '';
@@ -198,8 +228,6 @@ THREE.Shadertoy.prototype.findChannels = function ( frag ) {
         if( name ){
 
             this.channels[i].def = 'image';
-
-            //this.channels[i].actif = true;
 
             if( name.substring( 0, 4 ) === 'cube' ){
 

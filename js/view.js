@@ -49,7 +49,7 @@ var view = ( function () {
     var time = 0;
     var date = null;
 
-    var vs = { w:1, h:1, l:0, x:0 , y:0};
+    var vs = { w:1, h:1, l:0, x:0 , y:0, r:0};
 
 
     var txt = {};
@@ -73,6 +73,7 @@ var view = ( function () {
     var mesh, mesh2;
 
     var tmp_buffer = [];
+    var common = '';
 
     var hero, head, bone, heroMat;
 
@@ -367,10 +368,6 @@ var view = ( function () {
 
             dummyTexture = view.addRenderTarget( 1, 1, false );
 
-
-            
-
-
             gputmp = new view.GpuSide();
 
 
@@ -622,6 +619,18 @@ var view = ( function () {
         //  FRAGMENT
         // -----------------------
 
+        setCommon: function ( frag ) {
+
+            common = frag;
+
+        },
+
+        getCommon: function () {
+
+            return common;
+
+        },
+
         applyFragment : function( frag, n ) {
 
             if( n === 0 ){ 
@@ -631,7 +640,19 @@ var view = ( function () {
                 editor.setTitle();
             }
 
-            view.validate( materials[n].completeFragment( frag ), n );
+            if( n < 5 ) view.validate( materials[n].completeFragment( frag ), n );
+
+            //  common setting for shader
+            else {
+
+                this.setCommon( frag );
+
+                for( var i = 0; i < 5; i++ ){
+                    if( materials[i] ) materials[i].updateCommon();// = frag; //console.log( materials[i].name )
+                    //isNeedDate = true;
+                }
+                //console.log( materials.length )
+            }
             
 
         },
@@ -646,11 +667,13 @@ var view = ( function () {
 
                 if( materials[n] !== null ){
 
+                    if( materials[n].commonName && !common ) editor.load( materials[n].commonName );
+
                     channel = materials[n].channels;
 
                     if( materials[n].name === edName ) editor.upChannelPad( channel );
 
-                    if(channel.length === 4){
+                    if( channel.length === 4 ){
 
                         for( i = 0; i < 4; i++ ){
 
@@ -668,7 +691,9 @@ var view = ( function () {
 
                                     editor.load( name, channel[i].size ); 
                                     tmp_buffer.push( name );
+
                                 }
+                                
                             }
                                 
                             if( name && txt[name] ){ 
