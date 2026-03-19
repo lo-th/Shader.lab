@@ -45,6 +45,7 @@ var view = ( function () {
 
     var gl, canvas, renderer, gputmp, scene, camera, controls, light;//, clock;
     var vsize, mouse, key = new Float32Array( 20 );
+    var _wheel = 0;
 
     var time = 0;
     var date = null;
@@ -141,6 +142,8 @@ var view = ( function () {
                         materials[i].uniforms.iTimeDelta.value = delta;
 
 
+
+
                         //materials[i].uniforms.iFrame.value ++;
                         //materials[i].uniforms.iTimeDelta.value = delta;
                         
@@ -148,6 +151,8 @@ var view = ( function () {
 
                     materials[i].uniforms.iTime.value = time;
                     materials[i].uniforms.iGlobalTime.value = time;
+
+                    materials[i].uniforms.iWheel.value = _wheel;
 
                 }
 
@@ -360,7 +365,7 @@ var view = ( function () {
             renderer.domElement.addEventListener( 'mousemove', view.move, false );
             renderer.domElement.addEventListener( 'mousedown', view.down, false );
             renderer.domElement.addEventListener( 'mouseup', view.up, false );
-            //renderer.domElement.addEventListener( 'mousewheel', view.wheel, false );
+            renderer.domElement.addEventListener( 'mousewheel', view.wheel, false );
 
             //renderer.domElement.addEventListener( 'drop', function(e){ e.preventDefault(); return false; }, false );  
             renderer.domElement.addEventListener( 'dragover', function(e){ e.preventDefault(); return false; }, false );
@@ -477,6 +482,8 @@ var view = ( function () {
             else if(e.wheelDelta) delta = -e.wheelDelta*0.2;
             else if(e.detail) delta = e.detail*4.0;
 
+            _wheel += delta/50
+
             //mouse.w = delta;
 
         },
@@ -504,7 +511,7 @@ var view = ( function () {
 
             //envName = envName || 'grey1'
 
-            cube_name = [ 'grey1' ];
+            cube_name = [ 'grey1', 'church' ];
 
             txt_name = [ 'stone', 'bump', 'tex06', 'tex18', 'tex07', 'tex03', 'tex09', 'tex00', 'tex08', 'tex01', 'tex05', 'tex02', 'tex12', 'tex10', 'tex17' ];
 
@@ -726,6 +733,7 @@ var view = ( function () {
             materials[n] = new THREE.Shadertoy( frag, false, isFull );
             materials[n].uniforms.iResolution.value = vsize;///new THREE.Vector3( w, h, d );
             materials[n].uniforms.iMouse.value = mouse;
+            materials[n].uniforms.iWheel.value = _wheel;
             materials[n].uniforms.iDate.value = date;
             materials[n].uniforms.key.value = key;
 
@@ -810,6 +818,7 @@ var view = ( function () {
             materials[n] = new THREE.Shadertoy();
             materials[n].uniforms.iResolution.value = vsize;
             materials[n].uniforms.iMouse.value = mouse;
+            materials[n].uniforms.iWheel.value = _wheel;
             materials[n].uniforms.iDate.value = date;
             materials[n].uniforms.key.value = key;
             materials[n].overdraw = false;

@@ -726,18 +726,7 @@ var editor = ( function () {
 
         },
 
-        getChannelNumber : function ( name ){
-
-            var n = 0;
-            var t = name.substring( name.length - 1 );
-            if(t === 'A') n = 1;
-            if(t === 'B') n = 2;
-            if(t === 'C') n = 3;
-            if(t === 'D') n = 4;
-            if(t === 'V') n = 5;
-            return n;
-
-        },
+        
 
         clear : function () {
 
@@ -816,6 +805,19 @@ var editor = ( function () {
             clearTimeout( interval );
             interval = setTimeout( function() { view.applyFragment( codes[ current ], n ); }, 300 );
             //if( this.validate( value ) ) interval = setTimeout( function() { editor.inject( value ); }, 500);
+
+        },
+
+        getChannelNumber : function ( name ){
+
+            var n = 0;
+            var t = name.substring( name.length - 1 );
+            if(t === 'A') n = 1;
+            if(t === 'B') n = 2;
+            if(t === 'C') n = 3;
+            if(t === 'D') n = 4;
+            if(t === 'V') n = 5;
+            return n;
 
         },
 

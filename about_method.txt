@@ -21,3 +21,11 @@ Convert from shadertoy for three js fragment
 // ------------------ channel define
 // 0_# cube_grey1 #_0
 // ------------------
+
+
+
+
+to Add
+// Eroded Terrain Noise
+https://www.shadertoy.com/view/7ljcRW
+https://www.shadertoy.com/view/33cXW8

@@ -35,6 +35,7 @@ THREE.Shadertoy = function ( frag, tone, objSpace, parameters ) {
         iGlobalTime: { type: 'f', value: 0 },
         iTimeDelta: { type: 'f', value: 0 },
         iTime: { type: 'f', value: 0 },
+        iWheel: { type: 'f', value: 0 },
         iResolution: { type: 'v3', value: null },
         iMouse: { type: 'v4', value: null },
         iFrame: { type: 'i', value: 0 },
@@ -169,6 +170,7 @@ THREE.Shadertoy.prototype.completeFragment = function ( frag ) {
 
         'uniform int iFrame;',
         'uniform vec4 iMouse;',
+        'uniform float iWheel;',
         'uniform vec4 iDate;',
         'uniform vec3 iResolution;',
         'uniform float iGlobalTime;',
